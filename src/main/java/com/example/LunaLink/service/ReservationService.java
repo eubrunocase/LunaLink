@@ -29,7 +29,6 @@ public class ReservationService {
         Space space = spaceRepository.findById(reservation.getSpace().getId())
                 .orElseThrow(() -> new IllegalArgumentException("Espaço não encontrado"));
 
-
         boolean isAvailable = checkSpaceAvailability (
                 reservation.getSpace().getId(), reservation.getStartTime(), reservation.getEndTime()
         );

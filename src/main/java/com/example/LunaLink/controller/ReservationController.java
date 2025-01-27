@@ -1,12 +1,10 @@
 package com.example.LunaLink.controller;
 
-
 import com.example.LunaLink.model.Reservation;
 import com.example.LunaLink.repository.ReservationRepository;
 import com.example.LunaLink.service.ReservationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -47,6 +45,5 @@ public class ReservationController {
      public void DeleteAll () {
         reservationRepository.deleteAll();
      }
-
 
 }
