@@ -6,7 +6,6 @@ import com.example.LunaLink.service.ReservationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("api/reservations")
@@ -32,8 +31,8 @@ public class ReservationController {
      }
 
      @GetMapping("/{id}")
-     public Optional<Reservation> getById (@PathVariable long id) {
-         return reservationRepository.findById(id);
+     public List<Reservation> getById (@PathVariable long id) {
+         return reservationService.getReservationsBySpaceId(id);
      }
 
      @DeleteMapping("/{id}")
