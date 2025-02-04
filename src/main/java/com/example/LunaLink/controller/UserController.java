@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/lunaLink/users")
 public class UserController {
 
     private final UserRepository userRepository;

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/space")
+@RequestMapping("/lunaLink/space")
 public class SpaceController {
 
     private final SpaceRepository spaceRepository;

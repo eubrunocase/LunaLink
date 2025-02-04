@@ -4,9 +4,8 @@ import com.example.LunaLink.model.UserRoles;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-@Converter(autoApply = true)
+@Converter
 public class UserRoleConverter implements AttributeConverter<UserRoles, String> {
-
 
     @Override
     public String convertToDatabaseColumn(UserRoles role) {
