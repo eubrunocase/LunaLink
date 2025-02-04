@@ -9,18 +9,22 @@ Atualmente (07/11/2024) a API está em desenvolvimento, mas para aqueles que des
 de envio de requisições http(ex: postman) para conseguir enxergar os resultados. A api já conta com diversos endpoints funcionais, 
 sinta-se a vontade para testar!
 
-### EndPoints -> Todos os EndPoints listados abaixo suportam requisições HTTP dos tipos GET/POST/PUT/DELETE.
- 1- api/reservaions 
+### EndPoints -> Todos os EndPoints listados abaixo suportam requisições HTTP.
+ 1- lunaLink/reservaions 
  
- 2- api/reservations/{id}
+ 2- lunaLink/reservations/{id}
  
- 3- api/space
+ 3- lunaLink/space
  
- 4- api/space/{id}
+ 4- lunaLink/space/{id}
  
- 5- api/users
+ 5- lunaLink/users
  
- 6- api/users/{id}
+ 6- lunaLink/users/{id}
+
+ 7- lunaLink/auth/register
+
+ 8- lunaLink/auth/login
 
 ### Tecnologias:
 A api foi desenvolvida utilizando as tecnologias -> Java + SpringBoot + PostgresSQL.
