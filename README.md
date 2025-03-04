@@ -1,15 +1,10 @@
 ## API LunaLink
 ### Sobre: 
-O LunaLink é uma API desenvovida com o propósito de efetuar e gerenciar reservas de espaços. Podendo suprir demandas de 
-usuários como condomínios, escritórios, faculdades e etc. Sua finalidade é objetivamente efetuar a reserva, tratar os possíveis 
-conflitos e retornar as informações para o usuário. 
+LunaLink é uma API desenvolvida em Java, SpringBoot e PostgreSQL. O seu objetivo é atender as demandas de estabelecimentos que precisam gerir a locação dos seus espaços.
+Feita originalmente para atender uma demanda específica, a API está sendo desenvolvida de maneira que seja escalável. Podendo atender a diversas outras demandas no futuro.
+Ainda em fase de desenvolvimento, o projeto passa por recorrentes atualizações.
 
-### Como testar:
-Atualmente (07/11/2024) a API está em desenvolvimento, mas para aqueles que desejam um teste eu recomendo o uso de algum software
-de envio de requisições http(ex: postman) para conseguir enxergar os resultados. A api já conta com diversos endpoints funcionais, 
-sinta-se a vontade para testar!
-
-### EndPoints -> Todos os EndPoints listados abaixo suportam requisições HTTP.
+### EndPoints ->
  1- lunaLink/reservaions 
  
  2- lunaLink/reservations/{id}
@@ -35,4 +30,4 @@ A api foi desenvolvida utilizando as tecnologias -> Java + SpringBoot + Postgres
 
 ### Observações:
 Este é um projeto Open-Source, sinta-se a vontade para enviar a sua contribuição. Estamos em fase de desenvolvimento, e eu continuarei trazendo
-atualizações sobre o nosso progresso. Você pode acompanhar aqui mesmo no GitHub, ou pelo meu perfil "Bruno Cazé" no Linkdin.
+atualizações sobre o nosso progresso. Você pode acompanhar aqui mesmo no GitHub, ou pelo meu perfil "Bruno Casé" no Linkdin.
