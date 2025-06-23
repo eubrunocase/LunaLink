@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: application
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/LunaLink
+    username: brunocase
+    password: root
+
+    driver-class-name: org.postgresql.Driver
+    jpa:
+      hibernate:
+        ddl-auto: update
+      database-platform: org.hibernate.dialect.PostgreSQLDialect
+  
+server:
+  port: 8080
+
+api:
+   security:
+        token:
+          secret: "api.security.token.secret"
+
+
