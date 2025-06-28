@@ -24,8 +24,7 @@ public class Administrator extends Users{
     public String toString() {
         return "Administrador{}";
     }
-
-
+    
     @Override
     public String getUsername() {
         return this.getLogin();
@@ -50,9 +49,5 @@ public class Administrator extends Users{
     public boolean isEnabled() {
         return super.isEnabled();
     }
-
-
-
-
 
 }
