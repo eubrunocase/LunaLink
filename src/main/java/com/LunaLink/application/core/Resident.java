@@ -1,9 +1,11 @@
 package com.LunaLink.application.core;
 
 import com.LunaLink.application.core.enums.UserRoles;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,15 +15,11 @@ import java.util.List;
 
 @Getter
 @Setter
-@Entity(name = "resident")
+@Entity
+@Table(name = "resident")
 @EqualsAndHashCode(of = "id")
 public class Resident extends Users{
 
-    /*
-     *
-     *    - - - - - - - -  last att 28/06/2025 00:58 am - - - - - - - - - -
-     *
-     */
     @OneToMany(mappedBy = "resident", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reservation> reservations = new ArrayList<>();
 
@@ -45,21 +43,25 @@ public class Resident extends Users{
     }
 
     @Override
+    @JsonIgnore
     public boolean isAccountNonExpired() {
         return super.isAccountNonExpired();
     }
 
     @Override
+    @JsonIgnore
     public boolean isAccountNonLocked() {
         return super.isAccountNonLocked();
     }
 
     @Override
+    @JsonIgnore
     public boolean isCredentialsNonExpired() {
         return super.isCredentialsNonExpired();
     }
 
     @Override
+    @JsonIgnore
     public boolean isEnabled() {
         return super.isEnabled();
     }

@@ -44,17 +44,21 @@ public class SecurityConfiguration {
 
                         .requestMatchers(HttpMethod.GET,"/lunaLink/adm/**").hasRole("ADMINISTRATOR")
                         .requestMatchers(HttpMethod.POST,"/lunaLink/adm/**").hasRole("ADMINISTRATOR")
-                        .requestMatchers(HttpMethod.GET,"/lunaLink/resident/**").hasRole("ADMINISTRATOR")
-                        .requestMatchers(HttpMethod.POST,"/lunaLink/resident/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/lunaLink/resident").hasRole("ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.POST,"/lunaLink/resident").permitAll()
 
 
+                        .requestMatchers(HttpMethod.POST,"/lunaLink/reservation").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/lunaLink/reservation").permitAll()
+
+                        .requestMatchers(HttpMethod.POST,"/lunaLink/space/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/lunaLink/space/**").permitAll()
 
 
                         .anyRequest().authenticated()
                 ) .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
-
 
     @Bean
     public AuthenticationManager authenticationManager(
