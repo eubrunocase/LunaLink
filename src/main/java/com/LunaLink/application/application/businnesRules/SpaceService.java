@@ -17,16 +17,6 @@ public class SpaceService {
         this.spaceRepository = spaceRepository;
     }
 
-    public Space createSpace (SpaceType type) throws Exception{
-        if (spaceRepository.findSpaceByType(type).isPresent()) {
-            throw new Exception("Já existe um espaço cadastrado com esse tipo: " + type);
-        }
-
-        Space space = new Space();
-        space.setType(type);
-        return spaceRepository.save(space);
-    }
-
     public List<Space> listAllReservations () {
         return spaceRepository.findAll();
     }

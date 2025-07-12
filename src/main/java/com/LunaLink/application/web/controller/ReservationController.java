@@ -2,12 +2,12 @@ package com.LunaLink.application.web.controller;
 
 import com.LunaLink.application.application.businnesRules.ReservationService;
 import com.LunaLink.application.core.Reservation;
-import com.LunaLink.application.web.dto.ReservationRequest;
-import org.springframework.format.annotation.DateTimeFormat;
+import com.LunaLink.application.web.dto.ReservationsDTO.EditReservationDTO;
+import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.time.LocalDate;
+
 import java.util.List;
 
 @RestController
@@ -34,9 +34,5 @@ public class ReservationController {
     public List<Reservation> listReservations () {
         return reservationService.findAllReservations();
     }
-
-
-
-
 
 }

@@ -1,4 +1,4 @@
-package com.LunaLink.application.web.dto;
+package com.LunaLink.application.web.dto.ReservationsDTO;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

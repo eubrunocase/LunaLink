@@ -49,7 +49,7 @@ public class AdministratorController {
         String token = auth.replace("Bearer ", "").trim();
         String login = tokenService.validadeToken(token);
 
-        Administrator profile = administratorService.findByLogin(auth);
+        Administrator profile = administratorService.findAdmByLogin(auth);
         return ResponseEntity.ok(profile);
     }
 

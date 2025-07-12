@@ -19,7 +19,7 @@ public class AdministratorService extends BaseService<Administrator> {
         super(repository);
     }
 
-    public Administrator findByLogin(String login) {
+    public Administrator findAdmByLogin(String login) {
         Administrator administrator = administratorRepository.findByLogin(login);
         return administrator;
     }

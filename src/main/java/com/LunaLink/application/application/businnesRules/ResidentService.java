@@ -19,7 +19,7 @@ public class ResidentService extends BaseService<Resident> {
         super(ResidentRepository);
     }
 
-    public Resident findByLogin(String login) {
+    public Resident findResidentByLogin(String login) {
         return ResidentRepository.findByLogin(login);
     }
 

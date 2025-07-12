@@ -33,12 +33,26 @@ public class ReservationService {
         Space s = spaceRepository.findSpaceById(spaceId)
                 .orElseThrow(() -> new IllegalArgumentException("ERRO NO METODO CreateReservation da classe de service, space not found"));
 
-        if (reservationRepository.existsByResidentAndDateAndSpace(r, date, s)) {
-            throw new Exception(
-                    String.format("já existe uma reserva de % para % ", s.getType(), date, r.getLogin())
+        // Primeira checagem de conflito = Já existe uma reserva na mesma data?
+            if (reservationRepository.existsByDate(date)) {
+                throw new IllegalStateException(
+                        String.format("Já existe uma reserva para o dia %s. Não é possível criar outra.",
+                                date));
+            }
+            
+        // Segunda checagem de conflito = Outro usuário já reservou espaço na mesma data?
+           if (reservationRepository.existsByDateAndSpace(date, s)) {
+               throw new IllegalStateException(
+                       String.format("O espaço '%s' já está reservado em %s.",
+                               s.getType(), date));
+           }
+        // Terceira checagem de conflito = O mesmo usuário já fez uma reserva na mesma data e espaço?
+            if (reservationRepository.existsByResidentAndDateAndSpace(r, date, s)) {
+                throw new IllegalStateException(
+                        String.format("O residente '%s' já possui reserva para '%s' em %s.",
+                                r.getLogin(), s.getType(), date));
+            }
 
-            );
-        }
 
         Reservation reservation = new Reservation();
         reservation.setDate(date);
@@ -52,6 +66,10 @@ public class ReservationService {
 
     public List<Reservation> findAllReservations() {
         return reservationRepository.findAll();
+    }
+
+    public Reservation findReservationById(Long id) {
+        return reservationRepository.findReservationById(id);
     }
 
 }

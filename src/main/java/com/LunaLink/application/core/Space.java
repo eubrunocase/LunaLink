@@ -19,10 +19,6 @@ public class Space {
     @JsonProperty("id")
     private Long id;
 
-//    @Column(nullable = false)
-//    @JsonProperty("name")
-//    private String name;
-
     @Enumerated(EnumType.STRING)
     @JsonProperty("type")
     private SpaceType type;
@@ -39,10 +35,6 @@ public class Space {
         return type;
     }
 
-//    public String getName() {
-//        return name;
-//    }
-
     public Long getId() {
         return id;
     }
@@ -50,10 +42,6 @@ public class Space {
     public void setId(Long id) {
         this.id = id;
     }
-
-//    public void setName(String name) {
-//        this.name = name;
-//    }
 
     public void setType(SpaceType type) {
         this.type = type;

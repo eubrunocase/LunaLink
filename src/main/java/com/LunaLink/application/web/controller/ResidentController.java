@@ -49,7 +49,7 @@ public class ResidentController {
         String token = auth.replace("Bearer ", "").trim();
         String login = tokenService.validadeToken(token);
 
-        Resident profile = residentService.findByLogin(auth);
+        Resident profile = residentService.findResidentByLogin(auth);
         return ResponseEntity.ok(profile);
     }
 
