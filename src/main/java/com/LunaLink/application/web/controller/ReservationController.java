@@ -2,8 +2,8 @@ package com.LunaLink.application.web.controller;
 
 import com.LunaLink.application.application.businnesRules.ReservationService;
 import com.LunaLink.application.core.Reservation;
-import com.LunaLink.application.web.dto.ReservationsDTO.EditReservationDTO;
-import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequest;
+import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
+import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,9 +21,9 @@ public class ReservationController {
     }
 
     @PostMapping
-    public ResponseEntity<Reservation> createNewReservation (@RequestBody ReservationRequest data) {
+    public ResponseEntity<ReservationResponseDTO> createNewReservation (@RequestBody ReservationRequestDTO data) {
         try {
-        Reservation reservationSaved = reservationService.createReservation(data.residentId(), data.date(), data.spaceId());
+        ReservationResponseDTO reservationSaved = reservationService.createReservation(data);
         return ResponseEntity.status(HttpStatus.CREATED).body(reservationSaved);
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
@@ -31,8 +31,8 @@ public class ReservationController {
     }
 
     @GetMapping
-    public List<Reservation> listReservations () {
-        return reservationService.findAllReservations();
+    public ResponseEntity<List<ReservationResponseDTO>> listReservations () {
+        return ResponseEntity.ok(reservationService.findAllReservations());
     }
 
 }

@@ -1,7 +1,7 @@
 package com.LunaLink.application.application.businnesRules;
 
 import com.LunaLink.application.core.Administrator;
-import com.LunaLink.application.infrastructure.repository.AdministratorRepository;
+import com.LunaLink.application.infrastructure.repository.administrator.AdministratorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

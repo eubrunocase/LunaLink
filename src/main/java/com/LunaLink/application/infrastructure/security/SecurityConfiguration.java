@@ -1,7 +1,7 @@
 package com.LunaLink.application.infrastructure.security;
 
-import com.LunaLink.application.infrastructure.repository.AdministratorRepository;
-import com.LunaLink.application.infrastructure.repository.ResidentRepository;
+import com.LunaLink.application.infrastructure.repository.administrator.AdministratorRepository;
+import com.LunaLink.application.infrastructure.repository.resident.ResidentRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;

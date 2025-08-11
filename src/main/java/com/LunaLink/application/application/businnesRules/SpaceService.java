@@ -1,8 +1,7 @@
 package com.LunaLink.application.application.businnesRules;
 
 import com.LunaLink.application.core.Space;
-import com.LunaLink.application.core.enums.SpaceType;
-import com.LunaLink.application.infrastructure.repository.SpaceRepository;
+import com.LunaLink.application.infrastructure.repository.space.SpaceRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

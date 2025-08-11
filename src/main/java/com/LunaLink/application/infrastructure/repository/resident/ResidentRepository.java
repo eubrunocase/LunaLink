@@ -1,4 +1,4 @@
-package com.LunaLink.application.infrastructure.repository;
+package com.LunaLink.application.infrastructure.repository.resident;
 
 import com.LunaLink.application.core.Resident;
 import org.springframework.data.jpa.repository.JpaRepository;

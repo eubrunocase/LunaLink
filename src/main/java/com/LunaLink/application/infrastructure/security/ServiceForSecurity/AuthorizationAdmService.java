@@ -1,7 +1,7 @@
 package com.LunaLink.application.infrastructure.security.ServiceForSecurity;
 
 
-import com.LunaLink.application.infrastructure.repository.AdministratorRepository;
+import com.LunaLink.application.infrastructure.repository.administrator.AdministratorRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

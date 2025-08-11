@@ -1,10 +1,8 @@
 package com.LunaLink.application.infrastructure.security;
 
-import com.LunaLink.application.application.businnesRules.AdministratorService;
-import com.LunaLink.application.application.businnesRules.ResidentService;
 import com.LunaLink.application.application.jwtService.TokenService;
-import com.LunaLink.application.infrastructure.repository.AdministratorRepository;
-import com.LunaLink.application.infrastructure.repository.ResidentRepository;
+import com.LunaLink.application.infrastructure.repository.administrator.AdministratorRepository;
+import com.LunaLink.application.infrastructure.repository.resident.ResidentRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

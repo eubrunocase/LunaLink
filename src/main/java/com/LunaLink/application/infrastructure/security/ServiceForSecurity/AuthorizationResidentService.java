@@ -1,6 +1,6 @@
 package com.LunaLink.application.infrastructure.security.ServiceForSecurity;
 
-import com.LunaLink.application.infrastructure.repository.ResidentRepository;
+import com.LunaLink.application.infrastructure.repository.resident.ResidentRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

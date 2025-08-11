@@ -1,6 +1,7 @@
 package com.LunaLink.application.core;
 
 import com.LunaLink.application.core.enums.SpaceType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

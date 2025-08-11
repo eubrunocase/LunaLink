@@ -3,6 +3,7 @@ package com.LunaLink.application.web.controller;
 import com.LunaLink.application.application.businnesRules.ResidentService;
 import com.LunaLink.application.application.jwtService.TokenService;
 import com.LunaLink.application.core.Resident;
+import com.LunaLink.application.web.dto.residentDTO.ResidentResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,8 +30,8 @@ public class ResidentController {
     }
 
     @GetMapping
-    public List<Resident> getAllResidents() {
-        return residentService.findAll();
+    public ResponseEntity<List<ResidentResponseDTO>> getAllResidents() {
+        return ResponseEntity.ok(residentService.findAllResidents());
     }
 
     @DeleteMapping("/{id}")

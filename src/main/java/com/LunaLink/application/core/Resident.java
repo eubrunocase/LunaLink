@@ -23,7 +23,6 @@ public class Resident extends Users{
     @OneToMany(mappedBy = "resident", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reservation> reservations = new ArrayList<>();
 
-
     public Resident(String login, String password, UserRoles role) {
         super(login, password, role);
     }
