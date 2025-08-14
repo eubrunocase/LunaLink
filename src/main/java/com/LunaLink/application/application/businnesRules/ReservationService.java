@@ -1,19 +1,20 @@
 package com.LunaLink.application.application.businnesRules;
 
+import com.LunaLink.application.core.MonthlyReservations;
 import com.LunaLink.application.core.Reservation;
 import com.LunaLink.application.core.Resident;
 import com.LunaLink.application.core.Space;
+import com.LunaLink.application.infrastructure.repository.monthlyReservation.MonthlyReservationRepository;
 import com.LunaLink.application.infrastructure.repository.reservation.ReservationMapper;
 import com.LunaLink.application.infrastructure.repository.reservation.ReservationRepository;
 import com.LunaLink.application.infrastructure.repository.resident.ResidentRepository;
 import com.LunaLink.application.infrastructure.repository.space.SpaceRepository;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
-import com.LunaLink.application.web.mapper.ReservationMapperImpl;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+
 import java.util.List;
 
 @Service
@@ -23,14 +24,17 @@ public class ReservationService {
     private final SpaceRepository spaceRepository;
     private final ReservationRepository reservationRepository;
     private final ReservationMapper reservationMapper;
+    private final MonthlyReservationRepository monthlyReservationRepository;
 
     public ReservationService(ResidentRepository residentRepository, SpaceRepository spaceRepository,
                               ReservationRepository reservationRepository,
-                              ReservationMapper reservationMapper) {
+                              ReservationMapper reservationMapper,
+                              MonthlyReservationRepository monthlyReservationRepository) {
         this.residentRepository = residentRepository;
         this.spaceRepository = spaceRepository;
         this.reservationRepository = reservationRepository;
         this.reservationMapper = reservationMapper;
+        this.monthlyReservationRepository = monthlyReservationRepository;
     }
 
     @Transactional
@@ -64,6 +68,10 @@ public class ReservationService {
             reservation.setDate(data.date());
             reservation.assignTo(r, s);
             Reservation savedReservation = reservationRepository.save(reservation);
+
+            MonthlyReservations listReservations = new MonthlyReservations(r, savedReservation);
+            monthlyReservationRepository.save(listReservations);
+
             return reservationMapper.toDto(savedReservation);
 
         } catch (Exception e) {
