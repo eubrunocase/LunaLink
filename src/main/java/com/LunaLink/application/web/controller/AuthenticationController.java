@@ -47,19 +47,4 @@ public class AuthenticationController {
        }
 
 
-
-//       public ResponseEntity<Resident> registerResident (@RequestBody @Valid RegisterDTO data) {
-//           System.out.println("recebendo solicitação de registro no controller de autenticação para " + data.login());
-//           if (this.residentService.findByLogin(data.login()) != null) {
-//               System.out.println("Erro ao registrar usuário: " + data.login());
-//               return ResponseEntity.badRequest().build();
-//           }
-//
-//           String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
-//           Resident resident = new Resident(data.login(), encryptedPassword)
-//
-//       }
-
-
-
 }

@@ -14,7 +14,6 @@ import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-
 import java.util.List;
 
 @Service
@@ -71,8 +70,8 @@ public class ReservationService {
 
             MonthlyReservations listReservations = new MonthlyReservations(r, savedReservation);
             monthlyReservationRepository.save(listReservations);
-
             return reservationMapper.toDto(savedReservation);
+
 
         } catch (Exception e) {
             throw new Exception("Erro ao criar reserva: " + e.getMessage());
@@ -89,6 +88,9 @@ public class ReservationService {
         return reservationMapper.toDto(reservation);
     }
 
+    public void deleteReservation(Long id) {
+        reservationRepository.deleteById(id);
+    }
 
     private ReservationResponseDTO convertToDTO(Reservation reservation) {
         return new ReservationResponseDTO(

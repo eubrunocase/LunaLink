@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MonthlyReservationRepository extends JpaRepository<MonthlyReservations, Long> {
+    MonthlyReservations findById(long id);
 }
