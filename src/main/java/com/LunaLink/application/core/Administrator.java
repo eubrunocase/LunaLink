@@ -2,11 +2,16 @@ package com.LunaLink.application.core;
 
 import com.LunaLink.application.core.enums.UserRoles;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -14,6 +19,9 @@ import lombok.Setter;
 @Table(name = "administrator")
 @EqualsAndHashCode(of = "id")
 public class Administrator extends Users{
+
+    @OneToMany(mappedBy = "resident", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reservation> reservations = new ArrayList<>();
 
     public Administrator(String login, String password, UserRoles role) {
         super(login, password, role);

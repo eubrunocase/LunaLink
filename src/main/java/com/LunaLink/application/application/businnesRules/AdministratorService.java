@@ -1,17 +1,23 @@
 package com.LunaLink.application.application.businnesRules;
 
 import com.LunaLink.application.core.Administrator;
+import com.LunaLink.application.infrastructure.repository.administrator.AdministratorMapper;
 import com.LunaLink.application.infrastructure.repository.administrator.AdministratorRepository;
+import com.LunaLink.application.web.dto.AdministratorDTO.AdmnistratorResponseDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class AdministratorService extends BaseService<Administrator> {
 
     @Autowired
     private AdministratorRepository administratorRepository;
+    @Autowired
+    private AdministratorMapper administratorMapper;
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
@@ -39,5 +45,11 @@ public class AdministratorService extends BaseService<Administrator> {
         adm.setLogin(administrator.getLogin());
         adm.setPassword(bCryptPasswordEncoder.encode(administrator.getPassword()));
         return administratorRepository.save(adm);
+    }
+
+
+    public List<AdmnistratorResponseDTO> findAllAdm () {
+        List<Administrator> administrators = administratorRepository.findAll();
+        return administratorMapper.toDTOList(administrators);
     }
 }

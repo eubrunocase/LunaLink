@@ -3,6 +3,7 @@ package com.LunaLink.application.web.controller;
 import com.LunaLink.application.application.businnesRules.AdministratorService;
 import com.LunaLink.application.application.jwtService.TokenService;
 import com.LunaLink.application.core.Administrator;
+import com.LunaLink.application.web.dto.AdministratorDTO.AdmnistratorResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,8 +30,8 @@ public class AdministratorController {
      }
 
      @GetMapping
-     public List<Administrator> getAllAdministrators() {
-         return administratorService.findAll();
+     public ResponseEntity<List<AdmnistratorResponseDTO>> getAllAdministrators() {
+         return ResponseEntity.ok(administratorService.findAllAdm());
      }
 
      @DeleteMapping("{id}")
