@@ -9,5 +9,4 @@ public record ReservationRequestDTO(@JsonProperty("resident") Long residentId,
                                     @JsonProperty("date") LocalDate date,
                                     @JsonProperty("space") Long spaceId) {
 
-
 }

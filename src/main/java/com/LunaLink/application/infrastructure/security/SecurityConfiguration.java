@@ -50,6 +50,7 @@ public class SecurityConfiguration {
 
                         .requestMatchers(HttpMethod.POST,"/lunaLink/reservation").permitAll()
                         .requestMatchers(HttpMethod.GET,"/lunaLink/reservation").permitAll()
+                        .requestMatchers(HttpMethod.DELETE,"/lunaLink/reservation").hasRole("ADMINISTRATOR")
 
                         .requestMatchers(HttpMethod.POST,"/lunaLink/space/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/lunaLink/space/**").permitAll()
