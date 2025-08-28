@@ -14,6 +14,8 @@ import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -69,6 +71,12 @@ public class ReservationService {
             Reservation savedReservation = reservationRepository.save(reservation);
 
             MonthlyReservations listReservations = new MonthlyReservations(r, savedReservation);
+
+            LocalDateTime horaReserva = LocalDateTime.now();
+            LocalDateTime horaReservaSemNanos = horaReserva.truncatedTo(ChronoUnit.SECONDS);
+
+            listReservations.setCreationDate(horaReservaSemNanos);
+
             monthlyReservationRepository.save(listReservations);
             return reservationMapper.toDto(savedReservation);
 

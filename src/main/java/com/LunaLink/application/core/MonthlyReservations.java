@@ -65,4 +65,12 @@ public class MonthlyReservations {
     public void setReservation(Reservation reservation) {
         this.reservation = reservation;
     }
+
+    public LocalDateTime getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
+    }
 }
