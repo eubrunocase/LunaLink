@@ -2,8 +2,11 @@ package com.LunaLink.application.core;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
+import jdk.jfr.Timestamp;
 
-@Entity(name = "monthly_reservations")
+import java.time.LocalDateTime;
+
+@Entity
 public class MonthlyReservations {
 
     @Id
@@ -19,6 +22,9 @@ public class MonthlyReservations {
     )
     private Resident resident;
 
+    @Timestamp
+    private LocalDateTime creationDate;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name = "reservation_id",
@@ -32,6 +38,7 @@ public class MonthlyReservations {
 
     public MonthlyReservations(Resident resident, Reservation reservation) {
         this.resident = resident;
+        this.creationDate = LocalDateTime.now();
         this.reservation = reservation;
     }
 
