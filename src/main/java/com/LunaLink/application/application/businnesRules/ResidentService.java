@@ -15,7 +15,6 @@ public class ResidentService extends BaseService<Resident> {
 
 
     private final ResidentRepository residentRepository;
-
     private final ResidentMapper residentMapper;
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 

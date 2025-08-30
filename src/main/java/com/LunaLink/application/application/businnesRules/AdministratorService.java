@@ -14,15 +14,17 @@ import java.util.List;
 @Service
 public class AdministratorService extends BaseService<Administrator> {
 
-    @Autowired
-    private AdministratorRepository administratorRepository;
-    @Autowired
-    private AdministratorMapper administratorMapper;
+    private final AdministratorRepository administratorRepository;
+    private final AdministratorMapper administratorMapper;
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
-    public AdministratorService(JpaRepository<Administrator, Long> repository) {
+    public AdministratorService(JpaRepository<Administrator, Long> repository,
+                                AdministratorMapper administratorMapper,
+                                AdministratorRepository administratorRepository) {
         super(repository);
+        this.administratorMapper = administratorMapper;
+        this.administratorRepository = administratorRepository;
     }
 
     public Administrator findAdmByLogin(String login) {
