@@ -31,6 +31,10 @@ public class Administrator extends Users{
         super("", "", UserRoles.ADMINISTRATOR);
     }
 
+    public List<Reservation> getReservations() {
+        return reservations;
+    }
+
     @Override
     public String toString() {
         return "Administrador{}";

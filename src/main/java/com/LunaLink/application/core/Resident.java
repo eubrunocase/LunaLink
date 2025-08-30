@@ -31,6 +31,10 @@ public class Resident extends Users{
         super("", "", UserRoles.RESIDENT);
     }
 
+    public List<Reservation> getReservations() {
+        return reservations;
+    }
+
     @Override
     public String toString() {
         return "Resident{}";

@@ -41,6 +41,10 @@ public abstract class Users implements UserDetails {
         this.role = role;
     }
 
+    public UserRoles getRole() {
+        return role;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + this.role.name()));
@@ -50,12 +54,20 @@ public abstract class Users implements UserDetails {
         return login;
     }
 
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
     public String getPassword() {
         return password;
     }
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public long getId() {
+        return id;
     }
 
     public void setId (long id) {
