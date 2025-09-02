@@ -8,6 +8,8 @@ import com.LunaLink.application.infrastructure.repository.monthlyReservation.Mon
 import com.LunaLink.application.infrastructure.repository.reservation.ReservationMapper;
 import com.LunaLink.application.infrastructure.repository.reservation.ReservationRepository;
 import com.LunaLink.application.infrastructure.repository.resident.ResidentRepository;
+import com.LunaLink.application.infrastructure.repository.resident.ResidentRepositoryPort;
+import com.LunaLink.application.infrastructure.repository.resident.ResidentServicePort;
 import com.LunaLink.application.infrastructure.repository.space.SpaceRepository;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
@@ -20,13 +22,13 @@ import java.util.List;
 @Service
 public class ReservationService {
 
-    private final ResidentRepository residentRepository;
+    private final ResidentRepositoryPort residentRepository;
     private final SpaceRepository spaceRepository;
     private final ReservationRepository reservationRepository;
     private final ReservationMapper reservationMapper;
     private final MonthlyReservationRepository monthlyReservationRepository;
 
-    public ReservationService(ResidentRepository residentRepository, SpaceRepository spaceRepository,
+    public ReservationService(ResidentRepositoryPort residentRepository, SpaceRepository spaceRepository,
                               ReservationRepository reservationRepository,
                               ReservationMapper reservationMapper,
                               MonthlyReservationRepository monthlyReservationRepository) {

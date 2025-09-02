@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ResidentRepository extends JpaRepository<Resident, Long> {
+public interface ResidentRepository extends JpaRepository<Resident, Long>, ResidentRepositoryPort {
     Resident findByLogin(String login);
 }

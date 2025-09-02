@@ -33,6 +33,5 @@ build/
 .vscode/
 
 #Docker
-docker-compose.yml
 dump.sql
 

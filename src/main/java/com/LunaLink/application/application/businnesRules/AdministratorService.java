@@ -2,55 +2,58 @@ package com.LunaLink.application.application.businnesRules;
 
 import com.LunaLink.application.core.Administrator;
 import com.LunaLink.application.infrastructure.repository.administrator.AdministratorMapper;
-import com.LunaLink.application.infrastructure.repository.administrator.AdministratorRepository;
-import com.LunaLink.application.web.dto.AdministratorDTO.AdmnistratorResponseDTO;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.LunaLink.application.infrastructure.repository.administrator.AdministratorRepositoryPort;
+import com.LunaLink.application.infrastructure.repository.administrator.AdministratorServicePort;
+import com.LunaLink.application.web.dto.AdministratorDTO.AdministratorResponseDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
-public class AdministratorService extends BaseService<Administrator> {
+public class AdministratorService extends BaseService<Administrator> implements AdministratorServicePort {
 
-    private final AdministratorRepository administratorRepository;
+    private final AdministratorRepositoryPort administratorRepository;
     private final AdministratorMapper administratorMapper;
-
-    private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder encoder;
 
     public AdministratorService(JpaRepository<Administrator, Long> repository,
                                 AdministratorMapper administratorMapper,
-                                AdministratorRepository administratorRepository) {
+                                AdministratorRepositoryPort administratorRepository,
+                                PasswordEncoder encoder) {
         super(repository);
         this.administratorMapper = administratorMapper;
         this.administratorRepository = administratorRepository;
+        this.encoder = encoder;
     }
 
+    @Override
     public Administrator findAdmByLogin(String login) {
-        Administrator administrator = administratorRepository.findByLogin(login);
-        return administrator;
+        return administratorRepository.findByLogin(login);
     }
 
+    @Override
     public Administrator createAdministrator(Administrator administrator) {
-        administrator.setPassword(bCryptPasswordEncoder.encode(administrator.getPassword()));
+        administrator.setPassword(encoder.encode(administrator.getPassword()));
         return administratorRepository.save(administrator);
     }
 
+    @Override
     public void deleteAdministrator(Long id) {
         Administrator administrator = this.findById(id);
-        administratorRepository.delete(administrator);
+        administratorRepository.deleteById(id);
     }
 
+    @Override
     public Administrator updateAdministrator(Long id, Administrator administrator) {
         Administrator adm = this.findById(id);
         adm.setLogin(administrator.getLogin());
-        adm.setPassword(bCryptPasswordEncoder.encode(administrator.getPassword()));
+        adm.setPassword(encoder.encode(administrator.getPassword()));
         return administratorRepository.save(adm);
     }
 
-
-    public List<AdmnistratorResponseDTO> findAllAdm () {
+    @Override
+    public List<AdministratorResponseDTO> findAllAdm () {
         List<Administrator> administrators = administratorRepository.findAll();
         return administratorMapper.toDTOList(administrators);
     }

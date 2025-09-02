@@ -1,10 +1,8 @@
 package com.LunaLink.application.web.mapper;
 
 import com.LunaLink.application.core.Administrator;
-import com.LunaLink.application.core.Resident;
 import com.LunaLink.application.infrastructure.repository.administrator.AdministratorMapper;
-import com.LunaLink.application.web.dto.AdministratorDTO.AdmnistratorResponseDTO;
-import com.LunaLink.application.web.dto.residentDTO.ResidentResponseDTO;
+import com.LunaLink.application.web.dto.AdministratorDTO.AdministratorResponseDTO;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -14,21 +12,21 @@ import java.util.stream.Collectors;
 public class AdministratorMapperImpl implements AdministratorMapper {
 
     @Override
-    public AdmnistratorResponseDTO toDTO (Administrator administrator) {
+    public AdministratorResponseDTO toDTO (Administrator administrator) {
         if (administrator == null) {
             return null;
         }
 
-        List<AdmnistratorResponseDTO.ReservationSummaryDTO> reservationDTOs =
+        List<AdministratorResponseDTO.ReservationSummaryDTO> reservationDTOs =
                 administrator.getReservations().stream()
-                        .map(reservation -> new AdmnistratorResponseDTO.ReservationSummaryDTO(
+                        .map(reservation -> new AdministratorResponseDTO.ReservationSummaryDTO(
                                 reservation.getId(),
                                 reservation.getDate(),
                                 reservation.getSpace().getType().toString()
                         ))
                         .collect(Collectors.toList());
 
-        return new AdmnistratorResponseDTO(
+        return new AdministratorResponseDTO(
                 administrator.getId(),
                 administrator.getLogin(),
                 administrator.getRole(),
@@ -37,7 +35,7 @@ public class AdministratorMapperImpl implements AdministratorMapper {
     }
 
     @Override
-    public List<AdmnistratorResponseDTO> toDTOList(List<Administrator> administrators) {
+    public List<AdministratorResponseDTO> toDTOList(List<Administrator> administrators) {
         if (administrators == null) {
             return null;
         }

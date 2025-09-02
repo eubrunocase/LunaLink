@@ -48,7 +48,7 @@ public class ResidentController {
     @GetMapping("/profile")
     public ResponseEntity<Resident> findByToken (@RequestHeader("Authorization") String auth) {
         String token = auth.replace("Bearer ", "").trim();
-        String login = tokenService.validadeToken(token);
+        String login = tokenService.validateToken(token);
 
         Resident profile = residentService.findResidentByLogin(auth);
         return ResponseEntity.ok(profile);

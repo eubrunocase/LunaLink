@@ -1,7 +1,9 @@
 package com.LunaLink.application.infrastructure.security;
 
+
 import com.LunaLink.application.application.jwtService.TokenService;
 import com.LunaLink.application.infrastructure.repository.administrator.AdministratorRepository;
+import com.LunaLink.application.infrastructure.repository.administrator.AdministratorRepositoryPort;
 import com.LunaLink.application.infrastructure.repository.resident.ResidentRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -20,10 +22,11 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
     private final ResidentRepository residentRepository;
-    private final AdministratorRepository administratorRepository;
+    private final AdministratorRepositoryPort administratorRepository;
+
 
     public SecurityFilter(TokenService tokenService, ResidentRepository residentRepository,
-                          AdministratorRepository administratorRepository) {
+                          AdministratorRepositoryPort administratorRepository) {
         this.tokenService = tokenService;
         this.residentRepository = residentRepository;
         this.administratorRepository = administratorRepository;
@@ -36,7 +39,7 @@ public class SecurityFilter extends OncePerRequestFilter {
             var token = this.recoverToken(request);
             if (token != null) {
                 System.out.println("Token encontrado: " + token.substring(0, Math.min(10, token.length())) + "...");
-                var login = tokenService.validadeToken(token);
+                var login = tokenService.validateToken(token);
 
                 if (!"Invalid token".equals(login)) {
                     System.out.println("Token válido para usuário: " + login);
