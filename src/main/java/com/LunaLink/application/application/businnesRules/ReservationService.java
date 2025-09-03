@@ -9,7 +9,6 @@ import com.LunaLink.application.infrastructure.repository.reservation.Reservatio
 import com.LunaLink.application.infrastructure.repository.reservation.ReservationRepository;
 import com.LunaLink.application.infrastructure.repository.resident.ResidentRepository;
 import com.LunaLink.application.infrastructure.repository.resident.ResidentRepositoryPort;
-import com.LunaLink.application.infrastructure.repository.resident.ResidentServicePort;
 import com.LunaLink.application.infrastructure.repository.space.SpaceRepository;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
