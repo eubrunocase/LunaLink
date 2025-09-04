@@ -2,6 +2,7 @@ package com.LunaLink.application.infrastructure.security;
 
 import com.LunaLink.application.infrastructure.repository.administrator.AdministratorRepository;
 import com.LunaLink.application.infrastructure.repository.resident.ResidentRepository;
+import org.springframework.boot.actuate.autoconfigure.security.reactive.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -40,6 +41,8 @@ public class SecurityConfiguration {
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html").permitAll()
 
+                        .requestMatchers("/actuator/prometheus").permitAll()
+
                         .requestMatchers(HttpMethod.POST,"/lunaLink/auth/login").permitAll()
 
                         .requestMatchers(HttpMethod.GET,"/lunaLink/adm/**").hasRole("ADMINISTRATOR")
@@ -50,13 +53,12 @@ public class SecurityConfiguration {
 
                         .requestMatchers(HttpMethod.POST,"/lunaLink/reservation").permitAll()
                         .requestMatchers(HttpMethod.GET,"/lunaLink/reservation").permitAll()
-                        .requestMatchers(HttpMethod.DELETE,"/lunaLink/reservation").hasRole("ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.DELETE,"/lunaLink/reservation/**").hasRole("ADMINISTRATOR")
 
                         .requestMatchers(HttpMethod.POST,"/lunaLink/space/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/lunaLink/space/**").permitAll()
 
                         .requestMatchers(HttpMethod.GET,"/lunaLink/monthlyReservation/**").permitAll()
-
 
                         .anyRequest().authenticated()
                 ) .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
