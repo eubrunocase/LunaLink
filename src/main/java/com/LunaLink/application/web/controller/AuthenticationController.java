@@ -2,10 +2,12 @@ package com.LunaLink.application.web.controller;
 
 import com.LunaLink.application.core.services.businnesRules.AdministratorService;
 import com.LunaLink.application.core.services.businnesRules.ResidentService;
+import com.LunaLink.application.core.services.businnesRules.facades.LoginFacade;
 import com.LunaLink.application.core.services.jwtService.TokenService;
 import com.LunaLink.application.core.domain.Users;
 import com.LunaLink.application.web.dto.SecurityDTOs.AuthenticationDTO;
 import com.LunaLink.application.web.dto.SecurityDTOs.LoginResponseDTO;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -19,32 +21,23 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/lunaLink/auth")
 public class AuthenticationController {
 
-       private final AuthenticationManager authenticationManager;
-       private final TokenService tokenService;
-       private final ResidentService residentService;
-       private final AdministratorService administratorService;
+       private final LoginFacade loginFacade;
 
-       public AuthenticationController(AuthenticationManager authenticationManager, TokenService tokenService, ResidentService residentService, AdministratorService administratorService) {
-           this.authenticationManager = authenticationManager;
-           this.tokenService = tokenService;
-           this.residentService = residentService;
-           this.administratorService = administratorService;
+       public AuthenticationController(LoginFacade loginFacade) {
+           this.loginFacade = loginFacade;
        }
 
-       @PostMapping("/login")
-       public ResponseEntity<LoginResponseDTO> login (@RequestBody AuthenticationDTO data) {
-           try {
-               System.out.println("recebendo dados de login para " + data.login());
-               Authentication authenticationRequest = UsernamePasswordAuthenticationToken.unauthenticated(data.login(), data.password());
-               Authentication authenticationResponse = this.authenticationManager.authenticate(authenticationRequest);
-               var token = tokenService.generateToken((Users) authenticationResponse.getPrincipal());
-               return ResponseEntity.ok(new LoginResponseDTO(token));
-           } catch (Exception e) {
-               System.err.println("Erro no login para: " + data.login());
-               e.printStackTrace();
-               return ResponseEntity.badRequest().build();
-           }
-       }
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody @Valid AuthenticationDTO data) {
+        ResponseEntity<LoginResponseDTO> facadeResponse = loginFacade.login(data);
+
+        if (facadeResponse.getStatusCode().is2xxSuccessful() && facadeResponse.getBody() != null) {
+            String jwt = facadeResponse.getBody().token();
+            return ResponseEntity.ok(jwt);
+        }
+
+        return ResponseEntity.badRequest().build();
+    }
 
 
 }
