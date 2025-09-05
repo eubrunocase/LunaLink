@@ -1,7 +1,7 @@
 package com.LunaLink.application.web.controller;
 
-import com.LunaLink.application.application.businnesRules.SpaceService;
-import com.LunaLink.application.core.Space;
+import com.LunaLink.application.core.services.businnesRules.SpaceService;
+import com.LunaLink.application.core.domain.Space;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,7 +20,5 @@ public class SpaceController {
     public List<Space> listAllSpaces () {
         return spaceService.listAllReservations();
     }
-
-
 
 }

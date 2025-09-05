@@ -1,7 +1,6 @@
 package com.LunaLink.application.web.controller;
 
-import com.LunaLink.application.application.businnesRules.ReservationService;
-import com.LunaLink.application.core.Reservation;
+import com.LunaLink.application.core.services.businnesRules.ReservationService;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
 import org.springframework.http.HttpStatus;

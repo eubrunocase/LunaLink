@@ -1,7 +1,7 @@
 package com.LunaLink.application.web.mapper;
 
 
-import com.LunaLink.application.core.MonthlyReservations;
+import com.LunaLink.application.core.domain.MonthlyReservations;
 import com.LunaLink.application.web.dto.ReservationsDTO.MonthlyRsDTO;
 import org.springframework.stereotype.Component;
 

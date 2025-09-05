@@ -1,8 +1,8 @@
 package com.LunaLink.application.web.controller;
 
-import com.LunaLink.application.application.businnesRules.ResidentService;
-import com.LunaLink.application.application.jwtService.TokenService;
-import com.LunaLink.application.core.Resident;
+import com.LunaLink.application.core.services.businnesRules.ResidentService;
+import com.LunaLink.application.core.services.jwtService.TokenService;
+import com.LunaLink.application.core.domain.Resident;
 import com.LunaLink.application.web.dto.residentDTO.ResidentResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

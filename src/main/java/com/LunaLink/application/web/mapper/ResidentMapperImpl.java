@@ -1,7 +1,7 @@
 package com.LunaLink.application.web.mapper;
 
-import com.LunaLink.application.core.Resident;
-import com.LunaLink.application.infrastructure.repository.resident.ResidentMapper;
+import com.LunaLink.application.core.domain.Resident;
+import com.LunaLink.application.core.infrastructure.persistence.resident.ResidentMapper;
 import com.LunaLink.application.web.dto.residentDTO.ResidentResponseDTO;
 import org.springframework.stereotype.Component;
 

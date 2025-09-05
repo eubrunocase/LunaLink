@@ -1,7 +1,7 @@
 package com.LunaLink.application.web.mapper;
 
-import com.LunaLink.application.core.Administrator;
-import com.LunaLink.application.infrastructure.repository.administrator.AdministratorMapper;
+import com.LunaLink.application.core.domain.Administrator;
+import com.LunaLink.application.core.infrastructure.persistence.administrator.AdministratorMapper;
 import com.LunaLink.application.web.dto.AdministratorDTO.AdministratorResponseDTO;
 import org.springframework.stereotype.Component;
 

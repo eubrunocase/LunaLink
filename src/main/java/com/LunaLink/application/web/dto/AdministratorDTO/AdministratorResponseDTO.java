@@ -1,6 +1,6 @@
 package com.LunaLink.application.web.dto.AdministratorDTO;
 
-import com.LunaLink.application.core.enums.UserRoles;
+import com.LunaLink.application.core.domain.enums.UserRoles;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
