@@ -21,7 +21,7 @@ public class MonthlyReservationCleanUpService {
     @Scheduled(cron = "0 0 1 * * ?")
     @Transactional
     public void cleanupOldReservations() {
-        log.info("Iniciando a tarefa de limpeza de reservas antigas...");
+        log.info("Iniciando a tarefa de limpeza de reservas com mais de 60 dias...");
 
         LocalDateTime sixtyDaysAgo = LocalDateTime.now().minusDays(60);
         monthlyReservationRepository.deleteByCreationDateBefore(sixtyDaysAgo);

@@ -6,38 +6,45 @@ import com.LunaLink.application.core.domain.Resident;
 import com.LunaLink.application.core.domain.Space;
 import com.LunaLink.application.core.infrastructure.persistence.monthlyReservation.MonthlyReservationRepository;
 import com.LunaLink.application.core.infrastructure.persistence.reservation.ReservationMapper;
-import com.LunaLink.application.core.infrastructure.persistence.reservation.ReservationRepository;
+import com.LunaLink.application.core.ports.input.ReservationServicePort;
+import com.LunaLink.application.core.ports.output.ReservationRepositoryPort;
 import com.LunaLink.application.core.ports.output.ResidentRepositoryPort;
 import com.LunaLink.application.core.infrastructure.persistence.space.SpaceRepository;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
 import jakarta.transaction.Transactional;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
-public class ReservationService {
+public class ReservationService implements ReservationServicePort {
 
     private final ResidentRepositoryPort residentRepository;
     private final SpaceRepository spaceRepository;
-    private final ReservationRepository reservationRepository;
+    private final ReservationRepositoryPort reservationRepository;
     private final ReservationMapper reservationMapper;
     private final MonthlyReservationRepository monthlyReservationRepository;
+    private final MonthlyReservationService monthlyReservationService;
 
     public ReservationService(ResidentRepositoryPort residentRepository, SpaceRepository spaceRepository,
-                              ReservationRepository reservationRepository,
+                              ReservationRepositoryPort reservationRepository,
                               ReservationMapper reservationMapper,
-                              MonthlyReservationRepository monthlyReservationRepository) {
+                              MonthlyReservationRepository monthlyReservationRepository,
+                              MonthlyReservationService monthlyReservationService) {
         this.residentRepository = residentRepository;
         this.spaceRepository = spaceRepository;
         this.reservationRepository = reservationRepository;
         this.reservationMapper = reservationMapper;
         this.monthlyReservationRepository = monthlyReservationRepository;
+        this.monthlyReservationService = monthlyReservationService;
     }
 
     @Transactional
+    @Override
     public ReservationResponseDTO createReservation(ReservationRequestDTO data) throws Exception {
         try {
             Resident r = residentRepository.findById(data.residentId())
@@ -57,6 +64,7 @@ public class ReservationService {
                         String.format("O espaço '%s' já está reservado em %s.",
                                 s.getType(), data.date()));
             }
+
             // Terceira checagem de conflito = O mesmo usuário já fez uma reserva na mesma data e espaço?
             if (reservationRepository.existsByResidentAndDateAndSpace(r, data.date(), s)) {
                 throw new IllegalStateException(
@@ -84,18 +92,33 @@ public class ReservationService {
         }
     }
 
+    @Override
     public List<ReservationResponseDTO> findAllReservations() {
         List<Reservation> reservations = reservationRepository.findAll();
         return reservationMapper.toDtoLists(reservations);
     }
 
+    @Override
     public ReservationResponseDTO findReservationById(Long id) {
         Reservation reservation = reservationRepository.findReservationById(id);
         return reservationMapper.toDto(reservation);
     }
 
+    @Transactional
     public void deleteReservation(Long id) {
+        try {
+        Reservation reservation = reservationRepository.findReservationById(id);
+
+        if (reservation == null) {
+            throw new IllegalArgumentException("ERRO NO METODO DeleteReservation da classe de service, Reservation not found");
+        }
+
+        monthlyReservationService.deleteMonthlyReservation(reservation);
         reservationRepository.deleteById(id);
+
+        }  catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private ReservationResponseDTO convertToDTO(Reservation reservation) {
@@ -112,6 +135,5 @@ public class ReservationService {
                 )
         );
     }
-
 
 }

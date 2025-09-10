@@ -20,7 +20,6 @@ public class LoginFacade {
     private final ResidentService residentService;
     private final AdministratorService administratorService;
 
-
     public LoginFacade(AuthenticationManager authenticationManager,
                        TokenService tokenService,
                        ResidentService residentService,

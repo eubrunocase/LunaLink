@@ -34,12 +34,12 @@ public class AdministratorController {
          return ResponseEntity.ok(administratorService.findAllAdm());
      }
 
-     @DeleteMapping("{id}")
+     @DeleteMapping("/{id}")
      public void deleteAdministratorById(@PathVariable Long id) {
          administratorService.delete(id);
      }
 
-     @PutMapping("{id}")
+     @PutMapping("/{id}")
      public Administrator updateAdministratorById(@PathVariable Long id, @RequestBody Administrator administrator) {
          administrator.setId(id);
          return administratorService.save(administrator);
@@ -52,6 +52,12 @@ public class AdministratorController {
 
         Administrator profile = administratorService.findAdmByLogin(auth);
         return ResponseEntity.ok(profile);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<AdministratorResponseDTO> findAdmById(@PathVariable Long id) {
+         AdministratorResponseDTO adm = administratorService.findAdmById(id);
+         return ResponseEntity.ok(adm);
     }
 
 }

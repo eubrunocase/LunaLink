@@ -11,5 +11,6 @@ public interface AdministratorServicePort {
     void deleteAdministrator(Long id);
     Administrator updateAdministrator(Long id, Administrator administrator);
     List<AdministratorResponseDTO> findAllAdm ();
+    AdministratorResponseDTO findAdmById(Long id);
 
 }

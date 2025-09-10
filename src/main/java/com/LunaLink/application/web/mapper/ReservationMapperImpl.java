@@ -46,7 +46,6 @@ public class ReservationMapperImpl implements ReservationMapper {
         Reservation reservation = new Reservation();
         reservation.setDate(reservationResponseDTO.date());
         return reservation;
-
     }
 
     private ReservationResponseDTO.ResidentSummaryDTO mapResidentToDTO(Reservation reservation) {

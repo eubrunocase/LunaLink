@@ -57,4 +57,11 @@ public class AdministratorService extends BaseService<Administrator> implements 
         List<Administrator> administrators = administratorRepository.findAll();
         return administratorMapper.toDTOList(administrators);
     }
+
+    @Override
+    public AdministratorResponseDTO findAdmById(Long id) {
+        Administrator administrator = this.findById(id);
+        return administratorMapper.toDTO(administrator);
+    }
+
 }

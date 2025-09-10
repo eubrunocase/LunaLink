@@ -1,12 +1,12 @@
 package com.LunaLink.application.web.dto.ReservationsDTO;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.Valid;
 
 import java.time.LocalDate;
 
-
-public record ReservationRequestDTO(@JsonProperty("resident") Long residentId,
-                                    @JsonProperty("date") LocalDate date,
-                                    @JsonProperty("space") Long spaceId) {
+public record ReservationRequestDTO(@JsonProperty("resident") @Valid Long residentId,
+                                    @JsonProperty("date") @Valid LocalDate date,
+                                    @JsonProperty("space") @Valid Long spaceId) {
 
 }

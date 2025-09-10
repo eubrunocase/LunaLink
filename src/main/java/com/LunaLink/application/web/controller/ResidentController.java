@@ -4,6 +4,7 @@ import com.LunaLink.application.core.services.businnesRules.ResidentService;
 import com.LunaLink.application.core.services.jwtService.TokenService;
 import com.LunaLink.application.core.domain.Resident;
 import com.LunaLink.application.web.dto.residentDTO.ResidentResponseDTO;
+import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,7 +40,7 @@ public class ResidentController {
         residentService.delete(id);
     }
 
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     public Resident updateResident(@PathVariable Long id, @RequestBody Resident resident) {
         resident.setId(id);
         return residentService.save(resident);
@@ -52,6 +53,12 @@ public class ResidentController {
 
         Resident profile = residentService.findResidentByLogin(auth);
         return ResponseEntity.ok(profile);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ResidentResponseDTO> findResidentById(@PathVariable Long id) {
+        ResidentResponseDTO resident = residentService.findResidentById(id);
+        return ResponseEntity.ok(resident);
     }
 
 }

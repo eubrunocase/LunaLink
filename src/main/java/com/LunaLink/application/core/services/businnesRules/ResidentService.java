@@ -60,5 +60,10 @@ public class ResidentService extends BaseService<Resident> implements ResidentSe
         return residentRepository.save(residentForUpdate);
     }
 
+    @Override
+    public ResidentResponseDTO findResidentById(Long id) {
+        Resident resident = this.findById(id);
+        return residentMapper.toDTO(resident);
+    }
 
 }

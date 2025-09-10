@@ -18,4 +18,5 @@ public interface ResidentServicePort {
     void deleteResident (Long id);
     Resident updateResident (Long id, Resident resident);
     List<ResidentResponseDTO> findAllResidents();
+    ResidentResponseDTO findResidentById(Long id);
 }

@@ -1,6 +1,7 @@
 package com.LunaLink.application.core.infrastructure.security;
 
 
+import com.LunaLink.application.core.ports.output.ResidentRepositoryPort;
 import com.LunaLink.application.core.services.jwtService.TokenService;
 import com.LunaLink.application.core.ports.output.AdministratorRepositoryPort;
 import com.LunaLink.application.core.infrastructure.persistence.resident.ResidentRepository;
@@ -20,11 +21,11 @@ import java.io.IOException;
 public class SecurityFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
-    private final ResidentRepository residentRepository;
+    private final ResidentRepositoryPort residentRepository;
     private final AdministratorRepositoryPort administratorRepository;
 
 
-    public SecurityFilter(TokenService tokenService, ResidentRepository residentRepository,
+    public SecurityFilter(TokenService tokenService, ResidentRepositoryPort residentRepository,
                           AdministratorRepositoryPort administratorRepository) {
         this.tokenService = tokenService;
         this.residentRepository = residentRepository;
@@ -32,10 +33,15 @@ public class SecurityFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
         try {
             var token = this.recoverToken(request);
+
+            System.out.println("=== DEBUG REQUEST ===");
+            System.out.println("Método: " + request.getMethod());
+            System.out.println("URL: " + request.getRequestURL());
+
             if (token != null) {
                 System.out.println("Token encontrado: " + token.substring(0, Math.min(10, token.length())) + "...");
                 var login = tokenService.validateToken(token);

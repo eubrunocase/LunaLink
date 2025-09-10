@@ -1,6 +1,7 @@
 package com.LunaLink.application.core.infrastructure.persistence.monthlyReservation;
 
 import com.LunaLink.application.core.domain.MonthlyReservations;
+import com.LunaLink.application.core.domain.Reservation;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -14,5 +15,10 @@ public interface MonthlyReservationRepository extends JpaRepository<MonthlyReser
     @Modifying
     @Query("DELETE FROM MonthlyReservations m WHERE m.creationDate < ?1")
     void deleteByCreationDateBefore(LocalDateTime date);
+
+    void deleteById(long id);
+    void deleteMonthlyReservationsByReservation(Reservation reservation);
+
+    MonthlyReservations findByReservation(Reservation reservation);
 }
 

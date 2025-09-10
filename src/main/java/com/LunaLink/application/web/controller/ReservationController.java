@@ -3,6 +3,7 @@ package com.LunaLink.application.web.controller;
 import com.LunaLink.application.core.services.businnesRules.ReservationService;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ public class ReservationController {
     }
 
     @PostMapping
-    public ResponseEntity<ReservationResponseDTO> createNewReservation (@RequestBody ReservationRequestDTO data) {
+    public ResponseEntity<ReservationResponseDTO> createNewReservation (@RequestBody @Valid ReservationRequestDTO data) {
         try {
         ReservationResponseDTO reservationSaved = reservationService.createReservation(data);
         return ResponseEntity.status(HttpStatus.CREATED).body(reservationSaved);
@@ -34,9 +35,21 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.findAllReservations());
     }
 
+//    @DeleteMapping("/{id}")
+//    public void deleteReservationById(@PathVariable Long id,@PathVariable Long monthlyId) {
+//        reservationService.deleteReservation(id, monthlyId);
+//    }
+
     @DeleteMapping("/{id}")
-    public void deleteReservationById(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteReservation (@PathVariable Long id) {
         reservationService.deleteReservation(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ReservationResponseDTO> findReservationById(@PathVariable Long id) {
+        ReservationResponseDTO reservation = reservationService.findReservationById(id);
+        return ResponseEntity.ok(reservation);
     }
 
 

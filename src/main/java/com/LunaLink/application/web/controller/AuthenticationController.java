@@ -1,17 +1,10 @@
 package com.LunaLink.application.web.controller;
 
-import com.LunaLink.application.core.services.businnesRules.AdministratorService;
-import com.LunaLink.application.core.services.businnesRules.ResidentService;
 import com.LunaLink.application.core.services.businnesRules.facades.LoginFacade;
-import com.LunaLink.application.core.services.jwtService.TokenService;
-import com.LunaLink.application.core.domain.Users;
 import com.LunaLink.application.web.dto.SecurityDTOs.AuthenticationDTO;
 import com.LunaLink.application.web.dto.SecurityDTOs.LoginResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,9 +28,7 @@ public class AuthenticationController {
             String jwt = facadeResponse.getBody().token();
             return ResponseEntity.ok(jwt);
         }
-
         return ResponseEntity.badRequest().build();
     }
-
 
 }

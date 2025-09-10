@@ -1,6 +1,7 @@
 package com.LunaLink.application.core.services.businnesRules;
 
 import com.LunaLink.application.core.domain.MonthlyReservations;
+import com.LunaLink.application.core.domain.Reservation;
 import com.LunaLink.application.core.infrastructure.persistence.monthlyReservation.MonthlyReservationRepository;
 import com.LunaLink.application.web.dto.ReservationsDTO.MonthlyRsDTO;
 import com.LunaLink.application.web.mapper.MonthlyReservationMapper;
@@ -31,4 +32,11 @@ public class MonthlyReservationService {
         return monthlyReservationMapper.toDTOList(monthlyReservations);
     }
 
+    public void deleteById (long id) {
+        monthlyReservationRepository.deleteById(id);
+    }
+
+    public void deleteMonthlyReservation (Reservation reservation) {
+        monthlyReservationRepository.deleteMonthlyReservationsByReservation(reservation);
+    }
 }
