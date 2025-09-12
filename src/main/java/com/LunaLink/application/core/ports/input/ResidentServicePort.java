@@ -8,7 +8,6 @@ import java.util.List;
 /*
   Abstração do repositório JPA
 
-  Assinaturas precisam ser IDÊNTICAS as da JPA
  */
 
 public interface ResidentServicePort {

@@ -15,9 +15,9 @@ public interface MonthlyReservationRepository extends JpaRepository<MonthlyReser
     @Modifying
     @Query("DELETE FROM MonthlyReservations m WHERE m.creationDate < ?1")
     void deleteByCreationDateBefore(LocalDateTime date);
-
-    void deleteById(long id);
     void deleteMonthlyReservationsByReservation(Reservation reservation);
+    void deleteById(long id);
+
 
     MonthlyReservations findByReservation(Reservation reservation);
 }

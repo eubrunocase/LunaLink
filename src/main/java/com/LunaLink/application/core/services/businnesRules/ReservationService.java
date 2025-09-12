@@ -13,7 +13,6 @@ import com.LunaLink.application.core.infrastructure.persistence.space.SpaceRepos
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
 import jakarta.transaction.Transactional;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -105,6 +104,7 @@ public class ReservationService implements ReservationServicePort {
     }
 
     @Transactional
+    @Override
     public void deleteReservation(Long id) {
         try {
         Reservation reservation = reservationRepository.findReservationById(id);
@@ -120,6 +120,24 @@ public class ReservationService implements ReservationServicePort {
             throw new RuntimeException(e);
         }
     }
+
+    @Transactional
+    @Override
+    public ReservationResponseDTO updateReservation(Long id, ReservationRequestDTO reservationRequestDTO) {
+        try {
+            Reservation reservation = reservationRepository.findReservationById(id);
+            if (reservation == null) {
+                throw new IllegalArgumentException("ERRO NO METODO UpdateReservation da classe de service, Reservation not found");
+            }
+
+            reservation.setDate(reservationRequestDTO.date());
+            return convertToDTO(reservationRepository.save(reservation));
+
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     private ReservationResponseDTO convertToDTO(Reservation reservation) {
         return new ReservationResponseDTO(

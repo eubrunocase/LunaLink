@@ -10,6 +10,7 @@ public interface ReservationServicePort {
     ReservationResponseDTO createReservation(ReservationRequestDTO reservationRequestDTO) throws Exception;
     List<ReservationResponseDTO> findAllReservations();
     ReservationResponseDTO findReservationById(Long id);
-    //void deleteReservation(Long id, Long monthlyId);
+    void deleteReservation(Long id);
+    ReservationResponseDTO updateReservation(Long id, ReservationRequestDTO reservationRequestDTO);
 
 }

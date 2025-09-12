@@ -1,24 +1,23 @@
 package com.LunaLink.application.web.controller;
 
+import com.LunaLink.application.core.ports.input.ResidentServicePort;
 import com.LunaLink.application.core.services.businnesRules.ResidentService;
 import com.LunaLink.application.core.services.jwtService.TokenService;
 import com.LunaLink.application.core.domain.Resident;
 import com.LunaLink.application.web.dto.residentDTO.ResidentResponseDTO;
-import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/lunaLink/resident")
 public class ResidentController {
 
-    private final ResidentService residentService;
+    private final ResidentServicePort residentService;
     private final TokenService tokenService;
 
-    public ResidentController(ResidentService residentService, TokenService tokenService) {
+    public ResidentController(ResidentServicePort residentService, TokenService tokenService) {
         this.residentService = residentService;
         this.tokenService = tokenService;
     }
@@ -37,13 +36,13 @@ public class ResidentController {
 
     @DeleteMapping("/{id}")
     public void deleteResidentById(@PathVariable Long id) {
-        residentService.delete(id);
+        residentService.deleteResident(id);
     }
 
     @PutMapping("/{id}")
     public Resident updateResident(@PathVariable Long id, @RequestBody Resident resident) {
         resident.setId(id);
-        return residentService.save(resident);
+        return residentService.createResident(resident);
     }
 
     @GetMapping("/profile")

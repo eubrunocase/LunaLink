@@ -1,5 +1,6 @@
 package com.LunaLink.application.web.controller;
 
+import com.LunaLink.application.core.ports.input.ReservationServicePort;
 import com.LunaLink.application.core.services.businnesRules.ReservationService;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
@@ -14,9 +15,9 @@ import java.util.List;
 @RequestMapping("/lunaLink/reservation")
 public class ReservationController {
 
-    private final ReservationService reservationService;
+    private final ReservationServicePort reservationService;
 
-    public ReservationController(ReservationService reservationService) {
+    public ReservationController(ReservationServicePort reservationService) {
         this.reservationService = reservationService;
     }
 
@@ -34,12 +35,7 @@ public class ReservationController {
     public ResponseEntity<List<ReservationResponseDTO>> listReservations () {
         return ResponseEntity.ok(reservationService.findAllReservations());
     }
-
-//    @DeleteMapping("/{id}")
-//    public void deleteReservationById(@PathVariable Long id,@PathVariable Long monthlyId) {
-//        reservationService.deleteReservation(id, monthlyId);
-//    }
-
+    
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteReservation (@PathVariable Long id) {
         reservationService.deleteReservation(id);
@@ -49,6 +45,14 @@ public class ReservationController {
     @GetMapping("/{id}")
     public ResponseEntity<ReservationResponseDTO> findReservationById(@PathVariable Long id) {
         ReservationResponseDTO reservation = reservationService.findReservationById(id);
+        return ResponseEntity.ok(reservation);
+    }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ReservationResponseDTO> updateReservation(@PathVariable Long id,
+                                                                    @RequestBody ReservationRequestDTO reservationRequestDTO) {
+        ReservationResponseDTO reservation = reservationService.updateReservation(id, reservationRequestDTO);
         return ResponseEntity.ok(reservation);
     }
 

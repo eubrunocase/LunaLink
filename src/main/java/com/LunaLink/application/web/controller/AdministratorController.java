@@ -1,5 +1,6 @@
 package com.LunaLink.application.web.controller;
 
+import com.LunaLink.application.core.ports.input.AdministratorServicePort;
 import com.LunaLink.application.core.services.businnesRules.AdministratorService;
 import com.LunaLink.application.core.services.jwtService.TokenService;
 import com.LunaLink.application.core.domain.Administrator;
@@ -14,10 +15,10 @@ import java.util.List;
 @RequestMapping("/lunaLink/adm")
 public class AdministratorController {
 
-     private final AdministratorService administratorService;
+     private final AdministratorServicePort administratorService;
      private final TokenService tokenService;
 
-     public AdministratorController(AdministratorService administratorService, TokenService tokenService) {
+     public AdministratorController(AdministratorServicePort administratorService, TokenService tokenService) {
          this.administratorService = administratorService;
          this.tokenService = tokenService;
      }
@@ -36,13 +37,13 @@ public class AdministratorController {
 
      @DeleteMapping("/{id}")
      public void deleteAdministratorById(@PathVariable Long id) {
-         administratorService.delete(id);
+         administratorService.deleteAdministrator(id);
      }
 
      @PutMapping("/{id}")
      public Administrator updateAdministratorById(@PathVariable Long id, @RequestBody Administrator administrator) {
          administrator.setId(id);
-         return administratorService.save(administrator);
+         return administratorService.updateAdministrator(id ,administrator);
      }
 
     @GetMapping("/profile")
