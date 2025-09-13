@@ -1,6 +1,5 @@
 package com.LunaLink.application.web.controller;
 
-import com.LunaLink.application.core.ports.input.ResidentServicePort;
 import com.LunaLink.application.core.services.businnesRules.facades.ResidentFacade;
 import com.LunaLink.application.core.services.jwtService.TokenService;
 import com.LunaLink.application.core.domain.Resident;
@@ -14,12 +13,10 @@ import java.util.List;
 @RequestMapping("/lunaLink/resident")
 public class ResidentController {
 
-    private final ResidentServicePort residentService;
     private final ResidentFacade facade;
     private final TokenService tokenService;
 
-    public ResidentController(ResidentServicePort residentService, TokenService tokenService, ResidentFacade facade) {
-        this.residentService = residentService;
+    public ResidentController(TokenService tokenService, ResidentFacade facade) {
         this.tokenService = tokenService;
         this.facade = facade;
     }
