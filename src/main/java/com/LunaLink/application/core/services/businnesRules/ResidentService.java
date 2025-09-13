@@ -14,7 +14,6 @@ import java.util.List;
 @Service
 public class ResidentService extends BaseService<Resident> implements ResidentServicePort {
 
-
     private final ResidentRepositoryPort residentRepository;
     private final ResidentMapper residentMapper;
     private final PasswordEncoder encoder;

@@ -1,7 +1,7 @@
 package com.LunaLink.application.web.controller;
 
 import com.LunaLink.application.core.ports.input.ResidentServicePort;
-import com.LunaLink.application.core.services.businnesRules.ResidentService;
+import com.LunaLink.application.core.services.businnesRules.facades.ResidentFacade;
 import com.LunaLink.application.core.services.jwtService.TokenService;
 import com.LunaLink.application.core.domain.Resident;
 import com.LunaLink.application.web.dto.residentDTO.ResidentResponseDTO;
@@ -15,34 +15,36 @@ import java.util.List;
 public class ResidentController {
 
     private final ResidentServicePort residentService;
+    private final ResidentFacade facade;
     private final TokenService tokenService;
 
-    public ResidentController(ResidentServicePort residentService, TokenService tokenService) {
+    public ResidentController(ResidentServicePort residentService, TokenService tokenService, ResidentFacade facade) {
         this.residentService = residentService;
         this.tokenService = tokenService;
+        this.facade = facade;
     }
 
     @PostMapping
     public ResponseEntity<Resident> createResident(@RequestBody Resident resident) {
         System.out.println("RECEBENDO CRIAÇÃO DO RESIDENTE " + resident + "NO CONTROLLLER");
-        Resident savedResident = residentService.createResident(resident);
+        Resident savedResident = facade.createResident(resident);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedResident);
     }
 
     @GetMapping
     public ResponseEntity<List<ResidentResponseDTO>> getAllResidents() {
-        return ResponseEntity.ok(residentService.findAllResidents());
+        return ResponseEntity.ok(facade.findAllResidents());
     }
 
     @DeleteMapping("/{id}")
     public void deleteResidentById(@PathVariable Long id) {
-        residentService.deleteResident(id);
+        facade.deleteResident(id);
     }
 
     @PutMapping("/{id}")
     public Resident updateResident(@PathVariable Long id, @RequestBody Resident resident) {
         resident.setId(id);
-        return residentService.createResident(resident);
+        return facade.createResident(resident);
     }
 
     @GetMapping("/profile")
@@ -50,13 +52,13 @@ public class ResidentController {
         String token = auth.replace("Bearer ", "").trim();
         String login = tokenService.validateToken(token);
 
-        Resident profile = residentService.findResidentByLogin(auth);
+        Resident profile = facade.findResidentByLogin(auth);
         return ResponseEntity.ok(profile);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ResidentResponseDTO> findResidentById(@PathVariable Long id) {
-        ResidentResponseDTO resident = residentService.findResidentById(id);
+        ResidentResponseDTO resident = facade.findResidentById(id);
         return ResponseEntity.ok(resident);
     }
 

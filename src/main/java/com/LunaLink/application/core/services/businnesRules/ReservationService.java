@@ -138,7 +138,6 @@ public class ReservationService implements ReservationServicePort {
         }
     }
 
-
     private ReservationResponseDTO convertToDTO(Reservation reservation) {
         return new ReservationResponseDTO(
                 reservation.getId(),

@@ -1,7 +1,6 @@
 package com.LunaLink.application.web.controller;
 
-import com.LunaLink.application.core.ports.input.AdministratorServicePort;
-import com.LunaLink.application.core.services.businnesRules.AdministratorService;
+import com.LunaLink.application.core.services.businnesRules.facades.AdministratorFacade;
 import com.LunaLink.application.core.services.jwtService.TokenService;
 import com.LunaLink.application.core.domain.Administrator;
 import com.LunaLink.application.web.dto.AdministratorDTO.AdministratorResponseDTO;
@@ -15,35 +14,35 @@ import java.util.List;
 @RequestMapping("/lunaLink/adm")
 public class AdministratorController {
 
-     private final AdministratorServicePort administratorService;
+     private final AdministratorFacade facade;
      private final TokenService tokenService;
 
-     public AdministratorController(AdministratorServicePort administratorService, TokenService tokenService) {
-         this.administratorService = administratorService;
+     public AdministratorController(TokenService tokenService, AdministratorFacade facade) {
          this.tokenService = tokenService;
+         this.facade = facade;
      }
 
      @PostMapping
      public ResponseEntity<Administrator> createAdministrator(@RequestBody Administrator administrator) {
          System.out.println("RECEBENDO CRIAÇÃO DO ADMINISTRADOR " + administrator.getLogin() + "NO CONTROLLLER");
-         Administrator savedAdministrator = administratorService.createAdministrator(administrator);
+         Administrator savedAdministrator = facade.createAdministrator(administrator);
          return ResponseEntity.status(HttpStatus.CREATED).body(savedAdministrator);
      }
 
      @GetMapping
      public ResponseEntity<List<AdministratorResponseDTO>> getAllAdministrators() {
-         return ResponseEntity.ok(administratorService.findAllAdm());
+         return ResponseEntity.ok(facade.findAllAdm());
      }
 
      @DeleteMapping("/{id}")
      public void deleteAdministratorById(@PathVariable Long id) {
-         administratorService.deleteAdministrator(id);
+         facade.deleteAdministrator(id);
      }
 
      @PutMapping("/{id}")
      public Administrator updateAdministratorById(@PathVariable Long id, @RequestBody Administrator administrator) {
          administrator.setId(id);
-         return administratorService.updateAdministrator(id ,administrator);
+         return facade.updateAdministrator(id ,administrator);
      }
 
     @GetMapping("/profile")
@@ -51,13 +50,13 @@ public class AdministratorController {
         String token = auth.replace("Bearer ", "").trim();
         String login = tokenService.validateToken(token);
 
-        Administrator profile = administratorService.findAdmByLogin(auth);
+        Administrator profile = facade.findAdmByLogin(auth);
         return ResponseEntity.ok(profile);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<AdministratorResponseDTO> findAdmById(@PathVariable Long id) {
-         AdministratorResponseDTO adm = administratorService.findAdmById(id);
+         AdministratorResponseDTO adm = facade.findAdmById(id);
          return ResponseEntity.ok(adm);
     }
 
