@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/lunaLink/monthlyReservation")
+@RequestMapping("/lunaLink/reservaMensal")
 public class MonthlyReservationController {
 
     private final MonthlyReservationService monthlyReservationService;

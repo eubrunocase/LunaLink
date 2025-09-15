@@ -76,14 +76,19 @@ public class ReservationService implements ReservationServicePort {
             reservation.assignTo(r, s);
             Reservation savedReservation = reservationRepository.save(reservation);
 
+            switch (s.getType()) {
+                case SALAO_FESTAS:
+                case CHURRASQUEIRA:
             MonthlyReservations listReservations = new MonthlyReservations(r, savedReservation);
 
             LocalDateTime horaReserva = LocalDateTime.now();
             LocalDateTime horaReservaSemNanos = horaReserva.truncatedTo(ChronoUnit.SECONDS);
 
             listReservations.setCreationDate(horaReservaSemNanos);
-
             monthlyReservationRepository.save(listReservations);
+
+            }
+
             return reservationMapper.toDto(savedReservation);
 
         } catch (Exception e) {

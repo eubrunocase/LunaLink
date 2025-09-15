@@ -20,7 +20,6 @@ public class ReservationServiceFacade {
         if (data == null ) {
             throw new Exception("Data is null");
         }
-
         return reservationService.createReservation(data);
     }
 

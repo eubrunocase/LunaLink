@@ -3,6 +3,7 @@ package com.LunaLink.application.core.ports.output;
 import com.LunaLink.application.core.domain.Reservation;
 import com.LunaLink.application.core.domain.Resident;
 import com.LunaLink.application.core.domain.Space;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
