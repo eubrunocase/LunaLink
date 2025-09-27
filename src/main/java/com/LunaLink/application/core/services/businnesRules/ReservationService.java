@@ -29,7 +29,8 @@ public class ReservationService implements ReservationServicePort {
     private final MonthlyReservationRepository monthlyReservationRepository;
     private final MonthlyReservationService monthlyReservationService;
 
-    public ReservationService(ResidentRepositoryPort residentRepository, SpaceRepository spaceRepository,
+    public ReservationService(ResidentRepositoryPort residentRepository,
+                              SpaceRepository spaceRepository,
                               ReservationRepositoryPort reservationRepository,
                               ReservationMapper reservationMapper,
                               MonthlyReservationRepository monthlyReservationRepository,
@@ -76,9 +77,7 @@ public class ReservationService implements ReservationServicePort {
             reservation.assignTo(r, s);
             Reservation savedReservation = reservationRepository.save(reservation);
 
-            switch (s.getType()) {
-                case SALAO_FESTAS:
-                case CHURRASQUEIRA:
+
             MonthlyReservations listReservations = new MonthlyReservations(r, savedReservation);
 
             LocalDateTime horaReserva = LocalDateTime.now();
@@ -86,8 +85,6 @@ public class ReservationService implements ReservationServicePort {
 
             listReservations.setCreationDate(horaReservaSemNanos);
             monthlyReservationRepository.save(listReservations);
-
-            }
 
             return reservationMapper.toDto(savedReservation);
 
