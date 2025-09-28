@@ -59,6 +59,9 @@ public class SecurityConfiguration {
 
                         .requestMatchers(HttpMethod.GET,"/lunaLink/monthlyReservation/**").permitAll()
 
+                        .requestMatchers(HttpMethod.POST,"/lunaLink/checkInGym/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/lunaLink/checkInGym/**").permitAll()
+
                         .anyRequest().authenticated()
                 ) .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
