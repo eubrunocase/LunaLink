@@ -1,6 +1,6 @@
-package com.LunaLink.application.core.domain.gym;
+package com.LunaLink.application.domain.model.gym;
 
-import com.LunaLink.application.core.domain.Resident;
+import com.LunaLink.application.domain.model.resident.Resident;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

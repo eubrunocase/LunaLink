@@ -1,6 +1,7 @@
-package com.LunaLink.application.core.domain;
+package com.LunaLink.application.domain.model.space;
 
-import com.LunaLink.application.core.domain.enums.SpaceType;
+import com.LunaLink.application.domain.enums.SpaceType;
+import com.LunaLink.application.domain.model.reservation.Reservation;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

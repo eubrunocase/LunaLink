@@ -1,4 +1,4 @@
-package com.LunaLink.application.core.services.service;
+package com.LunaLink.application.application.service;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

@@ -1,15 +1,15 @@
-package com.LunaLink.application.core.services.service;
+package com.LunaLink.application.application.service.reservation;
 
-import com.LunaLink.application.core.domain.MonthlyReservations;
-import com.LunaLink.application.core.domain.Reservation;
-import com.LunaLink.application.core.domain.Resident;
-import com.LunaLink.application.core.domain.Space;
-import com.LunaLink.application.core.infrastructure.persistence.monthlyReservation.MonthlyReservationRepository;
-import com.LunaLink.application.core.infrastructure.persistence.reservation.ReservationMapper;
-import com.LunaLink.application.core.ports.input.ReservationServicePort;
-import com.LunaLink.application.core.ports.output.ReservationRepositoryPort;
-import com.LunaLink.application.core.ports.output.ResidentRepositoryPort;
-import com.LunaLink.application.core.infrastructure.persistence.space.SpaceRepository;
+import com.LunaLink.application.domain.model.reservation.MonthlyReservations;
+import com.LunaLink.application.domain.model.reservation.Reservation;
+import com.LunaLink.application.domain.model.resident.Resident;
+import com.LunaLink.application.domain.model.space.Space;
+import com.LunaLink.application.infrastructure.repository.reservation.MonthlyReservationRepository;
+import com.LunaLink.application.infrastructure.mapper.reservation.ReservationMapper;
+import com.LunaLink.application.application.ports.input.ReservationServicePort;
+import com.LunaLink.application.application.ports.output.ReservationRepositoryPort;
+import com.LunaLink.application.application.ports.output.ResidentRepositoryPort;
+import com.LunaLink.application.infrastructure.repository.space.SpaceRepository;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
 import jakarta.transaction.Transactional;

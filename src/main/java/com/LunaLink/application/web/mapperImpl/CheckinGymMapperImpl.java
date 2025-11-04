@@ -1,7 +1,7 @@
-package com.LunaLink.application.web.mapper;
+package com.LunaLink.application.web.mapperImpl;
 
 import com.LunaLink.application.domain.model.gym.CheckIn_Gym;
-import com.LunaLink.application.core.infrastructure.persistence.gym.checkIn.CheckIn_Gym_Mapper;
+import com.LunaLink.application.infrastructure.mapper.gym.CheckinGymMapper;
 import com.LunaLink.application.web.dto.checkIn_gym_DTO.CheckIn_Gym_ResponseDTO;
 import org.springframework.stereotype.Component;
 
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
-public class CheckInGymMapperImpl implements CheckIn_Gym_Mapper {
+public class CheckinGymMapperImpl implements CheckinGymMapper {
 
     @Override
     public CheckIn_Gym_ResponseDTO toDTO(CheckIn_Gym checkIn_gym) {

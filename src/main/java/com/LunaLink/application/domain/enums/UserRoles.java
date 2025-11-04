@@ -1,4 +1,4 @@
-package com.LunaLink.application.core.domain.enums;
+package com.LunaLink.application.domain.enums;
 
 public enum UserRoles {
     ADMINISTRATOR, RESIDENT

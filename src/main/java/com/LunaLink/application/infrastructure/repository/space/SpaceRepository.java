@@ -1,4 +1,4 @@
-package com.LunaLink.application.core.infrastructure.persistence.space;
+package com.LunaLink.application.infrastructure.repository.space;
 
 import com.LunaLink.application.domain.model.space.Space;
 import com.LunaLink.application.domain.enums.SpaceType;

@@ -1,4 +1,4 @@
-package com.LunaLink.application.core.infrastructure.persistence.reservation;
+package com.LunaLink.application.infrastructure.repository.reservation;
 
 import com.LunaLink.application.domain.model.reservation.Reservation;
 import com.LunaLink.application.domain.model.resident.Resident;

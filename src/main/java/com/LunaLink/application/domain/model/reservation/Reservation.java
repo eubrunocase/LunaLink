@@ -1,5 +1,7 @@
-package com.LunaLink.application.core.domain;
+package com.LunaLink.application.domain.model.reservation;
 
+import com.LunaLink.application.domain.model.space.Space;
+import com.LunaLink.application.domain.model.resident.Resident;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

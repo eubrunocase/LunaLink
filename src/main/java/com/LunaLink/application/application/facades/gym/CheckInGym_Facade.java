@@ -1,7 +1,7 @@
-package com.LunaLink.application.application.service.facades;
+package com.LunaLink.application.application.facades.gym;
 
 import com.LunaLink.application.domain.model.resident.Resident;
-import com.LunaLink.application.application.ports.input.CheckIn_Gym_ServicePort;
+import com.LunaLink.application.application.ports.input.CheckinGymServicePort;
 import com.LunaLink.application.application.ports.input.ResidentServicePort;
 import com.LunaLink.application.web.dto.checkIn_gym_DTO.CheckInCreateDTO;
 import com.LunaLink.application.web.dto.checkIn_gym_DTO.CheckIn_Gym_RequestDTO;
@@ -14,10 +14,10 @@ import java.util.UUID;
 @Component
 public class CheckInGym_Facade {
 
-    private final CheckIn_Gym_ServicePort service;
+    private final CheckinGymServicePort service;
     private final ResidentServicePort residentService;
 
-    public CheckInGym_Facade(CheckIn_Gym_ServicePort service, ResidentServicePort residentService) {
+    public CheckInGym_Facade(CheckinGymServicePort service, ResidentServicePort residentService) {
         this.service = service;
         this.residentService = residentService;
     }

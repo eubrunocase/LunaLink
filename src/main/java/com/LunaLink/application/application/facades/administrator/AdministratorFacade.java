@@ -1,4 +1,4 @@
-package com.LunaLink.application.application.service.facades;
+package com.LunaLink.application.application.facades.administrator;
 
 import com.LunaLink.application.domain.model.administrator.Administrator;
 import com.LunaLink.application.application.ports.input.AdministratorServicePort;

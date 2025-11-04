@@ -1,4 +1,4 @@
-package com.LunaLink.application.core.ports.input;
+package com.LunaLink.application.application.ports.input;
 
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;

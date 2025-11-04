@@ -1,6 +1,8 @@
-package com.LunaLink.application.core.domain;
+package com.LunaLink.application.domain.model.resident;
 
-import com.LunaLink.application.core.domain.enums.UserRoles;
+import com.LunaLink.application.domain.enums.UserRoles;
+import com.LunaLink.application.domain.model.reservation.Reservation;
+import com.LunaLink.application.domain.model.Users;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
@@ -18,7 +20,7 @@ import java.util.List;
 @Entity
 @Table(name = "resident")
 @EqualsAndHashCode(of = "id")
-public class Resident extends Users{
+public class Resident extends Users {
 
     @OneToMany(mappedBy = "resident", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reservation> reservations = new ArrayList<>();

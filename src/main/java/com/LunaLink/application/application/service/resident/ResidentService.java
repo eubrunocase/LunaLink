@@ -1,9 +1,10 @@
-package com.LunaLink.application.core.services.service;
+package com.LunaLink.application.application.service.resident;
 
-import com.LunaLink.application.core.domain.Resident;
-import com.LunaLink.application.core.infrastructure.persistence.resident.ResidentMapper;
-import com.LunaLink.application.core.ports.output.ResidentRepositoryPort;
-import com.LunaLink.application.core.ports.input.ResidentServicePort;
+import com.LunaLink.application.application.service.BaseService;
+import com.LunaLink.application.domain.model.resident.Resident;
+import com.LunaLink.application.infrastructure.mapper.resident.ResidentMapper;
+import com.LunaLink.application.application.ports.output.ResidentRepositoryPort;
+import com.LunaLink.application.application.ports.input.ResidentServicePort;
 import com.LunaLink.application.web.dto.residentDTO.ResidentResponseDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;

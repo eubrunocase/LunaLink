@@ -1,6 +1,6 @@
-package com.LunaLink.application.core.ports.output;
+package com.LunaLink.application.application.ports.output;
 
-import com.LunaLink.application.core.domain.Administrator;
+import com.LunaLink.application.domain.model.administrator.Administrator;
 import java.util.List;
 import java.util.Optional;
 

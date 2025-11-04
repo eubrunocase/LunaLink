@@ -1,6 +1,6 @@
-package com.LunaLink.application.core.domain;
+package com.LunaLink.application.domain.model;
 
-import com.LunaLink.application.core.domain.enums.UserRoles;
+import com.LunaLink.application.domain.enums.UserRoles;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;

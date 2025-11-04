@@ -1,4 +1,4 @@
-package com.LunaLink.application.application.service.facades;
+package com.LunaLink.application.application.facades.auth;
 
 import com.LunaLink.application.domain.model.Users;
 import com.LunaLink.application.application.service.administrator.AdministratorService;

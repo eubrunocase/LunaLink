@@ -1,12 +1,12 @@
-package com.LunaLink.application.application.service.gymServices;
+package com.LunaLink.application.application.service.gym;
 
 import com.LunaLink.application.domain.model.resident.Resident;
 import com.LunaLink.application.domain.model.space.Space;
 import com.LunaLink.application.domain.model.gym.CheckIn_Gym;
-import com.LunaLink.application.core.infrastructure.persistence.gym.checkIn.CheckIn_Gym_Mapper;
-import com.LunaLink.application.core.infrastructure.persistence.space.SpaceRepository;
-import com.LunaLink.application.application.ports.input.CheckIn_Gym_ServicePort;
-import com.LunaLink.application.application.ports.output.CheckIn_gym_RepositoryPort;
+import com.LunaLink.application.infrastructure.mapper.gym.CheckinGymMapper;
+import com.LunaLink.application.infrastructure.repository.space.SpaceRepository;
+import com.LunaLink.application.application.ports.input.CheckinGymServicePort;
+import com.LunaLink.application.application.ports.output.CheckinGymRepositoryPort;
 import com.LunaLink.application.application.ports.output.ResidentRepositoryPort;
 import com.LunaLink.application.web.dto.checkIn_gym_DTO.CheckIn_Gym_RequestDTO;
 import com.LunaLink.application.web.dto.checkIn_gym_DTO.CheckIn_Gym_ResponseDTO;
@@ -17,17 +17,17 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class CheckIn_Gym_Service implements CheckIn_Gym_ServicePort {
+public class CheckinGymService implements CheckinGymServicePort {
 
-    private final CheckIn_gym_RepositoryPort checkInGymRepositoryPort;
-    private final CheckIn_Gym_Mapper checkInGymMapper;
+    private final CheckinGymRepositoryPort checkInGymRepositoryPort;
+    private final CheckinGymMapper checkInGymMapper;
     private final SpaceRepository spaceRepository;
     private final ResidentRepositoryPort residentRepositoryPort;
 
-    public CheckIn_Gym_Service(CheckIn_gym_RepositoryPort checkInGymRepositoryPort,
-                               CheckIn_Gym_Mapper checkInGymMapper,
-                               SpaceRepository spaceRepository,
-                               ResidentRepositoryPort residentRepositoryPort
+    public CheckinGymService(CheckinGymRepositoryPort checkInGymRepositoryPort,
+                             CheckinGymMapper checkInGymMapper,
+                             SpaceRepository spaceRepository,
+                             ResidentRepositoryPort residentRepositoryPort
                                ) {
         this.checkInGymRepositoryPort = checkInGymRepositoryPort;
         this.spaceRepository = spaceRepository;

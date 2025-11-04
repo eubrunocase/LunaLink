@@ -1,4 +1,4 @@
-package com.LunaLink.application.application.service.facades;
+package com.LunaLink.application.application.facades.resident;
 
 import com.LunaLink.application.domain.model.resident.Resident;
 import com.LunaLink.application.application.ports.input.ResidentServicePort;

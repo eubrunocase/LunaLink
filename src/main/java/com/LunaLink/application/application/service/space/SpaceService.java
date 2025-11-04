@@ -1,7 +1,7 @@
-package com.LunaLink.application.core.services.service;
+package com.LunaLink.application.application.service.space;
 
-import com.LunaLink.application.core.domain.Space;
-import com.LunaLink.application.core.infrastructure.persistence.space.SpaceRepository;
+import com.LunaLink.application.domain.model.space.Space;
+import com.LunaLink.application.infrastructure.repository.space.SpaceRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

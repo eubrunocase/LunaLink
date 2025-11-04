@@ -1,4 +1,4 @@
-package com.LunaLink.application.core.infrastructure.persistence.reservation;
+package com.LunaLink.application.infrastructure.mapper.reservation;
 
 import com.LunaLink.application.domain.model.reservation.Reservation;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;

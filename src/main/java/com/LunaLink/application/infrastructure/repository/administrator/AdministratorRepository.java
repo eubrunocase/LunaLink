@@ -1,4 +1,4 @@
-package com.LunaLink.application.core.infrastructure.persistence.administrator;
+package com.LunaLink.application.infrastructure.repository.administrator;
 
 import com.LunaLink.application.domain.model.administrator.Administrator;
 import com.LunaLink.application.application.ports.output.AdministratorRepositoryPort;

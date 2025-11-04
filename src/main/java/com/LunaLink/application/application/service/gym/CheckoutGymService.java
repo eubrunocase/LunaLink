@@ -1,11 +1,11 @@
-package com.LunaLink.application.application.service.gymServices;
+package com.LunaLink.application.application.service.gym;
 
 import com.LunaLink.application.domain.model.gym.CheckIn_Gym;
 import com.LunaLink.application.domain.model.gym.CheckOut_Gym;
-import com.LunaLink.application.core.infrastructure.persistence.gym.checkOut.CheckOutGym_Mapper;
-import com.LunaLink.application.application.ports.input.CheckOut_Gym_ServicePort;
-import com.LunaLink.application.application.ports.output.CheckIn_gym_RepositoryPort;
-import com.LunaLink.application.application.ports.output.CheckOutGym_RepositoryPort;
+import com.LunaLink.application.infrastructure.mapper.gym.CheckoutGymMapper;
+import com.LunaLink.application.application.ports.input.CheckoutGymServicePort;
+import com.LunaLink.application.application.ports.output.CheckinGymRepositoryPort;
+import com.LunaLink.application.application.ports.output.CheckoutGymRepositoryPort;
 import com.LunaLink.application.web.dto.checkOut_gym_DTO.CheckOut_Gym_RequestDTO;
 import com.LunaLink.application.web.dto.checkOut_gym_DTO.CheckOut_Gym_ResponseDTO;
 import jakarta.transaction.Transactional;
@@ -14,14 +14,14 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class CheckOut_Gym_Service implements CheckOut_Gym_ServicePort {
+public class CheckoutGymService implements CheckoutGymServicePort {
 
-    private final CheckOutGym_RepositoryPort repositoryPort;
-    private final CheckOutGym_Mapper mapper;
-    private final CheckIn_gym_RepositoryPort checkInGymRepositoryPort;
+    private final CheckoutGymRepositoryPort repositoryPort;
+    private final CheckoutGymMapper mapper;
+    private final CheckinGymRepositoryPort checkInGymRepositoryPort;
 
-    public CheckOut_Gym_Service(CheckOutGym_RepositoryPort repositoryPort, CheckOutGym_Mapper mapper,
-                                CheckIn_gym_RepositoryPort checkInGymRepositoryPort) {
+    public CheckoutGymService(CheckoutGymRepositoryPort repositoryPort, CheckoutGymMapper mapper,
+                              CheckinGymRepositoryPort checkInGymRepositoryPort) {
         this.repositoryPort = repositoryPort;
         this.mapper = mapper;
         this.checkInGymRepositoryPort = checkInGymRepositoryPort;

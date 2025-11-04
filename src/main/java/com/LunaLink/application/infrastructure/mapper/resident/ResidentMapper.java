@@ -1,4 +1,4 @@
-package com.LunaLink.application.core.infrastructure.persistence.resident;
+package com.LunaLink.application.infrastructure.mapper.resident;
 
 import com.LunaLink.application.domain.model.resident.Resident;
 import com.LunaLink.application.web.dto.residentDTO.ResidentResponseDTO;

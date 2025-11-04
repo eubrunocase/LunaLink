@@ -1,6 +1,6 @@
-package com.LunaLink.application.core.services.service;
+package com.LunaLink.application.application.service.reservation;
 
-import com.LunaLink.application.core.infrastructure.persistence.monthlyReservation.MonthlyReservationRepository;
+import com.LunaLink.application.infrastructure.repository.reservation.MonthlyReservationRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;

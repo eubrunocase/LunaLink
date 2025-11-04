@@ -1,5 +1,6 @@
-package com.LunaLink.application.core.domain;
+package com.LunaLink.application.domain.model.reservation;
 
+import com.LunaLink.application.domain.model.resident.Resident;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jdk.jfr.Timestamp;

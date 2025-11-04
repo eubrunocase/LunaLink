@@ -1,6 +1,8 @@
-package com.LunaLink.application.core.domain;
+package com.LunaLink.application.domain.model.administrator;
 
-import com.LunaLink.application.core.domain.enums.UserRoles;
+import com.LunaLink.application.domain.enums.UserRoles;
+import com.LunaLink.application.domain.model.reservation.Reservation;
+import com.LunaLink.application.domain.model.Users;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;

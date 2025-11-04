@@ -1,6 +1,6 @@
-package com.LunaLink.application.core.services.jwtService;
+package com.LunaLink.application.application.service.auth;
 
-import com.LunaLink.application.core.domain.Users;
+import com.LunaLink.application.domain.model.Users;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;

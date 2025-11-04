@@ -1,11 +1,13 @@
 package com.LunaLink.application.web.controller;
 
-import com.LunaLink.application.core.services.businnesRules.facades.ReservationServiceFacade;
+import com.LunaLink.application.application.facades.reservation.ReservationServiceFacade;
+import com.LunaLink.application.web.dto.ReservationsDTO.ReservationCreateDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -20,10 +22,14 @@ public class ReservationController {
     }
 
     @PostMapping
-    public ResponseEntity<ReservationResponseDTO> createNewReservation (@RequestBody @Valid ReservationRequestDTO data) {
+    public ResponseEntity<ReservationResponseDTO> createNewReservation (@RequestBody @Valid ReservationCreateDTO data,
+                                                                        Authentication authentication) {
         try {
-        ReservationResponseDTO reservationSaved = facade.createReservation(data);
+            String login = authentication.getName();
+
+        ReservationResponseDTO reservationSaved = facade.createReservationForAuthenticatedUser(data, login);
         return ResponseEntity.status(HttpStatus.CREATED).body(reservationSaved);
+
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }

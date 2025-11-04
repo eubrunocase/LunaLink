@@ -1,6 +1,6 @@
 package com.LunaLink.application.web.controller;
 
-import com.LunaLink.application.core.services.businnesRules.facades.LoginFacade;
+import com.LunaLink.application.application.facades.auth.LoginFacade;
 import com.LunaLink.application.web.dto.SecurityDTOs.AuthenticationDTO;
 import com.LunaLink.application.web.dto.SecurityDTOs.LoginResponseDTO;
 import jakarta.validation.Valid;

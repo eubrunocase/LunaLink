@@ -1,4 +1,4 @@
-package com.LunaLink.application.core.services.service.events;
+package com.LunaLink.application.application.service.events;
 
 public class monthlyReservationDeleteEvent {
 

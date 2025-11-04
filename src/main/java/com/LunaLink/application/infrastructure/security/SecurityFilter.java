@@ -1,4 +1,4 @@
-package com.LunaLink.application.infrastructure;
+package com.LunaLink.application.infrastructure.security;
 
 
 import com.LunaLink.application.application.ports.output.ResidentRepositoryPort;

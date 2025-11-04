@@ -1,8 +1,8 @@
 package com.LunaLink.application.web.controller;
 
-import com.LunaLink.application.core.services.businnesRules.facades.AdministratorFacade;
-import com.LunaLink.application.core.services.jwtService.TokenService;
-import com.LunaLink.application.core.domain.Administrator;
+import com.LunaLink.application.application.facades.administrator.AdministratorFacade;
+import com.LunaLink.application.application.service.auth.TokenService;
+import com.LunaLink.application.domain.model.administrator.Administrator;
 import com.LunaLink.application.web.dto.AdministratorDTO.AdministratorResponseDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

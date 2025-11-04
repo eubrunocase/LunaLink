@@ -1,7 +1,7 @@
-package com.LunaLink.application.web.mapper;
+package com.LunaLink.application.web.mapperImpl;
 
 import com.LunaLink.application.domain.model.reservation.Reservation;
-import com.LunaLink.application.core.infrastructure.persistence.reservation.ReservationMapper;
+import com.LunaLink.application.infrastructure.mapper.reservation.ReservationMapper;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
 import org.springframework.stereotype.Component;
 

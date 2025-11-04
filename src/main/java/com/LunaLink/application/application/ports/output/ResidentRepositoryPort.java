@@ -1,6 +1,6 @@
-package com.LunaLink.application.core.ports.output;
+package com.LunaLink.application.application.ports.output;
 
-import com.LunaLink.application.core.domain.Resident;
+import com.LunaLink.application.domain.model.resident.Resident;
 
 import java.util.List;
 import java.util.Optional;

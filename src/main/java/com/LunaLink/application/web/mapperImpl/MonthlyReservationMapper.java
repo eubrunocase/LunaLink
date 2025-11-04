@@ -1,4 +1,4 @@
-package com.LunaLink.application.web.mapper;
+package com.LunaLink.application.web.mapperImpl;
 
 
 import com.LunaLink.application.domain.model.reservation.MonthlyReservations;

@@ -1,8 +1,8 @@
-package com.LunaLink.application.core.ports.output;
+package com.LunaLink.application.application.ports.output;
 
-import com.LunaLink.application.core.domain.Reservation;
-import com.LunaLink.application.core.domain.Resident;
-import com.LunaLink.application.core.domain.Space;
+import com.LunaLink.application.domain.model.reservation.Reservation;
+import com.LunaLink.application.domain.model.resident.Resident;
+import com.LunaLink.application.domain.model.space.Space;
 
 import java.time.LocalDate;
 import java.util.List;

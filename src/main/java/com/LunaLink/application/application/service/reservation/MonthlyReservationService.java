@@ -1,10 +1,10 @@
-package com.LunaLink.application.core.services.service;
+package com.LunaLink.application.application.service.reservation;
 
-import com.LunaLink.application.core.domain.MonthlyReservations;
-import com.LunaLink.application.core.domain.Reservation;
-import com.LunaLink.application.core.infrastructure.persistence.monthlyReservation.MonthlyReservationRepository;
+import com.LunaLink.application.domain.model.reservation.MonthlyReservations;
+import com.LunaLink.application.domain.model.reservation.Reservation;
+import com.LunaLink.application.infrastructure.repository.reservation.MonthlyReservationRepository;
 import com.LunaLink.application.web.dto.ReservationsDTO.MonthlyRsDTO;
-import com.LunaLink.application.web.mapper.MonthlyReservationMapper;
+import com.LunaLink.application.web.mapperImpl.MonthlyReservationMapper;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 

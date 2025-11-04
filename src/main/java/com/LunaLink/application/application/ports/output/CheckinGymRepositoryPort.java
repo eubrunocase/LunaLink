@@ -1,15 +1,13 @@
-package com.LunaLink.application.core.ports.output;
+package com.LunaLink.application.application.ports.output;
 
-import com.LunaLink.application.core.domain.Resident;
-import com.LunaLink.application.core.domain.Space;
-import com.LunaLink.application.core.domain.gym.CheckIn_Gym;
+import com.LunaLink.application.domain.model.resident.Resident;
+import com.LunaLink.application.domain.model.gym.CheckIn_Gym;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-public interface CheckIn_gym_RepositoryPort {
+public interface CheckinGymRepositoryPort {
     boolean existsByResidentAndEntrada(Resident resident, LocalDateTime entrada);
 
 
