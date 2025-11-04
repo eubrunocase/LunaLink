@@ -36,6 +36,8 @@ build/
 dump2.sql
 docker-compose.yml
 
-env
+env/
+
+resources/
 application.properties
 
