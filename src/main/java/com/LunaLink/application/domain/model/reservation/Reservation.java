@@ -1,5 +1,6 @@
 package com.LunaLink.application.domain.model.reservation;
 
+import com.LunaLink.application.domain.model.administrator.Administrator;
 import com.LunaLink.application.domain.model.space.Space;
 import com.LunaLink.application.domain.model.resident.Resident;
 import jakarta.persistence.*;

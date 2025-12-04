@@ -17,20 +17,20 @@ public class AdministratorMapperImpl implements AdministratorMapper {
             return null;
         }
 
-        List<AdministratorResponseDTO.ReservationSummaryDTO> reservationDTOs =
-                administrator.getReservations().stream()
-                        .map(reservation -> new AdministratorResponseDTO.ReservationSummaryDTO(
-                                reservation.getId(),
-                                reservation.getDate(),
-                                reservation.getSpace().getType().toString()
-                        ))
-                        .collect(Collectors.toList());
+//        List<AdministratorResponseDTO.ReservationSummaryDTO> reservationDTOs =
+//                administrator.getReservations().stream()
+//                        .map(reservation -> new AdministratorResponseDTO.ReservationSummaryDTO(
+//                                reservation.getId(),
+//                                reservation.getDate(),
+//                                reservation.getSpace().getType().toString()
+//                        ))
+//                        .collect(Collectors.toList());
 
         return new AdministratorResponseDTO(
                 administrator.getId(),
                 administrator.getLogin(),
-                administrator.getRole(),
-                reservationDTOs
+                administrator.getRole()
+                //reservationDTOs
         );
     }
 

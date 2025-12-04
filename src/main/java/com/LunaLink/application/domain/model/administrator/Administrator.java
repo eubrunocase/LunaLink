@@ -22,8 +22,8 @@ import java.util.List;
 @EqualsAndHashCode(of = "id")
 public class Administrator extends Users {
 
-    @OneToMany(mappedBy = "resident", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Reservation> reservations = new ArrayList<>();
+//    @OneToMany(mappedBy = "administrator", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Reservation> reservations = new ArrayList<>();
 
     public Administrator(String login, String password, UserRoles role) {
         super(login, password, role);
@@ -33,9 +33,9 @@ public class Administrator extends Users {
         super("", "", UserRoles.ADMINISTRATOR);
     }
 
-    public List<Reservation> getReservations() {
-        return reservations;
-    }
+//    public List<Reservation> getReservations() {
+//        return reservations;
+//    }
 
     @Override
     public String toString() {

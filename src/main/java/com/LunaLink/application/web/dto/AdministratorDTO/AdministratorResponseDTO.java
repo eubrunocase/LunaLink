@@ -8,8 +8,7 @@ import java.util.List;
 
 public record AdministratorResponseDTO(Long id,
                                        String login,
-                                       UserRoles role,
-                                       List<ReservationSummaryDTO> reservations) {
+                                       UserRoles role) {
 
     public record ReservationSummaryDTO(
             @JsonProperty("id") Long id,
