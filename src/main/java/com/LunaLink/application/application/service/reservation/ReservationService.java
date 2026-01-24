@@ -21,7 +21,6 @@ import java.util.List;
 
 @Service
 public class ReservationService implements ReservationServicePort {
-
     private final ResidentRepositoryPort residentRepository;
     private final SpaceRepository spaceRepository;
     private final ReservationRepositoryPort reservationRepository;

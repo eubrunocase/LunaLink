@@ -27,7 +27,6 @@ public class ReservationServiceFacade {
        }
 
         Resident resident = residentService.findResidentByLogin(login);
-
         ReservationRequestDTO request = new ReservationRequestDTO(
                 resident.getId(),
                 data.date(),
