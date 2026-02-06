@@ -1,6 +1,8 @@
 package com.LunaLink.application.web.controller;
 
 import com.LunaLink.application.application.facades.reservation.ReservationServiceFacade;
+import com.LunaLink.application.application.ports.input.ReservationServicePort;
+import com.LunaLink.application.application.ports.input.ResidentServicePort;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationCreateDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
@@ -9,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -16,9 +20,13 @@ import java.util.List;
 public class ReservationController {
 
     private final ReservationServiceFacade facade;
+    private final ReservationServicePort reservationServicePort;
+    private final ResidentServicePort residentServicePort;
 
-    public ReservationController(ReservationServiceFacade facade) {
+    public ReservationController(ReservationServiceFacade facade, ReservationServicePort reservationServicePort, ResidentServicePort residentServicePort) {
         this.facade = facade;
+        this.reservationServicePort = reservationServicePort;
+        this.residentServicePort = residentServicePort;
     }
 
     @PostMapping
@@ -57,6 +65,22 @@ public class ReservationController {
                                                                     @RequestBody ReservationRequestDTO reservationRequestDTO) {
         ReservationResponseDTO reservation = facade.updateReservation(id, reservationRequestDTO);
         return ResponseEntity.ok(reservation);
+    }
+
+    @GetMapping("/checkAvaliability/{date}/{spaceId}")
+    public ResponseEntity<Boolean> checkAvaliability(@PathVariable LocalDate date,
+                                                     Authentication authentication,
+                                                     @PathVariable Long spaceId) {
+        String login = authentication.getName();
+        Long residentId = residentServicePort.findResidentByLogin(login).getId();
+
+        Boolean checkAvaliability = reservationServicePort.checkAvaliability(date, spaceId, residentId);
+
+        if (checkAvaliability) {
+            return ResponseEntity.ok(true);
+        } else {
+            return ResponseEntity.ok(false);
+        }
     }
 
 

@@ -9,6 +9,7 @@ import java.util.Optional;
 public interface ResidentRepositoryPort {
 
     Resident findByLogin(String login);
+    Optional<Resident> findResidentByLogin(String login);
     Resident save(Resident resident);
     void deleteById(Long id);
     List<Resident> findAll();

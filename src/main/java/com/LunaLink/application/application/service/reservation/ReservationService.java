@@ -15,13 +15,14 @@ import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ReservationService implements ReservationServicePort {
-
     private final ResidentRepositoryPort residentRepository;
     private final SpaceRepository spaceRepository;
     private final ReservationRepositoryPort reservationRepository;
@@ -137,6 +138,30 @@ public class ReservationService implements ReservationServicePort {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public Boolean checkAvaliability (LocalDate date, Long spaceId, Long residentId) {
+        Resident r = residentRepository.findById(residentId).orElseThrow(()
+                -> new IllegalArgumentException("ERRO NO METODO checkAvaliability da classe de service, Resident not found"));
+        Space s = spaceRepository.findSpaceById(spaceId).orElseThrow(()
+                -> new IllegalArgumentException("ERRO NO METODO checkAvaliability da classe de service, Space not found"));
+
+        if (reservationRepository.existsByDate(date)) {
+             System.out.println("Data indisponível: Já existe uma reserva para o dia " + date +
+                     "." + "para o morador " + r.getLogin() + ".");
+             return false;
+         } else if (reservationRepository.existsByDateAndSpace(date, s)) {
+             System.out.println("Data indisponível: Já existe uma reserva no espaço: " + s.getType() +
+                     "." + "para o morador " + r.getLogin() + ".");
+             return false;
+         } else if (reservationRepository.existsByResidentAndDateAndSpace(r, date, s)) {
+             System.out.println("Data indisponível: Já existe uma reserva para o residente " + r.getLogin() +
+                     "para " + s.getType() + " no dia " + date + ".");
+             return false;
+         } else {
+             return true;
+         }
     }
 
     private ReservationResponseDTO convertToDTO(Reservation reservation) {

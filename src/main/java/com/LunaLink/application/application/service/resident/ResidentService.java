@@ -7,6 +7,7 @@ import com.LunaLink.application.application.ports.output.ResidentRepositoryPort;
 import com.LunaLink.application.application.ports.input.ResidentServicePort;
 import com.LunaLink.application.web.dto.residentDTO.ResidentResponseDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +38,10 @@ public class ResidentService extends BaseService<Resident> implements ResidentSe
 
     @Override
     public Resident findResidentByLogin(String login) {
-        return residentRepository.findByLogin(login);
+        Resident r = residentRepository.findResidentByLogin(login)
+                .orElseThrow(() -> new UsernameNotFoundException("Residente não encontrado"));
+
+        return r;
     }
 
     @Override

@@ -33,8 +33,7 @@ build/
 .vscode/
 
 #Docker
-dump2.sql
-docker-compose.yml
+
 
 env/
 

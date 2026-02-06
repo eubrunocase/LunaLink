@@ -18,6 +18,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -30,8 +35,9 @@ public class SecurityConfiguration {
     }
 
    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
         return http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
@@ -40,29 +46,47 @@ public class SecurityConfiguration {
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html").permitAll()
 
+                        // ================= Actuator =================
                         .requestMatchers("/actuator/prometheus").permitAll()
 
+                        // ================= Autenticação =================
                         .requestMatchers(HttpMethod.POST,"/lunaLink/auth/login").permitAll()
 
+                        // ================= Disponibilidade de espaços =================
+                        .requestMatchers(HttpMethod.GET, "/lunaLink/availabilitySpaces/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/lunaLink/availabilitySpaces/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/lunaLink/availabilitySpaces/**").permitAll()
+
+
+                        // ================= Administrador =================
                         .requestMatchers(HttpMethod.GET,"/lunaLink/adm/**").hasRole("ADMINISTRATOR")
                         .requestMatchers(HttpMethod.POST,"/lunaLink/adm/**").hasRole("ADMINISTRATOR")
+
+                        // ================= Residente =================
                         .requestMatchers(HttpMethod.GET,"/lunaLink/resident").hasRole("ADMINISTRATOR")
                         .requestMatchers(HttpMethod.POST,"/lunaLink/resident").permitAll()
                         .requestMatchers(HttpMethod.DELETE,"/lunaLink/resident/**").hasRole("ADMINISTRATOR")
 
+                        // ================= Reserva =================
                         .requestMatchers(HttpMethod.POST,"/lunaLink/reservation").permitAll()
                         .requestMatchers(HttpMethod.GET,"/lunaLink/reservation").permitAll()
                         .requestMatchers(HttpMethod.DELETE,"/lunaLink/reservation/**").hasRole("ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.DELETE,"/lunaLink/reservation/checkAvaliability/**").permitAll()
 
+                        // ================= Espaço =================
                         .requestMatchers(HttpMethod.POST,"/lunaLink/space/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/lunaLink/space/**").permitAll()
 
+                        // ================= Reserva Mensal =================
                         .requestMatchers(HttpMethod.GET,"/lunaLink/reservaMensal/**").hasRole("ADMINISTRATOR")
 
+                        // ================= Check-in Ginásio =================
                         .requestMatchers(HttpMethod.POST,"/lunaLink/checkInGym/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/lunaLink/checkInGym/**").hasRole("ADMINISTRATOR")
 
+                        // ================= Check-out Ginásio =================
                         .requestMatchers(HttpMethod.GET,"/lunaLink/checkOutGym/**").permitAll()
+
 
                         .anyRequest().authenticated()
                 ) .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
@@ -108,4 +132,20 @@ public class SecurityConfiguration {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOrigins(List.of("*"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(false);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
 }
