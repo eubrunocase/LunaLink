@@ -1,7 +1,7 @@
 package com.LunaLink.application.web.controller;
 
-import com.LunaLink.application.core.services.businnesRules.SpaceService;
-import com.LunaLink.application.core.domain.Space;
+import com.LunaLink.application.application.service.space.SpaceService;
+import com.LunaLink.application.domain.model.space.Space;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

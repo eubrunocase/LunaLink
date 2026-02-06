@@ -1,6 +1,6 @@
 package com.LunaLink.application.web.dto.AdministratorDTO;
 
-import com.LunaLink.application.core.domain.enums.UserRoles;
+import com.LunaLink.application.domain.enums.UserRoles;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
@@ -8,8 +8,7 @@ import java.util.List;
 
 public record AdministratorResponseDTO(Long id,
                                        String login,
-                                       UserRoles role,
-                                       List<ReservationSummaryDTO> reservations) {
+                                       UserRoles role) {
 
     public record ReservationSummaryDTO(
             @JsonProperty("id") Long id,

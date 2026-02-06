@@ -1,0 +1,74 @@
+package com.LunaLink.application.domain.model.administrator;
+
+import com.LunaLink.application.domain.enums.UserRoles;
+import com.LunaLink.application.domain.model.reservation.Reservation;
+import com.LunaLink.application.domain.model.Users;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Getter
+@Setter
+@Entity
+@Table(name = "administrator")
+@EqualsAndHashCode(of = "id")
+public class Administrator extends Users {
+
+//    @OneToMany(mappedBy = "administrator", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Reservation> reservations = new ArrayList<>();
+
+    public Administrator(String login, String password, UserRoles role) {
+        super(login, password, role);
+    }
+
+    public Administrator() {
+        super("", "", UserRoles.ADMINISTRATOR);
+    }
+
+//    public List<Reservation> getReservations() {
+//        return reservations;
+//    }
+
+    @Override
+    public String toString() {
+        return "Administrador{}";
+    }
+    
+    @Override
+    public String getUsername() {
+        return this.getLogin();
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isAccountNonExpired() {
+        return super.isAccountNonExpired();
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isAccountNonLocked() {
+        return super.isAccountNonLocked();
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isCredentialsNonExpired() {
+        return super.isCredentialsNonExpired();
+    }
+
+    @Override
+    @JsonIgnore
+    public boolean isEnabled() {
+        return super.isEnabled();
+    }
+
+}

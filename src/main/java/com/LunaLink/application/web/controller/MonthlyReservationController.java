@@ -1,6 +1,6 @@
 package com.LunaLink.application.web.controller;
 
-import com.LunaLink.application.core.services.businnesRules.MonthlyReservationService;
+import com.LunaLink.application.application.service.reservation.MonthlyReservationService;
 import com.LunaLink.application.web.dto.ReservationsDTO.MonthlyRsDTO;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

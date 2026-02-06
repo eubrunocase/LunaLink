@@ -44,6 +44,34 @@ services:
       - ./dump.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - observability-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U brunocase"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  application:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lunalink_api
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/LunaLink
+      SPRING_DATASOURCE_USERNAME: brunocase
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,metrics,prometheus
+      MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED: "true"
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+    networks:
+      - observability-net
 
 volumes:
   grafana-data:

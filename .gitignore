@@ -33,5 +33,10 @@ build/
 .vscode/
 
 #Docker
-dump.sql
+
+
+env/
+
+resources/
+application.properties
 
