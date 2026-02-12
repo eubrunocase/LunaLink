@@ -1,7 +1,6 @@
 package com.LunaLink.application.infrastructure.security;
 
-import com.LunaLink.application.infrastructure.repository.administrator.AdministratorRepository;
-import com.LunaLink.application.infrastructure.repository.resident.ResidentRepository;
+import com.LunaLink.application.application.ports.output.UserRepositoryPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -106,20 +105,14 @@ public class SecurityConfiguration {
 
     @Bean
     public UserDetailsService userDetailsService(
-            AdministratorRepository administratorRepository,
-            ResidentRepository residentRepository) {
+            UserRepositoryPort userRepositoryPort) {
         return new UserDetailsService() {
             @Override
             public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-                UserDetails adminUser = administratorRepository.findByLogin(username);
-                if (adminUser != null) {
-                    System.out.println("Usuário administrador encontrado: " + username);
-                    return adminUser;
-                }
 
-                UserDetails residentUser = residentRepository.findByLogin(username);
+                UserDetails residentUser = userRepositoryPort.findByLogin(username);
                 if (residentUser != null) {
-                    System.out.println("Usuário professor encontrado: " + username);
+                    System.out.println("Usuário encontrado: " + username);
                     return residentUser;
                 }
 

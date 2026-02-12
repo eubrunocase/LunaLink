@@ -1,7 +1,7 @@
 package com.LunaLink.application.domain.model.reservation;
 
+import com.LunaLink.application.domain.model.users.Users;
 import com.LunaLink.application.domain.model.space.Space;
-import com.LunaLink.application.domain.model.resident.Resident;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,13 +9,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Entity
 @Table(
         name = "reservation",
         uniqueConstraints = {
-                @UniqueConstraint(name = "uk_resident_date",
-                        columnNames = {"resident_id", "date", "space_id"})
+                @UniqueConstraint(name = "uk_user_date_space",
+                        columnNames = {"user_id", "date", "space_id"})
         }
 )
 @Getter
@@ -25,26 +26,27 @@ import java.time.LocalDate;
 public class Reservation {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(columnDefinition = "uuid")
+    private UUID id;
 
     @Column(nullable = false)
     private LocalDate date;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "resident_id")
-    private Resident resident;
+    @JoinColumn(name = "user_id")
+    private Users user;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "space_id")
     private Space space;
 
-    public void assignTo(Resident resident, Space space) {
-        this.resident = resident;
+    public void assignTo(Users users, Space space) {
+        this.user = users;
         this.space = space;
     }
 
-    public long getId() {
+    public UUID getId() {
         return id;
     }
 
@@ -52,15 +54,11 @@ public class Reservation {
         return date;
     }
 
-    public Resident getResident() {
-        return resident;
-    }
-
     public Space getSpace() {
         return space;
     }
 
-    public void setId(long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -68,11 +66,15 @@ public class Reservation {
         this.date = date;
     }
 
-    public void setResident(Resident resident) {
-        this.resident = resident;
-    }
-
     public void setSpace(Space space) {
         this.space = space;
+    }
+
+    public Users getUser() {
+        return user;
+    }
+
+    public void setUser(Users users) {
+        this.user = users;
     }
 }

@@ -1,8 +1,7 @@
 package com.LunaLink.application.web.controller;
 
 import com.LunaLink.application.application.facades.reservation.ReservationServiceFacade;
-import com.LunaLink.application.application.ports.input.ReservationServicePort;
-import com.LunaLink.application.application.ports.input.ResidentServicePort;
+import com.LunaLink.application.application.ports.input.UserServicePort;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationCreateDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
@@ -14,19 +13,18 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/lunaLink/reservation")
 public class ReservationController {
 
     private final ReservationServiceFacade facade;
-    private final ReservationServicePort reservationServicePort;
-    private final ResidentServicePort residentServicePort;
+    private final UserServicePort userServicePort;
 
-    public ReservationController(ReservationServiceFacade facade, ReservationServicePort reservationServicePort, ResidentServicePort residentServicePort) {
+    public ReservationController(ReservationServiceFacade facade, UserServicePort userServicePort) {
         this.facade = facade;
-        this.reservationServicePort = reservationServicePort;
-        this.residentServicePort = residentServicePort;
+        this.userServicePort = userServicePort;
     }
 
     @PostMapping
@@ -49,19 +47,19 @@ public class ReservationController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteReservation (@PathVariable Long id) {
+    public ResponseEntity<Void> deleteReservation (@PathVariable UUID id) {
         facade.deleteReservation(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ReservationResponseDTO> findReservationById(@PathVariable Long id) {
+    public ResponseEntity<ReservationResponseDTO> findReservationById(@PathVariable UUID id) {
         ReservationResponseDTO reservation = facade.findReservationById(id);
         return ResponseEntity.ok(reservation);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ReservationResponseDTO> updateReservation(@PathVariable Long id,
+    public ResponseEntity<ReservationResponseDTO> updateReservation(@PathVariable UUID id,
                                                                     @RequestBody ReservationRequestDTO reservationRequestDTO) {
         ReservationResponseDTO reservation = facade.updateReservation(id, reservationRequestDTO);
         return ResponseEntity.ok(reservation);
@@ -72,9 +70,9 @@ public class ReservationController {
                                                      Authentication authentication,
                                                      @PathVariable Long spaceId) {
         String login = authentication.getName();
-        Long residentId = residentServicePort.findResidentByLogin(login).getId();
+        UUID residentId = userServicePort.findUserByLogin(login).id();
 
-        Boolean checkAvaliability = reservationServicePort.checkAvaliability(date, spaceId, residentId);
+        Boolean checkAvaliability = facade.checkAvaliability(date, spaceId, residentId);
 
         if (checkAvaliability) {
             return ResponseEntity.ok(true);
