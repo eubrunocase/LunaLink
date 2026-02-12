@@ -1,22 +1,28 @@
 package com.LunaLink.application.infrastructure.repository.reservation;
 
+import com.LunaLink.application.domain.model.users.Users;
 import com.LunaLink.application.domain.model.reservation.Reservation;
-import com.LunaLink.application.domain.model.resident.Resident;
 import com.LunaLink.application.domain.model.space.Space;
 import com.LunaLink.application.application.ports.output.ReservationRepositoryPort;
+import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface ReservationRepository extends JpaRepository<Reservation, Long>, ReservationRepositoryPort {
-    boolean existsByResidentAndDateAndSpace(Resident resident, LocalDate date, Space space);
+public interface ReservationRepository extends JpaRepository<Reservation, UUID>, ReservationRepositoryPort {
+    boolean existsByUserAndDateAndSpace(Users user, LocalDate date, Space space);
     boolean existsByDateAndSpace(LocalDate date, Space space);
     boolean existsByDate(LocalDate date);
-    Reservation findReservationById(Long id);
+    //ReservationResponseDTO findReservationById(UUID id);
+
+    Optional<Reservation> findById(UUID id);
+
 
     /**
      * Busca todas as datas indisponíveis (com reservas) para um espaço em um mês específico
@@ -98,12 +104,12 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long>,
     @Query("""
         SELECT r
         FROM Reservation r
-        WHERE r.resident.id = :residentId
+        WHERE r.user.id = :residentId
           AND r.date BETWEEN :startDate AND :endDate
         ORDER BY r.date ASC
     """)
     List<Reservation> findByResidentAndDateRange(
-            @Param("residentId") Long residentId,
+            @Param("userId") UUID residentId,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );

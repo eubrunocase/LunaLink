@@ -1,9 +1,7 @@
 package com.LunaLink.application.infrastructure.security;
 
-
-import com.LunaLink.application.application.ports.output.ResidentRepositoryPort;
+import com.LunaLink.application.application.ports.output.UserRepositoryPort;
 import com.LunaLink.application.application.service.auth.TokenService;
-import com.LunaLink.application.application.ports.output.AdministratorRepositoryPort;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,15 +18,12 @@ import java.io.IOException;
 public class SecurityFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
-    private final ResidentRepositoryPort residentRepository;
-    private final AdministratorRepositoryPort administratorRepository;
+    private final UserRepositoryPort userRepositoryPort;
 
 
-    public SecurityFilter(TokenService tokenService, ResidentRepositoryPort residentRepository,
-                          AdministratorRepositoryPort administratorRepository) {
+    public SecurityFilter(TokenService tokenService, UserRepositoryPort userRepositoryPort) {
         this.tokenService = tokenService;
-        this.residentRepository = residentRepository;
-        this.administratorRepository = administratorRepository;
+        this.userRepositoryPort = userRepositoryPort;
     }
 
     @Override
@@ -48,10 +43,10 @@ public class SecurityFilter extends OncePerRequestFilter {
                 if (!"Invalid token".equals(login)) {
                     System.out.println("Token válido para usuário: " + login);
 
-                    UserDetails user = administratorRepository.findByLogin(login);
+                    UserDetails user = userRepositoryPort.findByLogin(login);
 
                     if (user == null) {
-                        user = residentRepository.findByLogin(login);
+                        throw new ServletException("ERRO NO MÉTODO doFilterInternal do SecurityFilter: User not found");
                     }
 
                     if (user != null) {

@@ -48,13 +48,13 @@ public class ReservationMapperImpl implements ReservationMapper {
         return reservation;
     }
 
-    private ReservationResponseDTO.ResidentSummaryDTO mapResidentToDTO(Reservation reservation) {
-        if (reservation.getResident() == null) {
+    private ReservationResponseDTO.UserSummaryDTO mapResidentToDTO(Reservation reservation) {
+        if (reservation.getUser() == null) {
             return null;
         }
-        return new ReservationResponseDTO.ResidentSummaryDTO(
-                reservation.getResident().getId(),
-                reservation.getResident().getLogin()
+        return new ReservationResponseDTO.UserSummaryDTO(
+                reservation.getUser().getId(),
+                reservation.getUser().getLogin()
         );
     }
 
@@ -69,3 +69,4 @@ public class ReservationMapperImpl implements ReservationMapper {
     }
 
 }
+ 

@@ -3,15 +3,16 @@ package com.LunaLink.application.web.dto.ReservationsDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
-public record ReservationResponseDTO(@JsonProperty("id") Long id,
+public record ReservationResponseDTO(@JsonProperty("id") UUID id,
                                      @JsonProperty("date") LocalDate date,
-                                     @JsonProperty("resident") ResidentSummaryDTO resident,
+                                     @JsonProperty("user") UserSummaryDTO user,
                                      @JsonProperty("space") SpaceSummaryDTO space) {
 
 
-    public record ResidentSummaryDTO(
-            @JsonProperty("id") Long id,
+    public record UserSummaryDTO(
+            @JsonProperty("id") UUID id,
             @JsonProperty("login") String login
     ) {}
 

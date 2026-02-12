@@ -1,8 +1,7 @@
 package com.LunaLink.application.application.facades.auth;
 
-import com.LunaLink.application.domain.model.Users;
-import com.LunaLink.application.application.service.administrator.AdministratorService;
-import com.LunaLink.application.application.service.resident.ResidentService;
+import com.LunaLink.application.application.ports.input.UserServicePort;
+import com.LunaLink.application.domain.model.users.Users;
 import com.LunaLink.application.application.service.auth.TokenService;
 import com.LunaLink.application.web.dto.SecurityDTOs.AuthenticationDTO;
 import com.LunaLink.application.web.dto.SecurityDTOs.LoginResponseDTO;
@@ -17,20 +16,17 @@ public class LoginFacade {
 
     private final AuthenticationManager authenticationManager;
     private final TokenService tokenService;
-    private final ResidentService residentService;
-    private final AdministratorService administratorService;
+    private final UserServicePort userService;
 
     public LoginFacade(AuthenticationManager authenticationManager,
                        TokenService tokenService,
-                       ResidentService residentService,
-                       AdministratorService administratorService) {
+                       UserServicePort userService) {
         this.authenticationManager = authenticationManager;
         this.tokenService = tokenService;
-        this.residentService = residentService;
-        this.administratorService = administratorService;
+        this.userService = userService;
     }
 
-    public ResponseEntity<LoginResponseDTO> login (AuthenticationDTO data) {
+    public ResponseEntity<LoginResponseDTO> login(AuthenticationDTO data) {
         try {
             System.out.println("recebendo dados de login para " + data.login());
             Authentication request = UsernamePasswordAuthenticationToken.unauthenticated(data.login(), data.password());
