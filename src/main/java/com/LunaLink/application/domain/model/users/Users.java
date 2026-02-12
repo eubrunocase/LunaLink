@@ -17,8 +17,8 @@ import java.util.UUID;
 @Getter
 @Setter
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Entity
 @Table(name = "users")
@@ -52,6 +52,7 @@ public class Users implements UserDetails {
         this.login = login;
         this.password = password;
         this.role = role;
+        this.reservations = new ArrayList<>();
     }
 
     public UserRoles getRole() {

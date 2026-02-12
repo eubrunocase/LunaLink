@@ -27,12 +27,12 @@ public class UsersController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<ResponseUserDTO> createUser(RequestUserDTO users) {
+    public ResponseEntity<ResponseUserDTO> createUser(@RequestBody RequestUserDTO users) {
         return ResponseEntity.ok(userFacade.createUser(users));
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<ResponseUserDTO> updateUser(UUID id, RequestUserDTO users) {
+    public ResponseEntity<ResponseUserDTO> updateUser(@PathVariable UUID id,@RequestBody RequestUserDTO users) {
         return ResponseEntity.ok(userFacade.updateUser(id, users));
     }
 

@@ -58,13 +58,10 @@ public class SecurityConfiguration {
 
 
                         // ================= Administrador =================
-                        .requestMatchers(HttpMethod.GET,"/lunaLink/adm/**").hasRole("ADMINISTRATOR")
-                        .requestMatchers(HttpMethod.POST,"/lunaLink/adm/**").hasRole("ADMINISTRATOR")
-
-                        // ================= Residente =================
-                        .requestMatchers(HttpMethod.GET,"/lunaLink/resident").hasRole("ADMINISTRATOR")
-                        .requestMatchers(HttpMethod.POST,"/lunaLink/resident").permitAll()
-                        .requestMatchers(HttpMethod.DELETE,"/lunaLink/resident/**").hasRole("ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.GET,"/lunaLink/users/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/lunaLink/users/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT,"/lunaLink/users/**").permitAll()
+                        .requestMatchers(HttpMethod.DELETE,"/lunaLink/users/**").permitAll()
 
                         // ================= Reserva =================
                         .requestMatchers(HttpMethod.POST,"/lunaLink/reservation").permitAll()
