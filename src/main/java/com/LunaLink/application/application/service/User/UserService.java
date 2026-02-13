@@ -66,7 +66,8 @@ public class UserService implements UserServicePort {
 
     @Override
     public List<ResponseUserDTO> findAll() {
-        return List.of();
+        List<Users> users = userRepositoryPort.findAll();
+        return userMapper.toDTOList(users);
     }
 
 }

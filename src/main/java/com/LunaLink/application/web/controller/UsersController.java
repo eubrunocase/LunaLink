@@ -7,6 +7,7 @@ import com.LunaLink.application.web.mapperImpl.UserMapperImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -24,6 +25,12 @@ public class UsersController {
     public ResponseEntity<ResponseUserDTO> findUserById(@PathVariable UUID id) {
         ResponseUserDTO user = userFacade.findResidentById(id);
         return ResponseEntity.ok(user);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<ResponseUserDTO>> findAllUsers () {
+        List<ResponseUserDTO> users = userFacade.findAllResidents();
+        return ResponseEntity.ok(users);
     }
 
     @PostMapping("/create")

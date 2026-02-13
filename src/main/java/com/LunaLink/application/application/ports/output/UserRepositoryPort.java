@@ -13,5 +13,5 @@ public interface UserRepositoryPort {
     Users save(Users user);
     void deleteById(UUID id);
     List<Users> findByRole(UserRoles role);
-
+    List<Users> findAll();
 }
