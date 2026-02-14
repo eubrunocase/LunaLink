@@ -27,7 +27,7 @@ public class Delivery {
     @Column(name = "createdAt", nullable = true)
     private LocalDateTime createdAt;
 
-    @Lob
+
     @Column(name = "image", columnDefinition = "BYTEA", nullable = true)
     private byte[] image;
 
@@ -45,6 +45,11 @@ public class Delivery {
     public Delivery() {
     }
 
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
+    
     public UUID getId() {
         return Id;
     }
