@@ -11,15 +11,13 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/lunalink/delivery")
+@RequestMapping("/lunaLink/delivery")
 public class DeliveryController {
 
     private final DeliveryFacade deliveryFacade;
-    private final DeliveryMapper deliveryMapper;
 
-    public DeliveryController(DeliveryFacade  deliveryFacade, DeliveryMapper deliveryMapper) {
+    public DeliveryController(DeliveryFacade  deliveryFacade) {
         this.deliveryFacade =  deliveryFacade;
-        this.deliveryMapper = deliveryMapper;
     }
 
     @GetMapping("/findAll")

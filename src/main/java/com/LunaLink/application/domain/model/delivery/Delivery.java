@@ -24,7 +24,7 @@ public class Delivery {
     private String protocolNumber;
 
     @JsonProperty("createdAt")
-    @Column(name = "createdAt", nullable = false)
+    @Column(name = "createdAt", nullable = true)
     private LocalDateTime createdAt;
 
     @Lob
@@ -35,7 +35,7 @@ public class Delivery {
     @Column(name = "otherRecipient", nullable = true)
     private String otherRecipient;
 
-    public Delivery(UUID userId, String protocolNumber,LocalDateTime createdAt, byte[] image, String otherRecipient) {
+    public Delivery(UUID userId, String protocolNumber, LocalDateTime createdAt ,byte[] image, String otherRecipient) {
         this.userId = userId;
         this.protocolNumber = protocolNumber;
         this.image = image;
