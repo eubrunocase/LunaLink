@@ -28,7 +28,7 @@ public class DeliveryService implements DeliveryServicePort {
     @Transactional
     public ResponseDeliveryDTO createDelivery(RequestDeliveryDTO requestDeliveryDTO) {
          if (requestDeliveryDTO == null)
-             throw new RuntimeException("MÉTODO CREATE USER DE DeliveryService: Delivery não pode ser nulo.");
+             throw new RuntimeException("MÉTODO CREATE Delivery DE DeliveryService: Delivery não pode ser nulo.");
 
          Delivery delivery = mapper.toEntity(requestDeliveryDTO);
          return mapper.toDTO(repository.save(delivery));

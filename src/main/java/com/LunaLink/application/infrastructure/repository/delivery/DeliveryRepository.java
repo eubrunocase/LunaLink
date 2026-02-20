@@ -1,4 +1,4 @@
-package com.LunaLink.application.infrastructure.repository;
+package com.LunaLink.application.infrastructure.repository.delivery;
 
 import com.LunaLink.application.application.ports.output.DeliveryRepositoryPort;
 import com.LunaLink.application.domain.model.delivery.Delivery;
