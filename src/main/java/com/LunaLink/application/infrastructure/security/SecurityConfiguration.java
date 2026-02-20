@@ -1,7 +1,6 @@
 package com.LunaLink.application.infrastructure.security;
 
-import com.LunaLink.application.infrastructure.repository.administrator.AdministratorRepository;
-import com.LunaLink.application.infrastructure.repository.resident.ResidentRepository;
+import com.LunaLink.application.application.ports.output.UserRepositoryPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -46,6 +45,8 @@ public class SecurityConfiguration {
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html").permitAll()
 
+                        .requestMatchers("/error").permitAll()
+
                         // ================= Actuator =================
                         .requestMatchers("/actuator/prometheus").permitAll()
 
@@ -57,20 +58,21 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/lunaLink/availabilitySpaces/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/lunaLink/availabilitySpaces/**").permitAll()
 
+                        // ================= Encomendas=================
+                        .requestMatchers(HttpMethod.GET, "/lunaLink/delivery/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/lunaLink/delivery/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/lunaLink/delivery/**").authenticated()
 
                         // ================= Administrador =================
-                        .requestMatchers(HttpMethod.GET,"/lunaLink/adm/**").hasRole("ADMINISTRATOR")
-                        .requestMatchers(HttpMethod.POST,"/lunaLink/adm/**").hasRole("ADMINISTRATOR")
-
-                        // ================= Residente =================
-                        .requestMatchers(HttpMethod.GET,"/lunaLink/resident").hasRole("ADMINISTRATOR")
-                        .requestMatchers(HttpMethod.POST,"/lunaLink/resident").permitAll()
-                        .requestMatchers(HttpMethod.DELETE,"/lunaLink/resident/**").hasRole("ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.GET,"/lunaLink/users/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/lunaLink/users/**").permitAll()
+                        .requestMatchers(HttpMethod.PUT,"/lunaLink/users/**").permitAll()
+                        .requestMatchers(HttpMethod.DELETE,"/lunaLink/users/**").permitAll()
 
                         // ================= Reserva =================
                         .requestMatchers(HttpMethod.POST,"/lunaLink/reservation").permitAll()
                         .requestMatchers(HttpMethod.GET,"/lunaLink/reservation").permitAll()
-                        .requestMatchers(HttpMethod.DELETE,"/lunaLink/reservation/**").hasRole("ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.DELETE,"/lunaLink/reservation/**").hasRole("ADMIN_ROLE")
                         .requestMatchers(HttpMethod.DELETE,"/lunaLink/reservation/checkAvaliability/**").permitAll()
 
                         // ================= Espaço =================
@@ -78,11 +80,11 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET,"/lunaLink/space/**").permitAll()
 
                         // ================= Reserva Mensal =================
-                        .requestMatchers(HttpMethod.GET,"/lunaLink/reservaMensal/**").hasRole("ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.GET,"/lunaLink/reservaMensal/**").hasRole("ADMIN_ROLE")
 
                         // ================= Check-in Ginásio =================
                         .requestMatchers(HttpMethod.POST,"/lunaLink/checkInGym/**").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/lunaLink/checkInGym/**").hasRole("ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.GET,"/lunaLink/checkInGym/**").hasRole("ADMIN_ROLE")
 
                         // ================= Check-out Ginásio =================
                         .requestMatchers(HttpMethod.GET,"/lunaLink/checkOutGym/**").permitAll()
@@ -106,20 +108,14 @@ public class SecurityConfiguration {
 
     @Bean
     public UserDetailsService userDetailsService(
-            AdministratorRepository administratorRepository,
-            ResidentRepository residentRepository) {
+            UserRepositoryPort userRepositoryPort) {
         return new UserDetailsService() {
             @Override
             public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-                UserDetails adminUser = administratorRepository.findByLogin(username);
-                if (adminUser != null) {
-                    System.out.println("Usuário administrador encontrado: " + username);
-                    return adminUser;
-                }
 
-                UserDetails residentUser = residentRepository.findByLogin(username);
+                UserDetails residentUser = userRepositoryPort.findByLogin(username);
                 if (residentUser != null) {
-                    System.out.println("Usuário professor encontrado: " + username);
+                    System.out.println("Usuário encontrado: " + username);
                     return residentUser;
                 }
 

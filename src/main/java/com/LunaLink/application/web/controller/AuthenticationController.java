@@ -1,8 +1,8 @@
 package com.LunaLink.application.web.controller;
 
 import com.LunaLink.application.application.facades.auth.LoginFacade;
-import com.LunaLink.application.web.dto.SecurityDTOs.AuthenticationDTO;
-import com.LunaLink.application.web.dto.SecurityDTOs.LoginResponseDTO;
+import com.LunaLink.application.web.dto.SecurityDTO.AuthenticationDTO;
+import com.LunaLink.application.web.dto.SecurityDTO.LoginResponseDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

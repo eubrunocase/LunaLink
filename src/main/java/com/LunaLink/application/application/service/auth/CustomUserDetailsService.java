@@ -1,7 +1,6 @@
 package com.LunaLink.application.application.service.auth;
 
-import com.LunaLink.application.infrastructure.repository.administrator.AdministratorRepository;
-import com.LunaLink.application.infrastructure.repository.resident.ResidentRepository;
+import com.LunaLink.application.application.ports.output.UserRepositoryPort;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,26 +11,20 @@ import org.springframework.stereotype.Service;
 @Primary
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final ResidentRepository residentRepository;
-    private final AdministratorRepository administratorRepository;
+    private final UserRepositoryPort userRepositoryPort;
 
-    public CustomUserDetailsService(ResidentRepository residentRepository, AdministratorRepository administratorRepository) {
-        this.residentRepository = residentRepository;
-        this.administratorRepository = administratorRepository;
+    public CustomUserDetailsService(UserRepositoryPort userRepositoryPort) {
+        this.userRepositoryPort = userRepositoryPort;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserDetails userAdm = administratorRepository.findByLogin(username);
-        if (userAdm != null) {
-            return userAdm;
-        }
 
-        UserDetails userResident = residentRepository.findByLogin(username);
+        UserDetails userResident = userRepositoryPort.findByLogin(username);
         if (userResident != null) {
             return userResident;
         }
-
         throw new UsernameNotFoundException("Usuário não encontrado: " + username);
     }
+
 }

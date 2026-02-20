@@ -1,0 +1,12 @@
+package com.LunaLink.application.web.dto.DeliveryReceivedDTO;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.Valid;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+public record RequestDeliveryReceivedDTO(@JsonProperty("deliveryId") @Valid UUID deliveryId,
+                                         @JsonProperty("receivedAt") LocalDateTime receivedAt
+                                         ) {
+}
