@@ -3,6 +3,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -11,26 +12,44 @@ import java.util.UUID;
 public class Delivery {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private UUID Id;
-    @JsonProperty("nameResident")
-    @Column(name = "nameResident")
-    private String nameResident;
+
+    @JsonProperty("userId")
+    @Column(name = "userId", nullable = false)
+    private UUID userId;
+
     @JsonProperty("protocolNumber")
-    @Column(name = "protocolNumber")
+    @Column(name = "protocolNumber", nullable = false)
     private String protocolNumber;
-    @Lob
-    @Column(name = "image", columnDefinition = "BYTEA")
+
+    @JsonProperty("createdAt")
+    @Column(name = "createdAt", nullable = true)
+    private LocalDateTime createdAt;
+
+
+    @Column(name = "image", columnDefinition = "BYTEA", nullable = true)
     private byte[] image;
 
-    public Delivery(String nameResident, String protocolNumber) {
-        this.nameResident = nameResident;
+    @JsonProperty("otherRecipient")
+    @Column(name = "otherRecipient", nullable = true)
+    private String otherRecipient;
+
+    public Delivery(UUID userId, String protocolNumber, LocalDateTime createdAt ,byte[] image, String otherRecipient) {
+        this.userId = userId;
         this.protocolNumber = protocolNumber;
+        this.image = image;
+        this.otherRecipient = otherRecipient;
     }
 
     public Delivery() {
     }
 
+    @PrePersist
+    public void prePersist() {
+        this.createdAt = LocalDateTime.now();
+    }
+    
     public UUID getId() {
         return Id;
     }
@@ -39,23 +58,34 @@ public class Delivery {
         return image;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public String getOtherRecipient() {
+        return otherRecipient;
+    }
     public void setImage(byte[] image) {
         this.image = image;
     }
 
-    public String getNameResident() {
-        return nameResident;
+    public UUID getUserId() {
+        return userId;
     }
 
     public String getProtocolNumber() {
         return protocolNumber;
     }
 
-    public void setNameResident(String nameResident) {
-        this.nameResident = nameResident;
+    public void setUserId(UUID userId) {
+        this.userId = userId;
     }
 
     public void setProtocolNumber(String protocolNumber) {
         this.protocolNumber = protocolNumber;
+    }
+
+    public void setOtherRecipient(String otherRecipient) {
+        this.otherRecipient = otherRecipient;
     }
 }

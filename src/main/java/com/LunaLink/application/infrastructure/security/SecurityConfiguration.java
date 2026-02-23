@@ -45,6 +45,8 @@ public class SecurityConfiguration {
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html").permitAll()
 
+                        .requestMatchers("/error").permitAll()
+
                         // ================= Actuator =================
                         .requestMatchers("/actuator/prometheus").permitAll()
 
@@ -56,6 +58,10 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/lunaLink/availabilitySpaces/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/lunaLink/availabilitySpaces/**").permitAll()
 
+                        // ================= Encomendas=================
+                        .requestMatchers(HttpMethod.GET, "/lunaLink/delivery/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/lunaLink/delivery/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/lunaLink/delivery/**").authenticated()
 
                         // ================= Administrador =================
                         .requestMatchers(HttpMethod.GET,"/lunaLink/users/**").permitAll()
@@ -66,7 +72,7 @@ public class SecurityConfiguration {
                         // ================= Reserva =================
                         .requestMatchers(HttpMethod.POST,"/lunaLink/reservation").permitAll()
                         .requestMatchers(HttpMethod.GET,"/lunaLink/reservation").permitAll()
-                        .requestMatchers(HttpMethod.DELETE,"/lunaLink/reservation/**").hasRole("ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.DELETE,"/lunaLink/reservation/**").hasRole("ADMIN_ROLE")
                         .requestMatchers(HttpMethod.DELETE,"/lunaLink/reservation/checkAvaliability/**").permitAll()
 
                         // ================= Espaço =================
@@ -74,11 +80,11 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET,"/lunaLink/space/**").permitAll()
 
                         // ================= Reserva Mensal =================
-                        .requestMatchers(HttpMethod.GET,"/lunaLink/reservaMensal/**").hasRole("ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.GET,"/lunaLink/reservaMensal/**").hasRole("ADMIN_ROLE")
 
                         // ================= Check-in Ginásio =================
                         .requestMatchers(HttpMethod.POST,"/lunaLink/checkInGym/**").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/lunaLink/checkInGym/**").hasRole("ADMINISTRATOR")
+                        .requestMatchers(HttpMethod.GET,"/lunaLink/checkInGym/**").hasRole("ADMIN_ROLE")
 
                         // ================= Check-out Ginásio =================
                         .requestMatchers(HttpMethod.GET,"/lunaLink/checkOutGym/**").permitAll()

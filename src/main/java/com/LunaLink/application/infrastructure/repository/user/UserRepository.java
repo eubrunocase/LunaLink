@@ -23,4 +23,7 @@ public interface UserRepository extends JpaRepository<Users, UUID>, UserReposito
     @Override
     List<Users> findByRole(UserRoles role);
 
+    @Override
+    List<Users> findAll();
+
 }

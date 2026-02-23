@@ -16,7 +16,6 @@ public class UserMapperImpl implements UserMapper {
         if (user == null) {
             return null;
         }
-
         List<ResponseUserDTO.ReservationSummaryDTO> reservationDTOs =
                 user.getReservations().stream()
                         .map(reservation -> new ResponseUserDTO.ReservationSummaryDTO(
@@ -25,7 +24,6 @@ public class UserMapperImpl implements UserMapper {
                                 reservation.getSpace().getType().toString()
                         ))
                         .collect(Collectors.toList());
-
         return new ResponseUserDTO(
                 user.getId(),
                 user.getLogin(),
@@ -43,6 +41,7 @@ public class UserMapperImpl implements UserMapper {
                 .map(this::toDTO)
                 .collect(Collectors.toList());
     }
+
 
 }
 

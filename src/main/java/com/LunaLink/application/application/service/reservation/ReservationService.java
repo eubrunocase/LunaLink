@@ -11,7 +11,11 @@ import com.LunaLink.application.infrastructure.repository.space.SpaceRepository;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
 import jakarta.transaction.Transactional;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -74,6 +78,7 @@ public class ReservationService implements ReservationServicePort {
             throw new Exception("Erro ao criar reserva: " + e.getMessage());
         }
     }
+
 
     @Override
     public List<ReservationResponseDTO> findAllReservations() {

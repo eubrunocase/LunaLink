@@ -4,7 +4,6 @@ import com.LunaLink.application.domain.model.users.Users;
 import com.LunaLink.application.domain.model.reservation.Reservation;
 import com.LunaLink.application.domain.model.space.Space;
 import com.LunaLink.application.application.ports.output.ReservationRepositoryPort;
-import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
