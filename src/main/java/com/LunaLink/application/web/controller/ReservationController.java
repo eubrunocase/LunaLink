@@ -81,5 +81,17 @@ public class ReservationController {
         }
     }
 
+    @PutMapping("/{id}/approve")
+    public ResponseEntity<ReservationResponseDTO> approveReservation(@PathVariable UUID id) {
+        ReservationResponseDTO response = facade.approveReservation(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}/reject")
+    public ResponseEntity<ReservationResponseDTO> rejectReservation(@PathVariable UUID id) {
+        ReservationResponseDTO response = facade.rejectReservation(id);
+        return ResponseEntity.ok(response);
+    }
+
 
 }

@@ -1,7 +1,9 @@
 package com.LunaLink.application.domain.model.reservation;
 
-import com.LunaLink.application.domain.model.users.Users;
+import com.LunaLink.application.domain.enums.ReservationStatus;
 import com.LunaLink.application.domain.model.space.Space;
+import com.LunaLink.application.domain.model.users.Users;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -40,6 +43,19 @@ public class Reservation {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "space_id")
     private Space space;
+
+    @JsonProperty("status")
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true)
+    private ReservationStatus status;
+
+    @JsonProperty("createdAt")
+    @Column(name = "createdAt", nullable = true)
+    private LocalDateTime createdAt;
+
+    @JsonProperty("canceledAt")
+    @Column(name = "canceledAt", nullable = true)
+    private LocalDateTime canceledAt;
 
     public void assignTo(Users users, Space space) {
         this.user = users;
@@ -76,5 +92,29 @@ public class Reservation {
 
     public void setUser(Users users) {
         this.user = users;
+    }
+
+    public ReservationStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ReservationStatus status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getCanceledAt() {
+        return canceledAt;
+    }
+
+    public void setCanceledAt(LocalDateTime canceledAt) {
+        this.canceledAt = canceledAt;
     }
 }

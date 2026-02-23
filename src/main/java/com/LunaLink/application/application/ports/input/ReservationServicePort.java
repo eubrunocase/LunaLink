@@ -16,5 +16,8 @@ public interface ReservationServicePort {
     ReservationResponseDTO updateReservation(UUID id, ReservationRequestDTO reservationRequestDTO);
     Boolean checkAvaliability (LocalDate date, Long space, UUID user);
 
+    ReservationResponseDTO approveReservation(UUID id);
+    ReservationResponseDTO rejectReservation(UUID id);
+
 
 }

@@ -22,7 +22,10 @@ public class ReservationMapperImpl implements ReservationMapper {
                 reservation.getId(),
                 reservation.getDate(),
                 mapResidentToDTO(reservation),
-                mapSpaceToDTO(reservation)
+                mapSpaceToDTO(reservation),
+                reservation.getStatus(),
+                reservation.getCreatedAt(),
+                reservation.getCanceledAt()
         );
     }
 

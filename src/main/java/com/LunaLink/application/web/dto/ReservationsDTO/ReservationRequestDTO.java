@@ -1,5 +1,6 @@
 package com.LunaLink.application.web.dto.ReservationsDTO;
 
+import com.LunaLink.application.domain.enums.ReservationStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 

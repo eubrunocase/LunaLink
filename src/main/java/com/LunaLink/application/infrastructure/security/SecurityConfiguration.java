@@ -75,6 +75,9 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.DELETE,"/lunaLink/reservation/**").hasRole("ADMIN_ROLE")
                         .requestMatchers(HttpMethod.DELETE,"/lunaLink/reservation/checkAvaliability/**").permitAll()
 
+                        .requestMatchers(HttpMethod.PUT,"/lunaLink/reservation/{id}/approve").hasRole("ADMIN_ROLE")
+                        .requestMatchers(HttpMethod.PUT,"/lunaLink/reservation/{id}/reject").hasRole("ADMIN_ROLE")
+
                         // ================= Espaço =================
                         .requestMatchers(HttpMethod.POST,"/lunaLink/space/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/lunaLink/space/**").permitAll()

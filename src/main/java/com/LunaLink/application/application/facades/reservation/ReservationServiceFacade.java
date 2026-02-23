@@ -56,6 +56,13 @@ public class ReservationServiceFacade {
         return reservation;
      }
 
+    public ReservationResponseDTO approveReservation(UUID id) {
+        return reservationService.approveReservation(id);
+    }
+
+    public ReservationResponseDTO rejectReservation(UUID id) {
+        return reservationService.rejectReservation(id);
+    }
 
      public Boolean checkAvaliability (LocalDate date, Long space, UUID user) {
         return reservationService.checkAvaliability(date, space, user);

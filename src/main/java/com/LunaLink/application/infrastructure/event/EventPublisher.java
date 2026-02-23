@@ -1,6 +1,7 @@
 package com.LunaLink.application.infrastructure.event;
 
 import com.LunaLink.application.domain.events.DeliveryReceivedEvent;
+import com.LunaLink.application.domain.events.ReservationRequestedEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -13,8 +14,14 @@ public class EventPublisher {
         this.publisher = publisher;
     }
 
-    public void publishEvent(DeliveryReceivedEvent event) {
+    public void publishDeliveryReceivedEvent(DeliveryReceivedEvent event) {
         publisher.publishEvent(event);
     }
+
+    public void publishReservationRequestedEvent(ReservationRequestedEvent event) {
+        publisher.publishEvent(event);
+    }
+
+
 
 }

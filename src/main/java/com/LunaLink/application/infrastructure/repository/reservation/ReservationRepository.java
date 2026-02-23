@@ -1,8 +1,9 @@
 package com.LunaLink.application.infrastructure.repository.reservation;
 
+import com.LunaLink.application.domain.enums.ReservationStatus;
+import com.LunaLink.application.domain.model.space.Space;
 import com.LunaLink.application.domain.model.users.Users;
 import com.LunaLink.application.domain.model.reservation.Reservation;
-import com.LunaLink.application.domain.model.space.Space;
 import com.LunaLink.application.application.ports.output.ReservationRepositoryPort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,6 +19,10 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID>,
     boolean existsByUserAndDateAndSpace(Users user, LocalDate date, Space space);
     boolean existsByDateAndSpace(LocalDate date, Space space);
     boolean existsByDate(LocalDate date);
+    boolean existsByDateAndStatus(LocalDate date, ReservationStatus status);
+    boolean existsByDateAndSpaceAndStatusIn(LocalDate date, Space space, List<ReservationStatus> statuses);
+    boolean existsByUserAndDateAndSpaceAndStatusIn(Users user, LocalDate date, Space space, List<ReservationStatus> statuses);
+    boolean existsByDateAndStatusIn(LocalDate date, List<ReservationStatus> statuses);
     //ReservationResponseDTO findReservationById(UUID id);
 
     Optional<Reservation> findById(UUID id);
