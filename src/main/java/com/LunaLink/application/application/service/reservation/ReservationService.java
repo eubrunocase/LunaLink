@@ -45,12 +45,11 @@ public class ReservationService implements ReservationServicePort {
 
     @Transactional
     @Override
-    public ReservationResponseDTO createReservation(ReservationRequestDTO data) throws Exception {
-        try {
+    public ReservationResponseDTO createReservation(ReservationRequestDTO data)  {
             Users r = userRepository.findById(data.userId())
-                    .orElseThrow(() -> new IllegalArgumentException("ERRO NO METODO CreateReservation da classe de service, Resident not found"));
+                    .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado. Verifique o ID e tente novamente."));
             Space s = spaceRepository.findSpaceById(data.spaceId())
-                    .orElseThrow(() -> new IllegalArgumentException("ERRO NO METODO CreateReservation da classe de service, space not found"));
+                    .orElseThrow(() -> new IllegalArgumentException("Espaço não encontrado. Verifique o ID e tente novamente."));
 
             List<ReservationStatus> activeStatuses = List.of(ReservationStatus.PENDING, ReservationStatus.APPROVED);
 
@@ -77,9 +76,6 @@ public class ReservationService implements ReservationServicePort {
             publisher.publishReservationRequestedEvent(event);
             return reservationMapper.toDto(savedReservation);
 
-        } catch (Exception e) {
-            throw new Exception("Erro ao criar reserva: " + e.getMessage());
-        }
     }
 
     @Override

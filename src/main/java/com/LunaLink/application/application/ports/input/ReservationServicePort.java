@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface ReservationServicePort {
 
-    ReservationResponseDTO createReservation(ReservationRequestDTO reservationRequestDTO) throws Exception;
+    ReservationResponseDTO createReservation(ReservationRequestDTO reservationRequestDTO);
     List<ReservationResponseDTO> findAllReservations();
     ReservationResponseDTO findReservationById(UUID id);
     void deleteReservation(UUID id);

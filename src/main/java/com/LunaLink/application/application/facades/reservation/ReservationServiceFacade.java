@@ -22,9 +22,9 @@ public class ReservationServiceFacade {
         this.userServicePort = userServicePort;
     }
 
-    public ReservationResponseDTO createReservationForAuthenticatedUser (ReservationCreateDTO data, String login) throws Exception{
+    public ReservationResponseDTO createReservationForAuthenticatedUser (ReservationCreateDTO data, String login) {
        if (data == null) {
-           throw new Exception("Data is null");
+           return null;
        }
 
         ResponseUserDTO user = userServicePort.findUserByLogin(login);

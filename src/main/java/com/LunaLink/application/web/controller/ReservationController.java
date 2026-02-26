@@ -30,15 +30,9 @@ public class ReservationController {
     @PostMapping
     public ResponseEntity<ReservationResponseDTO> createNewReservation (@RequestBody @Valid ReservationCreateDTO data,
                                                                         Authentication authentication) {
-        try {
-            String login = authentication.getName();
-
+        String login = authentication.getName();
         ReservationResponseDTO reservationSaved = facade.createReservationForAuthenticatedUser(data, login);
         return ResponseEntity.status(HttpStatus.CREATED).body(reservationSaved);
-
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
     }
 
     @GetMapping
