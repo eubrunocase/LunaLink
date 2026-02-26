@@ -53,24 +53,11 @@ public class ReservationService implements ReservationServicePort {
                     .orElseThrow(() -> new IllegalArgumentException("ERRO NO METODO CreateReservation da classe de service, space not found"));
 
             List<ReservationStatus> activeStatuses = List.of(ReservationStatus.PENDING, ReservationStatus.APPROVED);
-            // Primeira checagem de conflito = Já existe uma reserva na mesma data com status de pendente ou aprovada?
-//            if (reservationRepository.existsByDateAndStatus(data.date(), ReservationStatus.PENDING) ||
-//                    reservationRepository.existsByDateAndStatus(data.date(), ReservationStatus.APPROVED)) {
-//                throw new IllegalStateException(
-//                        java.lang.String.format("Já existe uma reserva pendente ou aprovada para a data %s no espaço %s para o residente %s."
-//                                , data.date(), s.getType(), r.getLogin()));
-//            }
-            // Segunda checagem de conflito = Outro usuário já reservou o MESMO espaço na MESMA data com status ativo?
-            if (reservationRepository.existsByDateAndSpaceAndStatusIn(data.date(), s, activeStatuses)) {
+
+            if (reservationRepository.existsByDateAndStatusIn(data.date(), activeStatuses)) {
                 throw new IllegalStateException(
-                        String.format("O espaço '%s' já possui uma reserva pendente ou aprovada em %s.",
-                                s.getType(), data.date()));
-            }
-            // Terceira checagem de conflito = O mesmo usuário já tem reserva pro mesmo espaço e data?
-            if (reservationRepository.existsByUserAndDateAndSpaceAndStatusIn(r, data.date(), s, activeStatuses)) {
-                throw new IllegalStateException(
-                        String.format("O residente '%s' já possui uma reserva ativa para '%s' em %s.",
-                                r.getLogin(), s.getType(), data.date()));
+                        String.format("Data indisponível. Já existe uma reserva ativa (Pendente ou Aprovada) para o dia %s.",
+                                data.date()));
             }
 
             Reservation reservation = new Reservation();
@@ -150,16 +137,13 @@ public class ReservationService implements ReservationServicePort {
 
         List<ReservationStatus> activeStatuses = List.of(ReservationStatus.PENDING, ReservationStatus.APPROVED);
 
-        if (reservationRepository.existsByDateAndSpaceAndStatusIn(date, s, activeStatuses)) {
-            System.out.println("Data indisponível: Já existe uma reserva no espaço: " + s.getType() + " na data " + date);
+        // Retorna falso se já houver qualquer reserva na data
+        if (reservationRepository.existsByDateAndStatusIn(date, activeStatuses)) {
+            System.out.println("Data indisponível: O condomínio já possui um evento reservado no dia " + date);
             return false;
-        } else if (reservationRepository.existsByUserAndDateAndSpaceAndStatusIn(r, date, s, activeStatuses)) {
-            System.out.println("Data indisponível: Já existe uma reserva para o residente " + r.getLogin() +
-                    " para " + s.getType() + " no dia " + date + ".");
-            return false;
-        } else {
-            return true;
         }
+            return true;
+
     }
 
     @Transactional

@@ -22,6 +22,4 @@ public class EventPublisher {
         publisher.publishEvent(event);
     }
 
-
-
 }
