@@ -2,6 +2,7 @@ package com.LunaLink.application.application.service.reservation;
 
 import com.LunaLink.application.application.ports.output.UserRepositoryPort;
 import com.LunaLink.application.domain.enums.ReservationStatus;
+import com.LunaLink.application.domain.events.ReservationApprovedEvent;
 import com.LunaLink.application.domain.events.ReservationRequestedEvent;
 import com.LunaLink.application.domain.model.space.Space;
 import com.LunaLink.application.domain.model.users.Users;
@@ -73,7 +74,7 @@ public class ReservationService implements ReservationServicePort {
                     s
             );
 
-            publisher.publishReservationRequestedEvent(event);
+            publisher.publishEvent(event);
             return reservationMapper.toDto(savedReservation);
 
     }
@@ -155,7 +156,13 @@ public class ReservationService implements ReservationServicePort {
         reservation.setStatus(ReservationStatus.APPROVED);
         Reservation savedReservation = reservationRepository.save(reservation);
 
-        // Disparar evento para informar ao morador que a reserva foi aprovada
+        ReservationApprovedEvent event = new ReservationApprovedEvent(
+                id,
+                reservation.getUser().getId(),
+                reservation.getDate(),
+                reservation.getSpace()
+        );
+        publisher.publishEvent(event);
 
         return convertToDTO(savedReservation);
     }
