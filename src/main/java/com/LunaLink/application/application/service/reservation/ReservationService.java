@@ -2,12 +2,13 @@ package com.LunaLink.application.application.service.reservation;
 
 import com.LunaLink.application.application.ports.output.UserRepositoryPort;
 import com.LunaLink.application.domain.enums.ReservationStatus;
-import com.LunaLink.application.domain.events.ReservationApprovedEvent;
-import com.LunaLink.application.domain.events.ReservationRequestedEvent;
+import com.LunaLink.application.domain.events.reservationEvents.ReservationApprovedEvent;
+import com.LunaLink.application.domain.events.reservationEvents.ReservationRejectedEvent;
+import com.LunaLink.application.domain.events.reservationEvents.ReservationRequestedEvent;
 import com.LunaLink.application.domain.model.space.Space;
 import com.LunaLink.application.domain.model.users.Users;
 import com.LunaLink.application.domain.model.reservation.Reservation;
-import com.LunaLink.application.infrastructure.event.EventPublisher;
+import com.LunaLink.application.infrastructure.eventPublisher.EventPublisher;
 import com.LunaLink.application.infrastructure.mapper.reservation.ReservationMapper;
 import com.LunaLink.application.application.ports.input.ReservationServicePort;
 import com.LunaLink.application.application.ports.output.ReservationRepositoryPort;
@@ -59,7 +60,6 @@ public class ReservationService implements ReservationServicePort {
                         String.format("Data indisponível. Já existe uma reserva ativa (Pendente ou Aprovada) para o dia %s.",
                                 data.date()));
             }
-
             Reservation reservation = new Reservation();
             reservation.setDate(data.date());
             reservation.setStatus(ReservationStatus.PENDING);
@@ -73,10 +73,8 @@ public class ReservationService implements ReservationServicePort {
                     savedReservation.getDate(),
                     s
             );
-
             publisher.publishEvent(event);
             return reservationMapper.toDto(savedReservation);
-
     }
 
     @Override
@@ -180,8 +178,13 @@ public class ReservationService implements ReservationServicePort {
         reservation.setStatus(ReservationStatus.REJECTED);
         Reservation savedReservation = reservationRepository.save(reservation);
 
-        // Disparar evento para informar ao morador que a sua reserva foi rejeitada
-
+        ReservationRejectedEvent event = new ReservationRejectedEvent(
+                id,
+                reservation.getUser().getId(),
+                reservation.getDate(),
+                reservation.getSpace()
+        );
+        publisher.publishEvent(event);
         return convertToDTO(savedReservation);
     }
 

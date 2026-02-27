@@ -2,13 +2,17 @@ package com.LunaLink.application.application.listeners;
 
 import com.LunaLink.application.application.ports.output.UserRepositoryPort;
 import com.LunaLink.application.domain.enums.UserRoles;
-import com.LunaLink.application.domain.events.ReservationApprovedEvent;
-import com.LunaLink.application.domain.events.ReservationRequestedEvent;
+import com.LunaLink.application.domain.events.reservationEvents.ReservationApprovedEvent;
+import com.LunaLink.application.domain.events.reservationEvents.ReservationRejectedEvent;
+import com.LunaLink.application.domain.events.reservationEvents.ReservationRequestedEvent;
 import com.LunaLink.application.domain.model.users.Users;
+import com.LunaLink.application.web.dto.NotificationDTO.NotificationDTO;
 import org.springframework.context.event.EventListener;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,25 +20,28 @@ import java.util.Optional;
 public class ReservationEventListener {
 
     private final UserRepositoryPort repository;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public ReservationEventListener(UserRepositoryPort repository) {
+    public ReservationEventListener(UserRepositoryPort repository, SimpMessagingTemplate messagingTemplate) {
         this.repository = repository;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @Async
     @EventListener
     public void handleReservationRequestedEvent(ReservationRequestedEvent event) {
         List<Users> admins = repository.findByRole(UserRoles.ADMIN_ROLE);
-
         for (Users admin : admins) {
-            System.out.println("========================================");
-            System.out.println("NOTIFICAÇÃO PARA O ADMIN: " + admin.getLogin());
-            System.out.println("Nova solicitação de reserva pendente de aprovação!");
-            System.out.println("Reserva ID: " + event.getReservationId());
-            System.out.println("Residente: " + event.getUserId());
-            System.out.println("Espaço: " + event.getSpace().getType());
-            System.out.println("Data: " + event.getDate());
-            System.out.println("========================================");
+            NotificationDTO notification = new NotificationDTO(
+                    "Nova Reserva Pendente",
+                    "O residente com ID " + event.getUserId() +
+                             "solicitou reserva do espaço " + event.getSpace().getType() +
+                             "na data " + event.getDate(),
+                    "RESERVATION_REQUESTED",
+                    LocalDateTime.now()
+            );
+            String destination = "/topic/notifications/" + admin.getId();
+            messagingTemplate.convertAndSend(destination, notification);
         }
     }
 
@@ -44,18 +51,31 @@ public class ReservationEventListener {
         Optional<Users> residentOpt = repository.findById(event.getUserId());
 
         if (residentOpt.isPresent()) {
-            Users resident = residentOpt.get();
+            NotificationDTO notification = new NotificationDTO(
+                    "Reserva Aprovada!",
+                    "Sua reserva para o dia " + event.getDate() + " foi aprovada.",
+                    "RESERVATION_APPROVED",
+                    LocalDateTime.now()
+            );
+            String destination = "/topic/notifications/" + event.getUserId();
+            messagingTemplate.convertAndSend(destination, notification);
+            }
+    }
 
-            System.out.println("========================================");
-            System.out.println("NOTIFICAÇÃO PARA O RESIDENTE: " + resident.getLogin());
-            System.out.println("Sua solicitação de reserva foi APROVADA pelo administrador!");
-            System.out.println("Reserva ID: " + event.getReservationId());
-            System.out.println("Espaço: " + event.getSpace().getType());
-            System.out.println("Data: " + event.getDate());
-            System.out.println("========================================");
+    @Async
+    @EventListener
+    public void handleReservationRejectedEvent(ReservationRejectedEvent event) {
+        Optional<Users> residentOpt = repository.findById(event.getUserId());
 
-        } else {
-            System.err.println("Aviso: Tentativa de notificar morador sobre aprovação, mas usuário ID " + event.getUserId() + " não foi encontrado.");
+        if (residentOpt.isPresent()) {
+            NotificationDTO notification = new NotificationDTO(
+                    "Reserva Aprovada!",
+                    "Sua reserva para o dia " + event.getDate() + " foi rejeitada.",
+                    "RESERVATION_CANCELLED",
+                    LocalDateTime.now()
+            );
+            String destination = "/topic/notifications/" + event.getUserId();
+            messagingTemplate.convertAndSend(destination, notification);
         }
     }
 

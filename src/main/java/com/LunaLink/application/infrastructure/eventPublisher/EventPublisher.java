@@ -1,4 +1,4 @@
-package com.LunaLink.application.infrastructure.event;
+package com.LunaLink.application.infrastructure.eventPublisher;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;

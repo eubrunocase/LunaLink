@@ -1,4 +1,4 @@
-package com.LunaLink.application.domain.events;
+package com.LunaLink.application.domain.events.deliveryEvents;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

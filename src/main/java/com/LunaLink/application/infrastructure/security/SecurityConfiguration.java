@@ -75,22 +75,21 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.DELETE,"/lunaLink/reservation/**").hasRole("ADMIN_ROLE")
                         .requestMatchers(HttpMethod.DELETE,"/lunaLink/reservation/checkAvaliability/**").permitAll()
 
+                        // ================= Interações do ADM com a reserva =================
                         .requestMatchers(HttpMethod.PUT,"/lunaLink/reservation/{id}/approve").hasRole("ADMIN_ROLE")
                         .requestMatchers(HttpMethod.PUT,"/lunaLink/reservation/{id}/reject").hasRole("ADMIN_ROLE")
+
+                            // ================= Endpoint do WebSocket =================
+                        .requestMatchers(HttpMethod.PUT,"/ws-lunalink").permitAll()
 
                         // ================= Espaço =================
                         .requestMatchers(HttpMethod.POST,"/lunaLink/space/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/lunaLink/space/**").permitAll()
 
-                        // ================= Reserva Mensal =================
-                        .requestMatchers(HttpMethod.GET,"/lunaLink/reservaMensal/**").hasRole("ADMIN_ROLE")
+                        // ================= Entregas de encomenda =================
+                        .requestMatchers(HttpMethod.POST,"/lunaLink/deliveryReceived/**").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/lunaLink/deliveryReceived/**").permitAll()
 
-                        // ================= Check-in Ginásio =================
-                        .requestMatchers(HttpMethod.POST,"/lunaLink/checkInGym/**").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/lunaLink/checkInGym/**").hasRole("ADMIN_ROLE")
-
-                        // ================= Check-out Ginásio =================
-                        .requestMatchers(HttpMethod.GET,"/lunaLink/checkOutGym/**").permitAll()
 
 
                         .anyRequest().authenticated()

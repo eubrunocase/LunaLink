@@ -1,6 +1,6 @@
 package com.LunaLink.application.web.exception;
 
-import com.LunaLink.application.web.dto.StandardErrorDTO;
+import com.LunaLink.application.web.dto.ErrorDTO.StandardErrorDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
