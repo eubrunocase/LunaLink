@@ -2,7 +2,9 @@ package com.LunaLink.application.application.service.delivery;
 
 import com.LunaLink.application.application.ports.input.DeliveryServicePort;
 import com.LunaLink.application.application.ports.output.DeliveryRepositoryPort;
+import com.LunaLink.application.domain.events.deliveryEvents.DeliveryCreatedEvent;
 import com.LunaLink.application.domain.model.delivery.Delivery;
+import com.LunaLink.application.infrastructure.eventPublisher.EventPublisher;
 import com.LunaLink.application.infrastructure.mapper.delivery.DeliveryMapper;
 import com.LunaLink.application.web.dto.DeliveryDTO.RequestDeliveryDTO;
 import com.LunaLink.application.web.dto.DeliveryDTO.ResponseDeliveryDTO;
@@ -18,10 +20,12 @@ public class DeliveryService implements DeliveryServicePort {
 
     private final DeliveryRepositoryPort repository;
     private final DeliveryMapper mapper;
+    private final EventPublisher publisher;
 
-    public DeliveryService(DeliveryRepositoryPort repository, DeliveryMapper mapper) {
+    public DeliveryService(DeliveryRepositoryPort repository, DeliveryMapper mapper, EventPublisher publisher) {
         this.repository = repository;
         this.mapper = mapper;
+        this.publisher = publisher;
     }
 
     @Override
@@ -31,7 +35,17 @@ public class DeliveryService implements DeliveryServicePort {
              throw new RuntimeException("MÉTODO CREATE Delivery DE DeliveryService: Delivery não pode ser nulo.");
 
          Delivery delivery = mapper.toEntity(requestDeliveryDTO);
-         return mapper.toDTO(repository.save(delivery));
+         Delivery savedDelivery = repository.save(delivery);
+
+         DeliveryCreatedEvent event = new DeliveryCreatedEvent(
+                 savedDelivery.getId(),
+                 savedDelivery.getUserId(),
+                 savedDelivery.getProtocolNumber(),
+                 savedDelivery.getCreatedAt()
+         );
+         publisher.publishEvent(event);
+
+         return mapper.toDTO(savedDelivery);
     }
 
     @Override

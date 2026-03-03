@@ -49,7 +49,7 @@ public class DeliveryReceivedService implements DeliveryReceivedServicePort {
     @Override
     @Transactional
     public void deleteDeliveryReceived(UUID id) {
-        if (id == null) throw new RuntimeException("MÉTODO findDeliveryReceivedById de DeliveryReceivedService: Delivery não pode ser nulo.");
+        if (id == null) throw new RuntimeException("MÉTODO deleteDeliveryReceived de DeliveryReceivedService: Delivery não pode ser nulo.");
         deliveryReceivedRepositoryPort.deleteById(id);
     }
 

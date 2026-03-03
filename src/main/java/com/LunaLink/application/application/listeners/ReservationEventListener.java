@@ -35,8 +35,8 @@ public class ReservationEventListener {
             NotificationDTO notification = new NotificationDTO(
                     "Nova Reserva Pendente",
                     "O residente com ID " + event.getUserId() +
-                             "solicitou reserva do espaço " + event.getSpace().getType() +
-                             "na data " + event.getDate(),
+                             " solicitou reserva do espaço " + event.getSpace().getType() +
+                             " na data " + event.getDate(),
                     "RESERVATION_REQUESTED",
                     LocalDateTime.now()
             );
@@ -69,7 +69,7 @@ public class ReservationEventListener {
 
         if (residentOpt.isPresent()) {
             NotificationDTO notification = new NotificationDTO(
-                    "Reserva Aprovada!",
+                    "Reserva Rejeitada!",
                     "Sua reserva para o dia " + event.getDate() + " foi rejeitada.",
                     "RESERVATION_CANCELLED",
                     LocalDateTime.now()
