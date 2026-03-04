@@ -3,7 +3,7 @@ package com.LunaLink.application.infrastructure.eventPublisher;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("customEventPublisher")
 public class EventPublisher {
 
     private final ApplicationEventPublisher publisher;

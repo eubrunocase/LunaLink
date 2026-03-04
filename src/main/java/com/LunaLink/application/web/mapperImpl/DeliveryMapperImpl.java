@@ -22,7 +22,10 @@ public class DeliveryMapperImpl implements DeliveryMapper {
                                        delivery.getProtocolNumber(),
                                        delivery.getImage(),
                                        delivery.getCreatedAt(),
-                                       delivery.getOtherRecipient());
+                                       delivery.getOtherRecipient(),
+                                       delivery.getStatus(),
+                                       delivery.getDeliveredAt(),
+                                       delivery.getPickedUpBy());
     }
 
     @Override

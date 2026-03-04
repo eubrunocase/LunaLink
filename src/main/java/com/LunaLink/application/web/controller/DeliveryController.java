@@ -43,4 +43,10 @@ public class DeliveryController {
         return ResponseEntity.ok(responseDeliveryDTO);
     }
 
+    @PutMapping("/{id}/confirm-receipt")
+    public ResponseEntity<ResponseDeliveryDTO> confirmReceipt(@PathVariable UUID id, @RequestParam(required = false) String pickedUpBy) {
+        ResponseDeliveryDTO responseDeliveryDTO = deliveryFacade.confirmReceipt(id, pickedUpBy);
+        return ResponseEntity.ok(responseDeliveryDTO);
+    }
+
 }

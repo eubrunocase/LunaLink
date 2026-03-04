@@ -86,12 +86,6 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST,"/lunaLink/space/**").permitAll()
                         .requestMatchers(HttpMethod.GET,"/lunaLink/space/**").permitAll()
 
-                        // ================= Entregas de encomenda =================
-                        .requestMatchers(HttpMethod.POST,"/lunaLink/deliveryReceived/**").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/lunaLink/deliveryReceived/**").permitAll()
-
-
-
                         .anyRequest().authenticated()
                 ) .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

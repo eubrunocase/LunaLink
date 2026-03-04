@@ -2,6 +2,7 @@ package com.LunaLink.application.application.service.delivery;
 
 import com.LunaLink.application.application.ports.input.DeliveryServicePort;
 import com.LunaLink.application.application.ports.output.DeliveryRepositoryPort;
+import com.LunaLink.application.domain.enums.DeliveryStatus;
 import com.LunaLink.application.domain.events.deliveryEvents.DeliveryCreatedEvent;
 import com.LunaLink.application.domain.model.delivery.Delivery;
 import com.LunaLink.application.infrastructure.eventPublisher.EventPublisher;
@@ -16,7 +17,6 @@ import java.util.UUID;
 
 @Service
 public class DeliveryService implements DeliveryServicePort {
-
 
     private final DeliveryRepositoryPort repository;
     private final DeliveryMapper mapper;
@@ -77,6 +77,21 @@ public class DeliveryService implements DeliveryServicePort {
         deliveryForUpdate.setImage(requestDeliveryDTO.image());
         deliveryForUpdate.setOtherRecipient(requestDeliveryDTO.otherRecipient());
         return mapper.toDTO(repository.save(deliveryForUpdate));
+    }
+
+    @Transactional
+    public ResponseDeliveryDTO confirmReceipt(UUID deliveryId, String pickedUpBy) {
+        Delivery delivery = repository.findDeliveryById(deliveryId);
+        if (delivery == null) {
+            throw new RuntimeException("Encomenda não encontrada");
+        }
+
+        if (delivery.getStatus() == DeliveryStatus.DELIVERED) {
+            throw new IllegalStateException("Esta encomenda já foi entregue em: " + delivery.getDeliveredAt());
+        }
+
+        delivery.markAsDelivered(pickedUpBy);
+        return mapper.toDTO(repository.save(delivery));
     }
 
 }

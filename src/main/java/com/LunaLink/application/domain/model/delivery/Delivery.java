@@ -1,4 +1,5 @@
 package com.LunaLink.application.domain.model.delivery;
+import com.LunaLink.application.domain.enums.DeliveryStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
@@ -13,7 +14,7 @@ public class Delivery {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID Id;
+    private UUID id;
 
     @JsonProperty("userId")
     @Column(name = "userId", nullable = false)
@@ -35,11 +36,22 @@ public class Delivery {
     @Column(name = "otherRecipient", nullable = true)
     private String otherRecipient;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private DeliveryStatus status;
+
+    @Column(name = "deliveredAt")
+    private LocalDateTime deliveredAt;
+
+    @Column(name = "pickedUpBy")
+    private String pickedUpBy;
+
     public Delivery(UUID userId, String protocolNumber, LocalDateTime createdAt ,byte[] image, String otherRecipient) {
         this.userId = userId;
         this.protocolNumber = protocolNumber;
         this.image = image;
         this.otherRecipient = otherRecipient;
+        this.status = DeliveryStatus.PENDING;
     }
 
     public Delivery() {
@@ -48,10 +60,19 @@ public class Delivery {
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
+        if (this.status == null) {
+            this.status = DeliveryStatus.PENDING;
+        }
+    }
+
+    public void markAsDelivered(String whoPickedUp) {
+        this.status = DeliveryStatus.DELIVERED;
+        this.deliveredAt = LocalDateTime.now();
+        this.pickedUpBy = whoPickedUp;
     }
     
     public UUID getId() {
-        return Id;
+        return id;
     }
 
     public byte[] getImage() {
@@ -87,5 +108,29 @@ public class Delivery {
 
     public void setOtherRecipient(String otherRecipient) {
         this.otherRecipient = otherRecipient;
+    }
+
+    public DeliveryStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(DeliveryStatus status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getDeliveredAt() {
+        return deliveredAt;
+    }
+
+    public void setDeliveredAt(LocalDateTime deliveredAt) {
+        this.deliveredAt = deliveredAt;
+    }
+
+    public String getPickedUpBy() {
+        return pickedUpBy;
+    }
+
+    public void setPickedUpBy(String pickedUpBy) {
+        this.pickedUpBy = pickedUpBy;
     }
 }
