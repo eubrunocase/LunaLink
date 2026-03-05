@@ -17,7 +17,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Entity
@@ -47,6 +46,10 @@ public class Users implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reservation> reservations = new ArrayList<>();
+
+    public Users() {
+
+    }
 
     public Users (String login, String password, UserRoles role) {
         this.login = login;

@@ -9,6 +9,7 @@ import java.util.UUID;
 public record ResponseDeliveryDTO(@JsonProperty("id") UUID Id,
                                   @JsonProperty("user") UUID userId,
                                   @JsonProperty("protocolNumber") String protocolNumber,
+                                  @JsonProperty("discrimination") String discrimination,
                                   @JsonProperty("image") byte[] image,
                                   @JsonProperty("createdAt") LocalDateTime createdAt,
                                   @JsonProperty("otherRecipient") String otherRecipient,

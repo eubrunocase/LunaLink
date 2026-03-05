@@ -20,6 +20,7 @@ public class DeliveryMapperImpl implements DeliveryMapper {
         return new ResponseDeliveryDTO(delivery.getId(),
                                        delivery.getUserId(),
                                        delivery.getProtocolNumber(),
+                                       delivery.getDiscrimination(),
                                        delivery.getImage(),
                                        delivery.getCreatedAt(),
                                        delivery.getOtherRecipient(),
@@ -35,6 +36,7 @@ public class DeliveryMapperImpl implements DeliveryMapper {
         }
         return new Delivery(deliveryDTO.userId(),
                             deliveryDTO.protocolNumber(),
+                            deliveryDTO.discrimination(),
                             LocalDateTime.now(),
                             deliveryDTO.image(),
                             deliveryDTO.otherRecipient());

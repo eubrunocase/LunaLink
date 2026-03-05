@@ -7,7 +7,8 @@ import java.util.UUID;
 
 public record RequestDeliveryDTO(
                                  @JsonProperty("user") @NotNull UUID userId,
-                                 @JsonProperty("protocolNumber") @NotNull String protocolNumber,
+                                 @JsonProperty("protocolNumber") String protocolNumber,
+                                 @JsonProperty("discrimination") String discrimination,
                                  @JsonProperty("image") byte[] image,
                                  @JsonProperty("otherRecipient") String otherRecipient) {
 }

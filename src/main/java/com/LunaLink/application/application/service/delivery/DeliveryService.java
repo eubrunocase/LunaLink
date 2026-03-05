@@ -18,6 +18,7 @@ import java.util.UUID;
 @Service
 public class DeliveryService implements DeliveryServicePort {
 
+
     private final DeliveryRepositoryPort repository;
     private final DeliveryMapper mapper;
     private final EventPublisher publisher;
@@ -73,6 +74,7 @@ public class DeliveryService implements DeliveryServicePort {
     public ResponseDeliveryDTO updateDelivery(UUID id, RequestDeliveryDTO requestDeliveryDTO) {
         Delivery deliveryForUpdate = repository.findDeliveryById(id);
         deliveryForUpdate.setProtocolNumber(requestDeliveryDTO.protocolNumber());
+        deliveryForUpdate.setDiscrimination(requestDeliveryDTO.discrimination());
         deliveryForUpdate.setUserId(requestDeliveryDTO.userId());
         deliveryForUpdate.setImage(requestDeliveryDTO.image());
         deliveryForUpdate.setOtherRecipient(requestDeliveryDTO.otherRecipient());

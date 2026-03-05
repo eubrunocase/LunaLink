@@ -21,13 +21,16 @@ public class Delivery {
     private UUID userId;
 
     @JsonProperty("protocolNumber")
-    @Column(name = "protocolNumber", nullable = false)
+    @Column(name = "protocolNumber", nullable = true)
     private String protocolNumber;
+
+    @JsonProperty("discrimination")
+    @Column(name = "discrimination", nullable = true)
+    private String discrimination;
 
     @JsonProperty("createdAt")
     @Column(name = "createdAt", nullable = true)
     private LocalDateTime createdAt;
-
 
     @Column(name = "image", columnDefinition = "BYTEA", nullable = true)
     private byte[] image;
@@ -46,9 +49,10 @@ public class Delivery {
     @Column(name = "pickedUpBy")
     private String pickedUpBy;
 
-    public Delivery(UUID userId, String protocolNumber, LocalDateTime createdAt ,byte[] image, String otherRecipient) {
+    public Delivery(UUID userId, String protocolNumber, String discrimination, LocalDateTime createdAt ,byte[] image, String otherRecipient) {
         this.userId = userId;
         this.protocolNumber = protocolNumber;
+        this.discrimination = discrimination;
         this.image = image;
         this.otherRecipient = otherRecipient;
         this.status = DeliveryStatus.PENDING;
@@ -98,12 +102,20 @@ public class Delivery {
         return protocolNumber;
     }
 
+    public String getDiscrimination() {
+        return discrimination;
+    }
+
     public void setUserId(UUID userId) {
         this.userId = userId;
     }
 
     public void setProtocolNumber(String protocolNumber) {
         this.protocolNumber = protocolNumber;
+    }
+
+    public void setDiscrimination(String discrimination) {
+        this.discrimination = discrimination;
     }
 
     public void setOtherRecipient(String otherRecipient) {
