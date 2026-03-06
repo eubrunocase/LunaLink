@@ -3,6 +3,7 @@ package com.LunaLink.application.web.controller;
 import com.LunaLink.application.application.facades.users.UserFacade;
 import com.LunaLink.application.web.dto.UserDTO.RequestUserDTO;
 import com.LunaLink.application.web.dto.UserDTO.ResponseUserDTO;
+import com.LunaLink.application.web.dto.UserDTO.UserSummaryDTO;
 import com.LunaLink.application.web.mapperImpl.UserMapperImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +32,12 @@ public class UsersController {
     public ResponseEntity<List<ResponseUserDTO>> findAllUsers () {
         List<ResponseUserDTO> users = userFacade.findAllResidents();
         return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/summary")
+    public ResponseEntity<List<UserSummaryDTO>> findAllSummaries() {
+        List<UserSummaryDTO> summaries = userFacade.findAllSummaries();
+        return ResponseEntity.ok(summaries);
     }
 
     @PostMapping("/create")

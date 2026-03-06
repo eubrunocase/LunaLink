@@ -6,6 +6,7 @@ import com.LunaLink.application.domain.model.users.Users;
 import com.LunaLink.application.infrastructure.mapper.User.UserMapper;
 import com.LunaLink.application.web.dto.UserDTO.RequestUserDTO;
 import com.LunaLink.application.web.dto.UserDTO.ResponseUserDTO;
+import com.LunaLink.application.web.dto.UserDTO.UserSummaryDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -100,5 +102,24 @@ class UserServiceTest {
         assertEquals("newLogin", existingUser.getLogin());
         assertEquals("encodedNewPassword", existingUser.getPassword());
         assertEquals(UserRoles.ADMIN_ROLE, existingUser.getRole());
+    }
+
+    @Test
+    @DisplayName("Deve listar resumos de usuários")
+    void findAllSummaries_ShouldReturnList() {
+        // Arrange
+        List<Users> users = List.of(new Users("user", "pass", UserRoles.RESIDENT_ROLE));
+        List<UserSummaryDTO> summaries = List.of(new UserSummaryDTO(UUID.randomUUID(), "user"));
+        
+        when(userRepositoryPort.findAll()).thenReturn(users);
+        when(userMapper.toSummaryDTOList(users)).thenReturn(summaries);
+
+        // Act
+        List<UserSummaryDTO> result = userService.findAllSummaries();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals("user", result.get(0).login());
     }
 }

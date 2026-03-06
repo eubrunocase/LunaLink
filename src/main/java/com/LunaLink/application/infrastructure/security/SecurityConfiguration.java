@@ -41,51 +41,46 @@ public class SecurityConfiguration {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
 
-                        .requestMatchers( "/swagger-ui/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui.html").permitAll()
-
+                        // ================= Públicos (Infraestrutura e Login) =================
+                        .requestMatchers( "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/error").permitAll()
-
-                        // ================= Actuator =================
                         .requestMatchers("/actuator/prometheus").permitAll()
-
-                        // ================= Autenticação =================
                         .requestMatchers(HttpMethod.POST,"/lunaLink/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.PUT,"/ws-lunalink").permitAll() // WebSocket Handshake
 
-                        // ================= Disponibilidade de espaços =================
-                        .requestMatchers(HttpMethod.GET, "/lunaLink/availabilitySpaces/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/lunaLink/availabilitySpaces/**").permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/lunaLink/availabilitySpaces/**").permitAll()
+                        // ================= Administrador (Gestão de Usuários) =================
+                        // Apenas Admin pode criar, editar ou deletar usuários
+                        .requestMatchers(HttpMethod.POST,"/lunaLink/users/**").hasRole("ADMIN_ROLE")
+                        .requestMatchers(HttpMethod.PUT,"/lunaLink/users/**").hasRole("ADMIN_ROLE")
+                        .requestMatchers(HttpMethod.DELETE,"/lunaLink/users/**").hasRole("ADMIN_ROLE")
+                        
+                        // ================= Autenticados (Moradores e Admins) =================
+                        
+                        // Usuários (Leitura para User Summary e Perfil)
+                        .requestMatchers(HttpMethod.GET,"/lunaLink/users/**").authenticated()
 
-                        // ================= Encomendas=================
-                        .requestMatchers(HttpMethod.GET, "/lunaLink/delivery/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/lunaLink/delivery/**").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/lunaLink/delivery/**").authenticated()
+                        // Disponibilidade de espaços
+                        .requestMatchers("/lunaLink/availabilitySpaces/**").authenticated()
 
-                        // ================= Administrador =================
-                        .requestMatchers(HttpMethod.GET,"/lunaLink/users/**").permitAll()
-                        .requestMatchers(HttpMethod.POST,"/lunaLink/users/**").permitAll()
-                        .requestMatchers(HttpMethod.PUT,"/lunaLink/users/**").permitAll()
-                        .requestMatchers(HttpMethod.DELETE,"/lunaLink/users/**").permitAll()
+                        // Encomendas
+                        .requestMatchers("/lunaLink/delivery/**").authenticated()
 
-                        // ================= Reserva =================
-                        .requestMatchers(HttpMethod.POST,"/lunaLink/reservation").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/lunaLink/reservation").permitAll()
+                        // Reservas (Criação e Leitura)
+                        .requestMatchers(HttpMethod.POST,"/lunaLink/reservation").authenticated()
+                        .requestMatchers(HttpMethod.GET,"/lunaLink/reservation/**").authenticated()
+                        .requestMatchers(HttpMethod.GET,"/lunaLink/reservation/checkAvaliability/**").authenticated()
+                        
+                        // Reservas (Ações Administrativas Específicas)
                         .requestMatchers(HttpMethod.DELETE,"/lunaLink/reservation/**").hasRole("ADMIN_ROLE")
-                        .requestMatchers(HttpMethod.DELETE,"/lunaLink/reservation/checkAvaliability/**").permitAll()
-
-                        // ================= Interações do ADM com a reserva =================
                         .requestMatchers(HttpMethod.PUT,"/lunaLink/reservation/{id}/approve").hasRole("ADMIN_ROLE")
                         .requestMatchers(HttpMethod.PUT,"/lunaLink/reservation/{id}/reject").hasRole("ADMIN_ROLE")
 
-                            // ================= Endpoint do WebSocket =================
-                        .requestMatchers(HttpMethod.PUT,"/ws-lunalink").permitAll()
+                        // Espaços (Leitura)
+                        .requestMatchers(HttpMethod.GET,"/lunaLink/space/**").authenticated()
+                        // Espaços (Escrita - Apenas Admin deveria criar espaços, se houver endpoint)
+                        .requestMatchers(HttpMethod.POST,"/lunaLink/space/**").hasRole("ADMIN_ROLE")
 
-                        // ================= Espaço =================
-                        .requestMatchers(HttpMethod.POST,"/lunaLink/space/**").permitAll()
-                        .requestMatchers(HttpMethod.GET,"/lunaLink/space/**").permitAll()
-
+                        // Qualquer outra requisição deve estar autenticada
                         .anyRequest().authenticated()
                 ) .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

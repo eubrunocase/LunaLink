@@ -1,8 +1,6 @@
 package com.LunaLink.application.application.facades.auth;
 
-import com.LunaLink.application.application.service.auth.TokenService;
-import com.LunaLink.application.domain.enums.UserRoles;
-import com.LunaLink.application.domain.model.users.Users;
+import com.LunaLink.application.application.service.auth.AuthenticationService;
 import com.LunaLink.application.web.dto.SecurityDTO.AuthenticationDTO;
 import com.LunaLink.application.web.dto.SecurityDTO.LoginResponseDTO;
 import org.junit.jupiter.api.DisplayName;
@@ -13,22 +11,15 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class LoginFacadeTest {
 
     @Mock
-    private AuthenticationManager authenticationManager;
-
-    @Mock
-    private TokenService tokenService;
+    private AuthenticationService authenticationService;
 
     @InjectMocks
     private LoginFacade facade;
@@ -38,13 +29,7 @@ class LoginFacadeTest {
     void login_ShouldReturnToken_WhenCredentialsValid() {
         // Arrange
         AuthenticationDTO authDTO = new AuthenticationDTO("user", "password");
-        Users user = new Users("user", "password", UserRoles.RESIDENT_ROLE);
-        Authentication authentication = mock(Authentication.class);
-
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenReturn(authentication);
-        when(authentication.getPrincipal()).thenReturn(user);
-        when(tokenService.generateToken(user)).thenReturn("token");
+        when(authenticationService.authenticate(authDTO)).thenReturn("token");
 
         // Act
         ResponseEntity<LoginResponseDTO> response = facade.login(authDTO);
@@ -60,9 +45,7 @@ class LoginFacadeTest {
     void login_ShouldReturnBadRequest_WhenCredentialsInvalid() {
         // Arrange
         AuthenticationDTO authDTO = new AuthenticationDTO("user", "wrongPassword");
-
-        when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenThrow(new RuntimeException("Bad credentials"));
+        when(authenticationService.authenticate(authDTO)).thenThrow(new RuntimeException("Bad credentials"));
 
         // Act
         ResponseEntity<LoginResponseDTO> response = facade.login(authDTO);

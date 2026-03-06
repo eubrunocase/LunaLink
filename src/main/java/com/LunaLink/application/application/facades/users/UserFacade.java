@@ -3,6 +3,7 @@ package com.LunaLink.application.application.facades.users;
 import com.LunaLink.application.application.ports.input.UserServicePort;
 import com.LunaLink.application.web.dto.UserDTO.RequestUserDTO;
 import com.LunaLink.application.web.dto.UserDTO.ResponseUserDTO;
+import com.LunaLink.application.web.dto.UserDTO.UserSummaryDTO;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -39,6 +40,10 @@ public class UserFacade {
 
     public List<ResponseUserDTO> findAllResidents() {
         return userServicePort.findAll();
+    }
+
+    public List<UserSummaryDTO> findAllSummaries() {
+        return userServicePort.findAllSummaries();
     }
     
 }

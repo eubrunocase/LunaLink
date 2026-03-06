@@ -85,4 +85,14 @@ class UserFacadeTest {
         // Assert
         verify(userService, times(1)).deleteUser(id);
     }
+
+    @Test
+    @DisplayName("Deve listar resumos de usuários")
+    void findAllSummaries_ShouldCallService() {
+        // Act
+        facade.findAllSummaries();
+
+        // Assert
+        verify(userService, times(1)).findAllSummaries();
+    }
 }

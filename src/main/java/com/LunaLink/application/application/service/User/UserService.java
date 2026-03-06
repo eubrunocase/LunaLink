@@ -6,6 +6,7 @@ import com.LunaLink.application.domain.model.users.Users;
 import com.LunaLink.application.infrastructure.mapper.User.UserMapper;
 import com.LunaLink.application.web.dto.UserDTO.RequestUserDTO;
 import com.LunaLink.application.web.dto.UserDTO.ResponseUserDTO;
+import com.LunaLink.application.web.dto.UserDTO.UserSummaryDTO;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -68,6 +69,12 @@ public class UserService implements UserServicePort {
     public List<ResponseUserDTO> findAll() {
         List<Users> users = userRepositoryPort.findAll();
         return userMapper.toDTOList(users);
+    }
+
+    @Override
+    public List<UserSummaryDTO> findAllSummaries() {
+        List<Users> users = userRepositoryPort.findAll();
+        return userMapper.toSummaryDTOList(users);
     }
 
 }

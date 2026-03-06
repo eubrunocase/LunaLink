@@ -4,6 +4,7 @@ import com.LunaLink.application.application.facades.users.UserFacade;
 import com.LunaLink.application.domain.enums.UserRoles;
 import com.LunaLink.application.web.dto.UserDTO.RequestUserDTO;
 import com.LunaLink.application.web.dto.UserDTO.ResponseUserDTO;
+import com.LunaLink.application.web.dto.UserDTO.UserSummaryDTO;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -103,5 +104,20 @@ class UsersControllerTest {
 
         // Assert
         verify(userFacade, times(1)).deleteUser(id);
+    }
+
+    @Test
+    @DisplayName("Deve listar resumos de usuários")
+    void findAllSummaries_ShouldReturnList() {
+        // Arrange
+        List<UserSummaryDTO> summaries = List.of(new UserSummaryDTO(UUID.randomUUID(), "user"));
+        when(userFacade.findAllSummaries()).thenReturn(summaries);
+
+        // Act
+        ResponseEntity<List<UserSummaryDTO>> response = controller.findAllSummaries();
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(1, response.getBody().size());
     }
 }

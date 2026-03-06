@@ -3,6 +3,7 @@ package com.LunaLink.application.web.mapperImpl;
 import com.LunaLink.application.domain.model.users.Users;
 import com.LunaLink.application.infrastructure.mapper.User.UserMapper;
 import com.LunaLink.application.web.dto.UserDTO.ResponseUserDTO;
+import com.LunaLink.application.web.dto.UserDTO.UserSummaryDTO;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -42,6 +43,21 @@ public class UserMapperImpl implements UserMapper {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public UserSummaryDTO toSummaryDTO(Users user) {
+        if (user == null) {
+            return null;
+        }
+        return new UserSummaryDTO(user.getId(), user.getLogin());
+    }
 
+    @Override
+    public List<UserSummaryDTO> toSummaryDTOList(List<Users> users) {
+        if (users == null) {
+            return null;
+        }
+        return users.stream()
+                .map(this::toSummaryDTO)
+                .collect(Collectors.toList());
+    }
 }
-
