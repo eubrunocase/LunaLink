@@ -46,10 +46,10 @@ class ReservationControllerTest {
         // Arrange
         ReservationCreateDTO createDTO = new ReservationCreateDTO(LocalDate.now(), 1L);
         Authentication authentication = mock(Authentication.class);
-        when(authentication.getName()).thenReturn("testUser");
+        when(authentication.getName()).thenReturn("testUser@email.com");
 
         ReservationResponseDTO responseDTO = new ReservationResponseDTO(UUID.randomUUID(), LocalDate.now(), null, null, ReservationStatus.PENDING, LocalDateTime.now(), null);
-        when(facade.createReservationForAuthenticatedUser(createDTO, "testUser")).thenReturn(responseDTO);
+        when(facade.createReservationForAuthenticatedUser(createDTO, "testUser@email.com")).thenReturn(responseDTO);
 
         // Act
         ResponseEntity<ReservationResponseDTO> response = controller.createNewReservation(createDTO, authentication);
@@ -128,10 +128,10 @@ class ReservationControllerTest {
         LocalDate date = LocalDate.now();
         Long spaceId = 1L;
         Authentication authentication = mock(Authentication.class);
-        when(authentication.getName()).thenReturn("testUser");
+        when(authentication.getName()).thenReturn("testUser@email.com");
 
-        ResponseUserDTO userDTO = new ResponseUserDTO(UUID.randomUUID(), "testUser", UserRoles.RESIDENT_ROLE, null);
-        when(userServicePort.findUserByLogin("testUser")).thenReturn(userDTO);
+        ResponseUserDTO userDTO = new ResponseUserDTO(UUID.randomUUID(), "Test User", "101", "testUser@email.com", UserRoles.RESIDENT_ROLE, null);
+        when(userServicePort.findUserByEmail("testUser@email.com")).thenReturn(userDTO);
         when(facade.checkAvaliability(date, spaceId, userDTO.id())).thenReturn(true);
 
         // Act

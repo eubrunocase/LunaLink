@@ -29,7 +29,7 @@ class AuthenticationControllerTest {
     @DisplayName("Deve realizar login com sucesso")
     void login_ShouldReturnToken_WhenCredentialsValid() {
         // Arrange
-        AuthenticationDTO authDTO = new AuthenticationDTO("user", "password");
+        AuthenticationDTO authDTO = new AuthenticationDTO("user@email.com", "password");
         LoginResponseDTO loginResponse = new LoginResponseDTO("token");
         when(loginFacade.login(authDTO)).thenReturn(ResponseEntity.ok(loginResponse));
 
@@ -45,7 +45,7 @@ class AuthenticationControllerTest {
     @DisplayName("Deve retornar erro ao falhar autenticação")
     void login_ShouldReturnBadRequest_WhenCredentialsInvalid() {
         // Arrange
-        AuthenticationDTO authDTO = new AuthenticationDTO("user", "wrongPassword");
+        AuthenticationDTO authDTO = new AuthenticationDTO("user@email.com", "wrongPassword");
         when(loginFacade.login(authDTO)).thenReturn(ResponseEntity.badRequest().build());
 
         // Act

@@ -28,7 +28,7 @@ class LoginFacadeTest {
     @DisplayName("Deve realizar login com sucesso")
     void login_ShouldReturnToken_WhenCredentialsValid() {
         // Arrange
-        AuthenticationDTO authDTO = new AuthenticationDTO("user", "password");
+        AuthenticationDTO authDTO = new AuthenticationDTO("user@email.com", "password");
         when(authenticationService.authenticate(authDTO)).thenReturn("token");
 
         // Act
@@ -44,7 +44,7 @@ class LoginFacadeTest {
     @DisplayName("Deve retornar erro ao falhar autenticação")
     void login_ShouldReturnBadRequest_WhenCredentialsInvalid() {
         // Arrange
-        AuthenticationDTO authDTO = new AuthenticationDTO("user", "wrongPassword");
+        AuthenticationDTO authDTO = new AuthenticationDTO("user@email.com", "wrongPassword");
         when(authenticationService.authenticate(authDTO)).thenThrow(new RuntimeException("Bad credentials"));
 
         // Act

@@ -34,7 +34,7 @@ class UsersControllerTest {
     void findUserById_ShouldReturnUser() {
         // Arrange
         UUID id = UUID.randomUUID();
-        ResponseUserDTO user = new ResponseUserDTO(id, "user", UserRoles.RESIDENT_ROLE, null);
+        ResponseUserDTO user = new ResponseUserDTO(id, "User", "101", "user@email.com", UserRoles.RESIDENT_ROLE, null);
         when(userFacade.findResidentById(id)).thenReturn(user);
 
         // Act
@@ -49,7 +49,7 @@ class UsersControllerTest {
     @DisplayName("Deve listar todos os usuários")
     void findAllUsers_ShouldReturnList() {
         // Arrange
-        List<ResponseUserDTO> users = List.of(new ResponseUserDTO(UUID.randomUUID(), "user", UserRoles.RESIDENT_ROLE, null));
+        List<ResponseUserDTO> users = List.of(new ResponseUserDTO(UUID.randomUUID(), "User", "101", "user@email.com", UserRoles.RESIDENT_ROLE, null));
         when(userFacade.findAllResidents()).thenReturn(users);
 
         // Act
@@ -64,8 +64,8 @@ class UsersControllerTest {
     @DisplayName("Deve criar usuário")
     void createUser_ShouldReturnCreated() {
         // Arrange
-        RequestUserDTO request = new RequestUserDTO("user", "password", UserRoles.RESIDENT_ROLE);
-        ResponseUserDTO created = new ResponseUserDTO(UUID.randomUUID(), "user", UserRoles.RESIDENT_ROLE, null);
+        RequestUserDTO request = new RequestUserDTO("User", "101", "user@email.com", "password", UserRoles.RESIDENT_ROLE);
+        ResponseUserDTO created = new ResponseUserDTO(UUID.randomUUID(), "User", "101", "user@email.com", UserRoles.RESIDENT_ROLE, null);
         when(userFacade.createUser(request)).thenReturn(created);
 
         // Act
@@ -73,7 +73,7 @@ class UsersControllerTest {
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals("user", response.getBody().login());
+        assertEquals("user@email.com", response.getBody().email());
     }
 
     @Test
@@ -81,8 +81,8 @@ class UsersControllerTest {
     void updateUser_ShouldReturnUpdated() {
         // Arrange
         UUID id = UUID.randomUUID();
-        RequestUserDTO request = new RequestUserDTO("user", "password", UserRoles.RESIDENT_ROLE);
-        ResponseUserDTO updated = new ResponseUserDTO(id, "user", UserRoles.RESIDENT_ROLE, null);
+        RequestUserDTO request = new RequestUserDTO("User", "101", "user@email.com", "password", UserRoles.RESIDENT_ROLE);
+        ResponseUserDTO updated = new ResponseUserDTO(id, "User", "101", "user@email.com", UserRoles.RESIDENT_ROLE, null);
         when(userFacade.updateUser(id, request)).thenReturn(updated);
 
         // Act
@@ -110,7 +110,7 @@ class UsersControllerTest {
     @DisplayName("Deve listar resumos de usuários")
     void findAllSummaries_ShouldReturnList() {
         // Arrange
-        List<UserSummaryDTO> summaries = List.of(new UserSummaryDTO(UUID.randomUUID(), "user"));
+        List<UserSummaryDTO> summaries = List.of(new UserSummaryDTO(UUID.randomUUID(), "User", "101", "user@email.com"));
         when(userFacade.findAllSummaries()).thenReturn(summaries);
 
         // Act

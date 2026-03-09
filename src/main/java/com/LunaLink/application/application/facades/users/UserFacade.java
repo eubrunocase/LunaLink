@@ -18,8 +18,8 @@ public class UserFacade {
         this.userServicePort = userServicePort;
     }
 
-    public ResponseUserDTO findResidentByLogin (String login) {
-        return userServicePort.findUserByLogin(login);
+    public ResponseUserDTO findResidentByEmail (String email) {
+        return userServicePort.findUserByEmail(email);
     }
 
     public ResponseUserDTO createUser(RequestUserDTO users) {

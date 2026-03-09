@@ -10,7 +10,7 @@ import java.util.UUID;
 public interface UserServicePort {
     ResponseUserDTO createUser(RequestUserDTO data);
     ResponseUserDTO findUserById(UUID id);
-    ResponseUserDTO findUserByLogin(String login);
+    ResponseUserDTO findUserByEmail(String email);
     ResponseUserDTO updateUser(UUID id, RequestUserDTO data);
     void deleteUser(UUID id);
     List<ResponseUserDTO> findAll();

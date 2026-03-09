@@ -27,7 +27,9 @@ public class UserMapperImpl implements UserMapper {
                         .collect(Collectors.toList());
         return new ResponseUserDTO(
                 user.getId(),
-                user.getLogin(),
+                user.getName(),
+                user.getApartment(),
+                user.getEmail(),
                 user.getRole(),
                 reservationDTOs
         );
@@ -48,7 +50,7 @@ public class UserMapperImpl implements UserMapper {
         if (user == null) {
             return null;
         }
-        return new UserSummaryDTO(user.getId(), user.getLogin());
+        return new UserSummaryDTO(user.getId(), user.getName(), user.getApartment(), user.getEmail());
     }
 
     @Override

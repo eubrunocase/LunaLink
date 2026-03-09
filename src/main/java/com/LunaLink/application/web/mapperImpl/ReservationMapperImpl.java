@@ -57,7 +57,8 @@ public class ReservationMapperImpl implements ReservationMapper {
         }
         return new ReservationResponseDTO.UserSummaryDTO(
                 reservation.getUser().getId(),
-                reservation.getUser().getLogin()
+                reservation.getUser().getName(),
+                reservation.getUser().getEmail()
         );
     }
 
@@ -72,4 +73,3 @@ public class ReservationMapperImpl implements ReservationMapper {
     }
 
 }
- 

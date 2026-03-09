@@ -194,7 +194,8 @@ public class ReservationService implements ReservationServicePort {
                 reservation.getDate(),
                 new ReservationResponseDTO.UserSummaryDTO(
                         reservation.getUser().getId(),
-                        reservation.getUser().getLogin()
+                        reservation.getUser().getName(),
+                        reservation.getUser().getEmail()
                 ),
                 new ReservationResponseDTO.SpaceSummaryDTO(
                         reservation.getSpace().getId(),

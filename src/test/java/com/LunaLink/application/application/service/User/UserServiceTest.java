@@ -42,9 +42,9 @@ class UserServiceTest {
     @DisplayName("Deve criar usuário com senha criptografada")
     void createUser_ShouldEncodePassword_WhenValidData() {
         // Arrange
-        RequestUserDTO request = new RequestUserDTO("user", "password", UserRoles.RESIDENT_ROLE);
-        Users user = new Users("user", "encodedPassword", UserRoles.RESIDENT_ROLE);
-        ResponseUserDTO expectedResponse = new ResponseUserDTO(UUID.randomUUID(), "user", UserRoles.RESIDENT_ROLE, null);
+        RequestUserDTO request = new RequestUserDTO("User Name", "101", "user@email.com", "password", UserRoles.RESIDENT_ROLE);
+        Users user = new Users("User Name", "101", "user@email.com", "encodedPassword", UserRoles.RESIDENT_ROLE);
+        ResponseUserDTO expectedResponse = new ResponseUserDTO(UUID.randomUUID(), "User Name", "101", "user@email.com", UserRoles.RESIDENT_ROLE, null);
 
         when(encoder.encode("password")).thenReturn("encodedPassword");
         when(userRepositoryPort.save(any(Users.class))).thenReturn(user);
@@ -60,22 +60,22 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("Deve buscar usuário por login com sucesso")
-    void findUserByLogin_ShouldReturnDTO_WhenFound() {
+    @DisplayName("Deve buscar usuário por email com sucesso")
+    void findUserByEmail_ShouldReturnDTO_WhenFound() {
         // Arrange
-        String login = "testUser";
-        Users user = new Users(login, "pass", UserRoles.RESIDENT_ROLE);
-        ResponseUserDTO expectedResponse = new ResponseUserDTO(UUID.randomUUID(), login, UserRoles.RESIDENT_ROLE, null);
+        String email = "testUser@email.com";
+        Users user = new Users("Test User", "101", email, "pass", UserRoles.RESIDENT_ROLE);
+        ResponseUserDTO expectedResponse = new ResponseUserDTO(UUID.randomUUID(), "Test User", "101", email, UserRoles.RESIDENT_ROLE, null);
 
-        when(userRepositoryPort.findByLogin(login)).thenReturn(user);
+        when(userRepositoryPort.findByEmail(email)).thenReturn(user);
         when(userMapper.toDTO(user)).thenReturn(expectedResponse);
 
         // Act
-        ResponseUserDTO result = userService.findUserByLogin(login);
+        ResponseUserDTO result = userService.findUserByEmail(email);
 
         // Assert
         assertNotNull(result);
-        assertEquals(login, result.login());
+        assertEquals(email, result.email());
     }
 
     @Test
@@ -83,15 +83,15 @@ class UserServiceTest {
     void updateUser_ShouldUpdateFields_WhenFound() {
         // Arrange
         UUID userId = UUID.randomUUID();
-        RequestUserDTO request = new RequestUserDTO("newLogin", "newPassword", UserRoles.ADMIN_ROLE);
-        Users existingUser = new Users("oldLogin", "oldPassword", UserRoles.RESIDENT_ROLE);
+        RequestUserDTO request = new RequestUserDTO("New Name", "102", "newLogin@email.com", "newPassword", UserRoles.ADMIN_ROLE);
+        Users existingUser = new Users("Old Name", "101", "oldLogin@email.com", "oldPassword", UserRoles.RESIDENT_ROLE);
         existingUser.setId(userId);
 
         when(userRepositoryPort.findById(userId)).thenReturn(Optional.of(existingUser));
         when(encoder.encode("newPassword")).thenReturn("encodedNewPassword");
         when(userRepositoryPort.save(existingUser)).thenReturn(existingUser);
         
-        ResponseUserDTO expectedResponse = new ResponseUserDTO(userId, "newLogin", UserRoles.ADMIN_ROLE, null);
+        ResponseUserDTO expectedResponse = new ResponseUserDTO(userId, "New Name", "102", "newLogin@email.com", UserRoles.ADMIN_ROLE, null);
         when(userMapper.toDTO(existingUser)).thenReturn(expectedResponse);
 
         // Act
@@ -99,7 +99,9 @@ class UserServiceTest {
 
         // Assert
         assertNotNull(result);
-        assertEquals("newLogin", existingUser.getLogin());
+        assertEquals("New Name", existingUser.getName());
+        assertEquals("102", existingUser.getApartment());
+        assertEquals("newLogin@email.com", existingUser.getEmail());
         assertEquals("encodedNewPassword", existingUser.getPassword());
         assertEquals(UserRoles.ADMIN_ROLE, existingUser.getRole());
     }
@@ -108,8 +110,8 @@ class UserServiceTest {
     @DisplayName("Deve listar resumos de usuários")
     void findAllSummaries_ShouldReturnList() {
         // Arrange
-        List<Users> users = List.of(new Users("user", "pass", UserRoles.RESIDENT_ROLE));
-        List<UserSummaryDTO> summaries = List.of(new UserSummaryDTO(UUID.randomUUID(), "user"));
+        List<Users> users = List.of(new Users("User", "101", "user@email.com", "pass", UserRoles.RESIDENT_ROLE));
+        List<UserSummaryDTO> summaries = List.of(new UserSummaryDTO(UUID.randomUUID(), "User", "101", "user@email.com"));
         
         when(userRepositoryPort.findAll()).thenReturn(users);
         when(userMapper.toSummaryDTOList(users)).thenReturn(summaries);
@@ -120,6 +122,7 @@ class UserServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals(1, result.size());
-        assertEquals("user", result.get(0).login());
+        assertEquals("user@email.com", result.get(0).email());
+        assertEquals("101", result.get(0).apartment());
     }
 }

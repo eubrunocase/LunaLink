@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.UUID;
 
 public record ResponseUserDTO(@JsonProperty("id") UUID id,
-                              @JsonProperty("login") String login,
+                              @JsonProperty("name") String name,
+                              @JsonProperty("apartment") String apartment,
+                              @JsonProperty("email") String email,
                               @JsonProperty("role") UserRoles role,
                               @JsonProperty("reservation") List<ReservationSummaryDTO> reservations) {
 

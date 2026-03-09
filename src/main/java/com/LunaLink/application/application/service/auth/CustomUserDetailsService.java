@@ -20,7 +20,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        UserDetails userResident = userRepositoryPort.findByLogin(username);
+        UserDetails userResident = userRepositoryPort.findByEmail(username);
         if (userResident != null) {
             return userResident;
         }

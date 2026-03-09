@@ -38,23 +38,23 @@ public class SecurityFilter extends OncePerRequestFilter {
 
             if (token != null) {
                 System.out.println("Token encontrado: " + token.substring(0, Math.min(10, token.length())) + "...");
-                var login = tokenService.validateToken(token);
+                var email = tokenService.validateToken(token);
 
-                if (!"Invalid token".equals(login)) {
-                    System.out.println("Token válido para usuário: " + login);
+                if (!"Invalid token".equals(email)) {
+                    System.out.println("Token válido para usuário: " + email);
 
-                    UserDetails user = userRepositoryPort.findByLogin(login);
+                    UserDetails user = userRepositoryPort.findByEmail(email);
 
                     if (user == null) {
                         throw new ServletException("ERRO NO MÉTODO doFilterInternal do SecurityFilter: User not found");
                     }
 
                     if (user != null) {
-                        System.out.println("Configurando autenticação para: " + login + " com roles: " + user.getAuthorities());
+                        System.out.println("Configurando autenticação para: " + email + " com roles: " + user.getAuthorities());
                         var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
                         SecurityContextHolder.getContext().setAuthentication(authentication);
                     } else {
-                        System.out.println("Usuário não encontrado para o login: " + login);
+                        System.out.println("Usuário não encontrado para o email: " + email);
                     }
                 } else {
                     System.out.println("Token inválido");
@@ -75,7 +75,3 @@ public class SecurityFilter extends OncePerRequestFilter {
    }
 
 }
-
-
-
-

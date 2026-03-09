@@ -50,7 +50,7 @@ public class SecurityConfiguration {
 
                         // ================= Administrador (Gestão de Usuários) =================
                         // Apenas Admin pode criar, editar ou deletar usuários
-                        .requestMatchers(HttpMethod.POST,"/lunaLink/users/**").hasRole("ADMIN_ROLE")
+                        .requestMatchers(HttpMethod.POST,"/lunaLink/users/**").permitAll()
                         .requestMatchers(HttpMethod.PUT,"/lunaLink/users/**").hasRole("ADMIN_ROLE")
                         .requestMatchers(HttpMethod.DELETE,"/lunaLink/users/**").hasRole("ADMIN_ROLE")
                         
@@ -104,7 +104,7 @@ public class SecurityConfiguration {
             @Override
             public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-                UserDetails residentUser = userRepositoryPort.findByLogin(username);
+                UserDetails residentUser = userRepositoryPort.findByEmail(username);
                 if (residentUser != null) {
                     System.out.println("Usuário encontrado: " + username);
                     return residentUser;

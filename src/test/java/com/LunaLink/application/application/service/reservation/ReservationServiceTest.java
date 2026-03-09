@@ -58,7 +58,7 @@ class ReservationServiceTest {
 
     @BeforeEach
     void setUp() {
-        user = new Users("testUser", "pass", UserRoles.RESIDENT_ROLE);
+        user = new Users("User", "101", "testUser@email.com", "pass", UserRoles.RESIDENT_ROLE);
         user.setId(UUID.randomUUID());
 
         space = new Space();

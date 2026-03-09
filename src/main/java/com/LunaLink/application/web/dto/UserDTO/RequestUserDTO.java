@@ -3,10 +3,9 @@ package com.LunaLink.application.web.dto.UserDTO;
 import com.LunaLink.application.domain.enums.UserRoles;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.UUID;
-
-public record RequestUserDTO(
-                             @JsonProperty("login") String login,
+public record RequestUserDTO(@JsonProperty("name") String name,
+                             @JsonProperty("apartment") String apartment,
+                             @JsonProperty("email") String email,
                              @JsonProperty("password") String password,
                              @JsonProperty("role") UserRoles role) {
 }

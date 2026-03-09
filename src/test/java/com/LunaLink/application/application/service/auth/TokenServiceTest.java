@@ -27,7 +27,7 @@ class TokenServiceTest {
     @DisplayName("Deve gerar token válido para usuário")
     void generateToken_ShouldReturnToken_WhenUserValid() {
         // Arrange
-        Users user = new Users("testUser", "password", UserRoles.RESIDENT_ROLE);
+        Users user = new Users("User", "101", "testUser@email.com", "password", UserRoles.RESIDENT_ROLE);
 
         // Act
         String token = tokenService.generateToken(user);
@@ -41,14 +41,14 @@ class TokenServiceTest {
     @DisplayName("Deve validar token corretamente")
     void validateToken_ShouldReturnSubject_WhenTokenValid() {
         // Arrange
-        Users user = new Users("testUser", "password", UserRoles.RESIDENT_ROLE);
+        Users user = new Users("User", "101", "testUser@email.com", "password", UserRoles.RESIDENT_ROLE);
         String token = tokenService.generateToken(user);
 
         // Act
         String subject = tokenService.validateToken(token);
 
         // Assert
-        assertEquals("testUser", subject);
+        assertEquals("testUser@email.com", subject);
     }
 
     @Test

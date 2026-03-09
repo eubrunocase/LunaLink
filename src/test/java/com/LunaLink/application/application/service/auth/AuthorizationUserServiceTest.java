@@ -29,9 +29,9 @@ class AuthorizationUserServiceTest {
     @DisplayName("Deve carregar usuário por username com sucesso")
     void loadUserByUsername_ShouldReturnUserDetails_WhenFound() {
         // Arrange
-        String username = "testUser";
-        Users user = new Users(username, "pass", UserRoles.RESIDENT_ROLE);
-        when(userRepositoryPort.findByLogin(username)).thenReturn(user);
+        String username = "testUser@email.com";
+        Users user = new Users("User", "101", username, "pass", UserRoles.RESIDENT_ROLE);
+        when(userRepositoryPort.findByEmail(username)).thenReturn(user);
 
         // Act
         UserDetails result = service.loadUserByUsername(username);
@@ -45,8 +45,8 @@ class AuthorizationUserServiceTest {
     @DisplayName("Deve lançar exceção quando usuário não encontrado")
     void loadUserByUsername_ShouldThrowException_WhenNotFound() {
         // Arrange
-        String username = "unknownUser";
-        when(userRepositoryPort.findByLogin(username)).thenThrow(new UsernameNotFoundException("User not found"));
+        String username = "unknownUser@email.com";
+        when(userRepositoryPort.findByEmail(username)).thenThrow(new UsernameNotFoundException("User not found"));
 
         // Act & Assert
         assertThrows(UsernameNotFoundException.class, () -> service.loadUserByUsername(username));

@@ -22,12 +22,12 @@ public class ReservationServiceFacade {
         this.userServicePort = userServicePort;
     }
 
-    public ReservationResponseDTO createReservationForAuthenticatedUser (ReservationCreateDTO data, String login) {
+    public ReservationResponseDTO createReservationForAuthenticatedUser (ReservationCreateDTO data, String email) {
        if (data == null) {
            return null;
        }
 
-        ResponseUserDTO user = userServicePort.findUserByLogin(login);
+        ResponseUserDTO user = userServicePort.findUserByEmail(email);
         ReservationRequestDTO request = new ReservationRequestDTO(
                 user.id(),
                 data.date(),

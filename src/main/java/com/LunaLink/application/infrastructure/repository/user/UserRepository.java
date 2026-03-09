@@ -12,13 +12,16 @@ import java.util.UUID;
 
 @Repository
 public interface UserRepository extends JpaRepository<Users, UUID>, UserRepositoryPort {
+    
+    Users findByEmailAddress(String email);
+
     @Override
-    Users findByLogin(String login);
+    default Users findByEmail(String email) {
+        return findByEmailAddress(email);
+    }
 
     @Override
     Optional<Users> findById(UUID id);
-
-    Optional<Users> findResidentByLogin(String login);  // manter compatibilidade
 
     @Override
     List<Users> findByRole(UserRoles role);

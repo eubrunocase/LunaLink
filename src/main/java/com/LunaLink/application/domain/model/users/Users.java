@@ -2,6 +2,7 @@ package com.LunaLink.application.domain.model.users;
 
 import com.LunaLink.application.domain.enums.UserRoles;
 import com.LunaLink.application.domain.model.reservation.Reservation;
+import com.LunaLink.application.domain.model.valueObject.Email;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,6 +18,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Entity
@@ -31,9 +33,17 @@ public class Users implements UserDetails {
     @JsonProperty("id")
     private UUID id;
 
-    @JsonProperty("login")
-    @Column(nullable = false, unique = true)
-    private String login;
+    @JsonProperty("name")
+    @Column(nullable = false)
+    private String name;
+
+    @JsonProperty("apartment")
+    @Column(name = "apartment")
+    private String apartment;
+
+    @Embedded
+    @AttributeOverride(name = "address", column = @Column(name = "email", nullable = false, unique = true))
+    private Email email;
 
     @JsonProperty("password")
     @Column(nullable = false)
@@ -47,12 +57,10 @@ public class Users implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reservation> reservations = new ArrayList<>();
 
-    public Users() {
-
-    }
-
-    public Users (String login, String password, UserRoles role) {
-        this.login = login;
+    public Users (String name, String apartment, String email, String password, UserRoles role) {
+        this.name = name;
+        this.apartment = apartment;
+        this.email = new Email(email);
         this.password = password;
         this.role = role;
         this.reservations = new ArrayList<>();
@@ -67,12 +75,12 @@ public class Users implements UserDetails {
         return List.of(new SimpleGrantedAuthority("ROLE_" + this.role.name()));
     }
 
-    public String getLogin() {
-        return login;
+    public String getEmail() {
+        return email.getAddress();
     }
 
-    public void setLogin(String login) {
-        this.login = login;
+    public void setEmail(String email) {
+        this.email = new Email(email);
     }
 
     public String getPassword() {
@@ -81,27 +89,27 @@ public class Users implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.login;
+        return this.email.getAddress();
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
+        return true;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
+        return true;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
+        return true;
     }
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return true;
     }
 
     public void setPassword(String password) {
@@ -116,11 +124,29 @@ public class Users implements UserDetails {
         this.id = id;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getApartment() {
+        return apartment;
+    }
+
+    public void setApartment(String apartment) {
+        this.apartment = apartment;
+    }
+
     @Override
     public String toString() {
         return "Users{" +
                 "id=" + id +
-                ", login='" + login + '\'' +
+                ", name='" + name + '\'' +
+                ", apartment='" + apartment + '\'' +
+                ", email='" + email + '\'' +
                 ", password='" + password + '\'' +
                 ", role=" + role +
                 '}';
@@ -133,7 +159,4 @@ public class Users implements UserDetails {
     public List<Reservation> getReservations() {
         return reservations;
     }
-
-
-
 }

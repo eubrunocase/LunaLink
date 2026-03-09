@@ -33,8 +33,8 @@ class AuthenticationServiceTest {
     @DisplayName("Deve autenticar e retornar token com sucesso")
     void authenticate_ShouldReturnToken_WhenCredentialsValid() {
         // Arrange
-        AuthenticationDTO authDTO = new AuthenticationDTO("user", "password");
-        Users user = new Users("user", "password", UserRoles.RESIDENT_ROLE);
+        AuthenticationDTO authDTO = new AuthenticationDTO("user@email.com", "password");
+        Users user = new Users("User", "101", "user@email.com", "password", UserRoles.RESIDENT_ROLE);
         Authentication authentication = mock(Authentication.class);
 
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
@@ -56,7 +56,7 @@ class AuthenticationServiceTest {
     @DisplayName("Deve lançar exceção quando autenticação falhar")
     void authenticate_ShouldThrowException_WhenCredentialsInvalid() {
         // Arrange
-        AuthenticationDTO authDTO = new AuthenticationDTO("user", "wrong");
+        AuthenticationDTO authDTO = new AuthenticationDTO("user@email.com", "wrong");
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenThrow(new RuntimeException("Bad credentials"));
 

@@ -31,11 +31,24 @@ public class UserService implements UserServicePort {
 
     @Override
     public ResponseUserDTO createUser(RequestUserDTO data) {
-        if(data == null) throw new RuntimeException("MÉTODO CREATE USER DE UserService: User não pode ser nulo.");
-        Users user = new Users(data.login(), encoder.encode(data.password()), data.role());
-        userRepositoryPort.save(user);
-        return userMapper.toDTO(user);
-
+        try {
+            if(data == null) throw new RuntimeException("MÉTODO CREATE USER DE UserService: User não pode ser nulo.");
+            
+            System.out.println("Criando usuário: " + data.email());
+            
+            String encodedPassword = encoder.encode(data.password());
+            Users user = new Users(data.name(), data.apartment(), data.email(), encodedPassword, data.role());
+            
+            System.out.println("Salvando usuário no banco...");
+            userRepositoryPort.save(user);
+            
+            System.out.println("Usuário salvo. Mapeando para DTO...");
+            return userMapper.toDTO(user);
+        } catch (Exception e) {
+            System.err.println("Erro ao criar usuário: " + e.getMessage());
+            e.printStackTrace();
+            throw e; // Re-lança para o controller pegar
+        }
     }
 
     @Override
@@ -45,15 +58,17 @@ public class UserService implements UserServicePort {
     }
 
     @Override
-    public ResponseUserDTO findUserByLogin(String login) {
-        Users user = userRepositoryPort.findByLogin(login);
+    public ResponseUserDTO findUserByEmail(String email) {
+        Users user = userRepositoryPort.findByEmail(email);
         return userMapper.toDTO(user);
     }
 
     @Override
     public ResponseUserDTO updateUser(UUID id, RequestUserDTO data) {
         Users userForUpdate = userRepositoryPort.findById(id).get();
-        userForUpdate.setLogin(data.login());
+        userForUpdate.setName(data.name());
+        userForUpdate.setApartment(data.apartment());
+        userForUpdate.setEmail(data.email());
         userForUpdate.setPassword(encoder.encode(data.password()));
         userForUpdate.setRole(data.role());
         userRepositoryPort.save(userForUpdate);

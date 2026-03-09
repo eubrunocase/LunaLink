@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface UserRepositoryPort {
-    Users findByLogin(String login);
+    Users findByEmail(String email);
     Optional<Users> findById(UUID id);
     Users save(Users user);
     void deleteById(UUID id);

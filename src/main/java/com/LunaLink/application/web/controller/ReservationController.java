@@ -30,8 +30,8 @@ public class ReservationController {
     @PostMapping
     public ResponseEntity<ReservationResponseDTO> createNewReservation (@RequestBody @Valid ReservationCreateDTO data,
                                                                         Authentication authentication) {
-        String login = authentication.getName();
-        ReservationResponseDTO reservationSaved = facade.createReservationForAuthenticatedUser(data, login);
+        String email = authentication.getName();
+        ReservationResponseDTO reservationSaved = facade.createReservationForAuthenticatedUser(data, email);
         return ResponseEntity.status(HttpStatus.CREATED).body(reservationSaved);
     }
 
@@ -63,8 +63,8 @@ public class ReservationController {
     public ResponseEntity<Boolean> checkAvaliability(@PathVariable LocalDate date,
                                                      Authentication authentication,
                                                      @PathVariable Long spaceId) {
-        String login = authentication.getName();
-        UUID residentId = userServicePort.findUserByLogin(login).id();
+        String email = authentication.getName();
+        UUID residentId = userServicePort.findUserByEmail(email).id();
 
         Boolean checkAvaliability = facade.checkAvaliability(date, spaceId, residentId);
 

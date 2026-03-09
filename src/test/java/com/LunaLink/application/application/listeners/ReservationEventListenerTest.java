@@ -46,9 +46,9 @@ class ReservationEventListenerTest {
         space.setId(1L);
         ReservationRequestedEvent event = new ReservationRequestedEvent(UUID.randomUUID(), userId, LocalDate.now(), space);
         
-        Users admin = new Users("admin", "pass", UserRoles.ADMIN_ROLE);
+        Users admin = new Users("Admin", "101", "admin@email.com", "pass", UserRoles.ADMIN_ROLE);
         admin.setId(UUID.randomUUID());
-
+        
         when(repository.findByRole(UserRoles.ADMIN_ROLE)).thenReturn(List.of(admin));
 
         // Act
@@ -67,7 +67,7 @@ class ReservationEventListenerTest {
         space.setId(1L);
         ReservationApprovedEvent event = new ReservationApprovedEvent(UUID.randomUUID(), userId, LocalDate.now(), space);
         
-        Users user = new Users("user", "pass", UserRoles.RESIDENT_ROLE);
+        Users user = new Users("User", "101", "user@email.com", "pass", UserRoles.RESIDENT_ROLE);
         user.setId(userId);
         
         when(repository.findById(userId)).thenReturn(Optional.of(user));
@@ -88,7 +88,7 @@ class ReservationEventListenerTest {
         space.setId(1L);
         ReservationRejectedEvent event = new ReservationRejectedEvent(UUID.randomUUID(), userId, LocalDate.now(), space);
         
-        Users user = new Users("user", "pass", UserRoles.RESIDENT_ROLE);
+        Users user = new Users("User", "101", "user@email.com", "pass", UserRoles.RESIDENT_ROLE);
         user.setId(userId);
         
         when(repository.findById(userId)).thenReturn(Optional.of(user));

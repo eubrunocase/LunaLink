@@ -5,5 +5,7 @@ import java.util.UUID;
 
 public record UserSummaryDTO(
         @JsonProperty("id") UUID id,
-        @JsonProperty("login") String login
+        @JsonProperty("name") String name,
+        @JsonProperty("apartment") String apartment,
+        @JsonProperty("email") String email
 ) {}

@@ -35,14 +35,14 @@ class ReservationServiceFacadeTest {
     @DisplayName("Deve criar reserva para usuário autenticado")
     void createReservationForAuthenticatedUser_ShouldCallService_WhenValidData() {
         // Arrange
-        String login = "testUser";
+        String email = "testUser@email.com";
         ReservationCreateDTO createDTO = new ReservationCreateDTO(LocalDate.now(), 1L);
-        ResponseUserDTO userDTO = new ResponseUserDTO(UUID.randomUUID(), login, UserRoles.RESIDENT_ROLE, null);
+        ResponseUserDTO userDTO = new ResponseUserDTO(UUID.randomUUID(), "Test User", "101", email, UserRoles.RESIDENT_ROLE, null);
 
-        when(userServicePort.findUserByLogin(login)).thenReturn(userDTO);
+        when(userServicePort.findUserByEmail(email)).thenReturn(userDTO);
 
         // Act
-        facade.createReservationForAuthenticatedUser(createDTO, login);
+        facade.createReservationForAuthenticatedUser(createDTO, email);
 
         // Assert
         verify(reservationService, times(1)).createReservation(any(ReservationRequestDTO.class));

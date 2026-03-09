@@ -27,7 +27,7 @@ class UserFacadeTest {
     @DisplayName("Deve criar usuário")
     void createUser_ShouldCallService() {
         // Arrange
-        RequestUserDTO requestDTO = new RequestUserDTO("user", "password", UserRoles.RESIDENT_ROLE);
+        RequestUserDTO requestDTO = new RequestUserDTO("User", "101", "user@email.com", "password", UserRoles.RESIDENT_ROLE);
 
         // Act
         facade.createUser(requestDTO);
@@ -64,7 +64,7 @@ class UserFacadeTest {
     void updateUser_ShouldCallService() {
         // Arrange
         UUID id = UUID.randomUUID();
-        RequestUserDTO requestDTO = new RequestUserDTO("user", "password", UserRoles.RESIDENT_ROLE);
+        RequestUserDTO requestDTO = new RequestUserDTO("User", "101", "user@email.com", "password", UserRoles.RESIDENT_ROLE);
 
         // Act
         facade.updateUser(id, requestDTO);

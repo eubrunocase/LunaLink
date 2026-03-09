@@ -18,7 +18,8 @@ public record ReservationResponseDTO(@JsonProperty("id") UUID id,
 
     public record UserSummaryDTO(
             @JsonProperty("id") UUID id,
-            @JsonProperty("login") String login
+            @JsonProperty("name") String name,
+            @JsonProperty("email") String email
     ) {}
 
     public record SpaceSummaryDTO(
