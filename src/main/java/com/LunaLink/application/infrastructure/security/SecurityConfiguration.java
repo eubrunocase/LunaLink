@@ -50,7 +50,7 @@ public class SecurityConfiguration {
 
                         // ================= Administrador (Gestão de Usuários) =================
                         // Apenas Admin pode criar, editar ou deletar usuários
-                        .requestMatchers(HttpMethod.POST,"/lunaLink/users/**").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/lunaLink/users/**").hasRole("ADMIN_ROLE")
                         .requestMatchers(HttpMethod.PUT,"/lunaLink/users/**").hasRole("ADMIN_ROLE")
                         .requestMatchers(HttpMethod.DELETE,"/lunaLink/users/**").hasRole("ADMIN_ROLE")
                         
@@ -74,6 +74,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.DELETE,"/lunaLink/reservation/**").hasRole("ADMIN_ROLE")
                         .requestMatchers(HttpMethod.PUT,"/lunaLink/reservation/{id}/approve").hasRole("ADMIN_ROLE")
                         .requestMatchers(HttpMethod.PUT,"/lunaLink/reservation/{id}/reject").hasRole("ADMIN_ROLE")
+                        .requestMatchers(HttpMethod.GET,"/lunaLink/reservation/report/**").hasRole("ADMIN_ROLE")
 
                         // Espaços (Leitura)
                         .requestMatchers(HttpMethod.GET,"/lunaLink/space/**").authenticated()

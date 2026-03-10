@@ -1,6 +1,7 @@
 package com.LunaLink.application.infrastructure.repository.reservation;
 
 import com.LunaLink.application.domain.enums.ReservationStatus;
+import com.LunaLink.application.domain.enums.SpaceType;
 import com.LunaLink.application.domain.model.space.Space;
 import com.LunaLink.application.domain.model.users.Users;
 import com.LunaLink.application.domain.model.reservation.Reservation;
@@ -151,5 +152,18 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID>,
         WHERE r.date < :beforeDate
     """)
     int deleteOlderThan(@Param("beforeDate") LocalDate beforeDate);
+
+    @Query("""
+        SELECT r FROM Reservation r
+        WHERE MONTH(r.date) = :month AND YEAR(r.date) = :year
+        AND r.status IN :statuses
+        AND r.space.type IN :spaceTypes
+    """)
+    List<Reservation> findReservationsForReport(
+            @Param("month") int month,
+            @Param("year") int year,
+            @Param("statuses") List<ReservationStatus> statuses,
+            @Param("spaceTypes") List<SpaceType> spaceTypes
+    );
 
 }

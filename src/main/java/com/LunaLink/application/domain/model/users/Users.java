@@ -18,8 +18,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Entity
 @Table(name = "users")
@@ -57,6 +55,9 @@ public class Users implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reservation> reservations = new ArrayList<>();
 
+    public Users() {
+    }
+
     public Users (String name, String apartment, String email, String password, UserRoles role) {
         this.name = name;
         this.apartment = apartment;
@@ -76,7 +77,7 @@ public class Users implements UserDetails {
     }
 
     public String getEmail() {
-        return email.getAddress();
+        return email != null ? email.getAddress() : null;
     }
 
     public void setEmail(String email) {
@@ -89,7 +90,7 @@ public class Users implements UserDetails {
 
     @Override
     public String getUsername() {
-        return this.email.getAddress();
+        return this.email != null ? this.email.getAddress() : null;
     }
 
     @Override

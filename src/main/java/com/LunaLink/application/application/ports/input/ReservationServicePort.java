@@ -1,5 +1,6 @@
 package com.LunaLink.application.application.ports.input;
 
+import com.LunaLink.application.web.dto.ReservationsDTO.MonthlyReservationReportDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
 
@@ -19,5 +20,6 @@ public interface ReservationServicePort {
     ReservationResponseDTO approveReservation(UUID id);
     ReservationResponseDTO rejectReservation(UUID id);
 
+    List<MonthlyReservationReportDTO> generateMonthlyReport(int month, int year);
 
 }

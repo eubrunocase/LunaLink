@@ -3,15 +3,16 @@ package com.LunaLink.application.domain.model.valueObject;
 import jakarta.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 @Embeddable
 @Getter
-@NoArgsConstructor
 @EqualsAndHashCode
 public class Email {
 
     private String address;
+
+    public Email() {
+    }
 
     public Email(String address) {
         if (address == null || !address.contains("@")) {

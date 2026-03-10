@@ -14,6 +14,7 @@ import com.LunaLink.application.domain.model.users.Users;
 import com.LunaLink.application.infrastructure.eventPublisher.EventPublisher;
 import com.LunaLink.application.infrastructure.mapper.reservation.ReservationMapper;
 import com.LunaLink.application.infrastructure.repository.space.SpaceRepository;
+import com.LunaLink.application.web.dto.ReservationsDTO.MonthlyReservationReportDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -180,5 +181,25 @@ class ReservationServiceTest {
 
         // Assert
         assertTrue(isAvailable);
+    }
+
+    @Test
+    @DisplayName("Deve gerar relatório mensal corretamente")
+    void generateMonthlyReport_ShouldReturnList_WhenFound() {
+        // Arrange
+        int month = 5;
+        int year = 2026;
+        when(reservationRepository.findReservationsForReport(eq(month), eq(year), anyList(), anyList()))
+                .thenReturn(List.of(reservation));
+
+        // Act
+        List<MonthlyReservationReportDTO> report = service.generateMonthlyReport(month, year);
+
+        // Assert
+        assertNotNull(report);
+        assertEquals(1, report.size());
+        assertEquals("User", report.get(0).residentName());
+        assertEquals("101", report.get(0).apartment());
+        assertEquals("SALAO_FESTAS", report.get(0).spaceType());
     }
 }

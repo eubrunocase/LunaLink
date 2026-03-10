@@ -2,6 +2,7 @@ package com.LunaLink.application.application.service.reservation;
 
 import com.LunaLink.application.application.ports.output.UserRepositoryPort;
 import com.LunaLink.application.domain.enums.ReservationStatus;
+import com.LunaLink.application.domain.enums.SpaceType;
 import com.LunaLink.application.domain.events.reservationEvents.ReservationApprovedEvent;
 import com.LunaLink.application.domain.events.reservationEvents.ReservationRejectedEvent;
 import com.LunaLink.application.domain.events.reservationEvents.ReservationRequestedEvent;
@@ -13,6 +14,7 @@ import com.LunaLink.application.infrastructure.mapper.reservation.ReservationMap
 import com.LunaLink.application.application.ports.input.ReservationServicePort;
 import com.LunaLink.application.application.ports.output.ReservationRepositoryPort;
 import com.LunaLink.application.infrastructure.repository.space.SpaceRepository;
+import com.LunaLink.application.web.dto.ReservationsDTO.MonthlyReservationReportDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
 import jakarta.transaction.Transactional;
@@ -24,6 +26,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ReservationService implements ReservationServicePort {
@@ -32,6 +35,9 @@ public class ReservationService implements ReservationServicePort {
     private final ReservationRepositoryPort reservationRepository;
     private final ReservationMapper reservationMapper;
     private final EventPublisher publisher;
+
+    private static final List<ReservationStatus> VALID_STATUSES_FOR_REPORT = List.of(ReservationStatus.APPROVED);
+    private static final List<SpaceType> BILLABLE_SPACE_TYPES = List.of(SpaceType.SALAO_FESTAS, SpaceType.CHURRASQUEIRA);
 
     public ReservationService(UserRepositoryPort userRepository,
                               SpaceRepository spaceRepository,
@@ -186,6 +192,33 @@ public class ReservationService implements ReservationServicePort {
         );
         publisher.publishEvent(event);
         return convertToDTO(savedReservation);
+    }
+
+    @Override
+    public List<MonthlyReservationReportDTO> generateMonthlyReport(int month, int year) {
+        if (month < 1 || month > 12) {
+            throw new IllegalArgumentException("Mês inválido: " + month);
+        }
+        if (year < 2020) {
+            throw new IllegalArgumentException("Ano inválido: " + year);
+        }
+
+        List<Reservation> reservations = reservationRepository.findReservationsForReport(
+                month, year, VALID_STATUSES_FOR_REPORT, BILLABLE_SPACE_TYPES
+        );
+
+        return reservations.stream()
+                .map(this::convertToReportDTO)
+                .collect(Collectors.toList());
+    }
+
+    private MonthlyReservationReportDTO convertToReportDTO(Reservation reservation) {
+        return new MonthlyReservationReportDTO(
+                reservation.getUser().getName(),
+                reservation.getUser().getApartment(),
+                reservation.getDate(),
+                reservation.getSpace().getType().toString()
+        );
     }
 
     private ReservationResponseDTO convertToDTO(Reservation reservation) {

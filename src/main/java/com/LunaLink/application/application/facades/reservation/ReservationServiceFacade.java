@@ -2,6 +2,7 @@ package com.LunaLink.application.application.facades.reservation;
 
 import com.LunaLink.application.application.ports.input.UserServicePort;
 import com.LunaLink.application.application.ports.input.ReservationServicePort;
+import com.LunaLink.application.web.dto.ReservationsDTO.MonthlyReservationReportDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationCreateDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
@@ -67,5 +68,9 @@ public class ReservationServiceFacade {
      public Boolean checkAvaliability (LocalDate date, Long space, UUID user) {
         return reservationService.checkAvaliability(date, space, user);
      }
+
+    public List<MonthlyReservationReportDTO> generateMonthlyReport(int month, int year) {
+        return reservationService.generateMonthlyReport(month, year);
+    }
 
 }

@@ -2,6 +2,7 @@ package com.LunaLink.application.web.controller;
 
 import com.LunaLink.application.application.facades.reservation.ReservationServiceFacade;
 import com.LunaLink.application.application.ports.input.UserServicePort;
+import com.LunaLink.application.web.dto.ReservationsDTO.MonthlyReservationReportDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationCreateDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
@@ -87,5 +88,12 @@ public class ReservationController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/report/monthly")
+    public ResponseEntity<List<MonthlyReservationReportDTO>> getMonthlyReport(
+            @RequestParam int month,
+            @RequestParam int year) {
+        List<MonthlyReservationReportDTO> report = facade.generateMonthlyReport(month, year);
+        return ResponseEntity.ok(report);
+    }
 
 }
