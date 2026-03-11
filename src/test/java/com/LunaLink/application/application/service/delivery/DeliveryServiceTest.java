@@ -44,7 +44,7 @@ class DeliveryServiceTest {
         UUID userId = UUID.randomUUID();
         RequestDeliveryDTO request = new RequestDeliveryDTO(userId, "PROTO-123", "Pacote pequeno", null, null);
         
-        Delivery deliveryEntity = new Delivery(userId, "PROTO-123", "Pacote pequeno", LocalDateTime.now(), null, null);
+        Delivery deliveryEntity = new Delivery(userId, "PROTO-123", "Pacote pequeno", null, null);
         // Simulando ID gerado pelo banco
         try {
             java.lang.reflect.Field idField = Delivery.class.getDeclaredField("id");
@@ -55,7 +55,7 @@ class DeliveryServiceTest {
         }
 
         ResponseDeliveryDTO expectedResponse = new ResponseDeliveryDTO(
-                deliveryEntity.getId(), userId, "PROTO-123", "Pacote pequeno", null, LocalDateTime.now(), null, 
+                deliveryEntity.getId(), userId, "PROTO-123", "Pacote pequeno", null, LocalDateTime.now(), "system", null, 
                 DeliveryStatus.PENDING, null, null
         );
 
@@ -95,7 +95,7 @@ class DeliveryServiceTest {
         delivery.setStatus(DeliveryStatus.PENDING);
         
         ResponseDeliveryDTO expectedResponse = new ResponseDeliveryDTO(
-                deliveryId, UUID.randomUUID(), "123", "Discriminação", null, LocalDateTime.now(), null,
+                deliveryId, UUID.randomUUID(), "123", "Discriminação", null, LocalDateTime.now(), "system", null,
                 DeliveryStatus.DELIVERED, LocalDateTime.now(), pickedUpBy
         );
 

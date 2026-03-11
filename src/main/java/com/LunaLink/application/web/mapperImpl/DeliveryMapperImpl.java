@@ -6,7 +6,6 @@ import com.LunaLink.application.web.dto.DeliveryDTO.RequestDeliveryDTO;
 import com.LunaLink.application.web.dto.DeliveryDTO.ResponseDeliveryDTO;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Component
@@ -23,6 +22,7 @@ public class DeliveryMapperImpl implements DeliveryMapper {
                                        delivery.getDiscrimination(),
                                        delivery.getImage(),
                                        delivery.getCreatedAt(),
+                                       delivery.getCreatedBy(),
                                        delivery.getOtherRecipient(),
                                        delivery.getStatus(),
                                        delivery.getDeliveredAt(),
@@ -37,7 +37,6 @@ public class DeliveryMapperImpl implements DeliveryMapper {
         return new Delivery(deliveryDTO.userId(),
                             deliveryDTO.protocolNumber(),
                             deliveryDTO.discrimination(),
-                            LocalDateTime.now(),
                             deliveryDTO.image(),
                             deliveryDTO.otherRecipient());
     }

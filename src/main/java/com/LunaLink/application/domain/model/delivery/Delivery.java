@@ -1,8 +1,12 @@
 package com.LunaLink.application.domain.model.delivery;
+
 import com.LunaLink.application.domain.enums.DeliveryStatus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -10,6 +14,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "delivery")
 @EqualsAndHashCode(of = "id")
+@EntityListeners(AuditingEntityListener.class)
 public class Delivery {
 
     @Id
@@ -28,9 +33,13 @@ public class Delivery {
     @Column(name = "discrimination", nullable = true)
     private String discrimination;
 
-    @JsonProperty("createdAt")
-    @Column(name = "createdAt", nullable = true)
+    @CreatedDate
+    @Column(name = "createdAt", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @CreatedBy
+    @Column(name = "createdBy", nullable = false, updatable = false)
+    private String createdBy;
 
     @Column(name = "image", columnDefinition = "BYTEA", nullable = true)
     private byte[] image;
@@ -49,7 +58,7 @@ public class Delivery {
     @Column(name = "pickedUpBy")
     private String pickedUpBy;
 
-    public Delivery(UUID userId, String protocolNumber, String discrimination, LocalDateTime createdAt ,byte[] image, String otherRecipient) {
+    public Delivery(UUID userId, String protocolNumber, String discrimination, byte[] image, String otherRecipient) {
         this.userId = userId;
         this.protocolNumber = protocolNumber;
         this.discrimination = discrimination;
@@ -63,7 +72,6 @@ public class Delivery {
 
     @PrePersist
     public void prePersist() {
-        this.createdAt = LocalDateTime.now();
         if (this.status == null) {
             this.status = DeliveryStatus.PENDING;
         }
@@ -85,6 +93,10 @@ public class Delivery {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
     }
 
     public String getOtherRecipient() {

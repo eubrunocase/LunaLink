@@ -35,7 +35,7 @@ class DeliveryControllerTest {
     @DisplayName("Deve listar todas as entregas")
     void findAllDeliveries_ShouldReturnList() {
         // Arrange
-        List<ResponseDeliveryDTO> deliveries = List.of(new ResponseDeliveryDTO(UUID.randomUUID(), UUID.randomUUID(), "123", "Discriminação", null, LocalDateTime.now(), null, DeliveryStatus.PENDING, null, null));
+        List<ResponseDeliveryDTO> deliveries = List.of(new ResponseDeliveryDTO(UUID.randomUUID(), UUID.randomUUID(), "123", "Discriminação", null, LocalDateTime.now(), "system", null, DeliveryStatus.PENDING, null, null));
         when(deliveryFacade.findAllDeliveries()).thenReturn(deliveries);
 
         // Act
@@ -51,7 +51,7 @@ class DeliveryControllerTest {
     void findById_ShouldReturnDelivery() {
         // Arrange
         UUID id = UUID.randomUUID();
-        ResponseDeliveryDTO delivery = new ResponseDeliveryDTO(id, UUID.randomUUID(), "123", "Discriminação", null, LocalDateTime.now(), null, DeliveryStatus.PENDING, null, null);
+        ResponseDeliveryDTO delivery = new ResponseDeliveryDTO(id, UUID.randomUUID(), "123", "Discriminação", null, LocalDateTime.now(), "system", null, DeliveryStatus.PENDING, null, null);
         when(deliveryFacade.findById(id)).thenReturn(delivery);
 
         // Act
@@ -67,7 +67,7 @@ class DeliveryControllerTest {
     void createDelivery_ShouldReturnCreated() {
         // Arrange
         RequestDeliveryDTO request = new RequestDeliveryDTO(UUID.randomUUID(), "123", "Discriminação", null, null);
-        ResponseDeliveryDTO created = new ResponseDeliveryDTO(UUID.randomUUID(), request.userId(), request.protocolNumber(), request.discrimination(), null, LocalDateTime.now(), null, DeliveryStatus.PENDING, null, null);
+        ResponseDeliveryDTO created = new ResponseDeliveryDTO(UUID.randomUUID(), request.userId(), request.protocolNumber(), request.discrimination(), null, LocalDateTime.now(), "system", null, DeliveryStatus.PENDING, null, null);
         when(deliveryFacade.createDelivery(request)).thenReturn(created);
 
         // Act
@@ -84,7 +84,7 @@ class DeliveryControllerTest {
         // Arrange
         UUID id = UUID.randomUUID();
         RequestDeliveryDTO request = new RequestDeliveryDTO(UUID.randomUUID(), "123", "Discriminação", null, null);
-        ResponseDeliveryDTO updated = new ResponseDeliveryDTO(id, request.userId(), request.protocolNumber(), request.discrimination(), null, LocalDateTime.now(), null, DeliveryStatus.PENDING, null, null);
+        ResponseDeliveryDTO updated = new ResponseDeliveryDTO(id, request.userId(), request.protocolNumber(), request.discrimination(), null, LocalDateTime.now(), "system", null, DeliveryStatus.PENDING, null, null);
         when(deliveryFacade.updateDelivery(id, request)).thenReturn(updated);
 
         // Act
@@ -101,7 +101,7 @@ class DeliveryControllerTest {
         // Arrange
         UUID id = UUID.randomUUID();
         String pickedUpBy = "Porteiro";
-        ResponseDeliveryDTO updated = new ResponseDeliveryDTO(id, UUID.randomUUID(), "123", "Discriminação", null, LocalDateTime.now(), null, DeliveryStatus.DELIVERED, LocalDateTime.now(), pickedUpBy);
+        ResponseDeliveryDTO updated = new ResponseDeliveryDTO(id, UUID.randomUUID(), "123", "Discriminação", null, LocalDateTime.now(), "system", null, DeliveryStatus.DELIVERED, LocalDateTime.now(), pickedUpBy);
         when(deliveryFacade.confirmReceipt(id, pickedUpBy)).thenReturn(updated);
 
         // Act
