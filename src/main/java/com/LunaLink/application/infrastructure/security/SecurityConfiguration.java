@@ -81,6 +81,13 @@ public class SecurityConfiguration {
                         // Espaços (Escrita - Apenas Admin deveria criar espaços, se houver endpoint)
                         .requestMatchers(HttpMethod.POST,"/lunaLink/space/**").hasRole("ADMIN_ROLE")
 
+                        // ================= Equipamentos (US-02) =================
+                        // Morador cria reserva
+                        .requestMatchers(HttpMethod.POST, "/lunaLink/equipment-reservation").authenticated()
+                        // Apenas Admin/Funcionário faz check-in/check-out e lista
+                        .requestMatchers(HttpMethod.PATCH, "/lunaLink/equipment-reservation/**").hasRole("ADMIN_ROLE")
+                        .requestMatchers(HttpMethod.GET, "/lunaLink/equipment-reservation/**").hasRole("ADMIN_ROLE")
+
                         // Qualquer outra requisição deve estar autenticada
                         .anyRequest().authenticated()
                 ) .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
