@@ -1,12 +1,13 @@
 package com.LunaLink.application.application.service.equipment;
 
+import com.LunaLink.application.application.ports.input.EquipmentReservationServicePort;
+import com.LunaLink.application.application.ports.output.EquipmentReservationRepositoryPort;
 import com.LunaLink.application.application.ports.output.UserRepositoryPort;
 import com.LunaLink.application.domain.enums.EquipmentReservationStatus;
 import com.LunaLink.application.domain.model.equipment.Equipment;
 import com.LunaLink.application.domain.model.equipment.EquipmentReservation;
 import com.LunaLink.application.domain.model.users.Users;
 import com.LunaLink.application.infrastructure.repository.equipment.EquipmentRepository;
-import com.LunaLink.application.infrastructure.repository.equipment.EquipmentReservationRepository;
 import com.LunaLink.application.web.dto.EquipmentDTO.EquipmentReservationRequestDTO;
 import com.LunaLink.application.web.dto.EquipmentDTO.EquipmentReservationResponseDTO;
 import jakarta.transaction.Transactional;
@@ -19,9 +20,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-public class EquipmentReservationService {
+public class EquipmentReservationService implements EquipmentReservationServicePort {
 
-    private final EquipmentReservationRepository reservationRepository;
+    private final EquipmentReservationRepositoryPort reservationRepositoryPort;
     private final EquipmentRepository equipmentRepository;
     private final UserRepositoryPort userRepository;
 
@@ -30,14 +31,15 @@ public class EquipmentReservationService {
             EquipmentReservationStatus.IN_USE
     );
 
-    public EquipmentReservationService(EquipmentReservationRepository reservationRepository,
+    public EquipmentReservationService(EquipmentReservationRepositoryPort reservationRepositoryPort,
                                        EquipmentRepository equipmentRepository,
                                        UserRepositoryPort userRepository) {
-        this.reservationRepository = reservationRepository;
+        this.reservationRepositoryPort = reservationRepositoryPort;
         this.equipmentRepository = equipmentRepository;
         this.userRepository = userRepository;
     }
 
+    @Override
     @Transactional
     public EquipmentReservationResponseDTO createReservation(EquipmentReservationRequestDTO dto, String userEmail) {
         // 1. Validações básicas
@@ -57,7 +59,7 @@ public class EquipmentReservationService {
         }
 
         // 2. Validação de Conflito de Horário
-        boolean hasConflict = reservationRepository.hasConflict(
+        boolean hasConflict = reservationRepositoryPort.hasConflict(
                 dto.equipmentId(),
                 dto.date(),
                 dto.startTime(),
@@ -74,13 +76,14 @@ public class EquipmentReservationService {
                 equipment, user, dto.date(), dto.startTime(), dto.endTime()
         );
         
-        EquipmentReservation saved = reservationRepository.save(reservation);
+        EquipmentReservation saved = reservationRepositoryPort.save(reservation);
         return convertToDTO(saved);
     }
 
+    @Override
     @Transactional
     public EquipmentReservationResponseDTO handoverEquipment(UUID id) {
-        EquipmentReservation reservation = reservationRepository.findById(id)
+        EquipmentReservation reservation = reservationRepositoryPort.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Reserva não encontrada."));
 
         if (reservation.getStatus() != EquipmentReservationStatus.CONFIRMED) {
@@ -90,12 +93,13 @@ public class EquipmentReservationService {
         reservation.setStatus(EquipmentReservationStatus.IN_USE);
         reservation.setPickedUpAt(LocalDateTime.now());
         
-        return convertToDTO(reservationRepository.save(reservation));
+        return convertToDTO(reservationRepositoryPort.save(reservation));
     }
 
+    @Override
     @Transactional
     public EquipmentReservationResponseDTO returnEquipment(UUID id) {
-        EquipmentReservation reservation = reservationRepository.findById(id)
+        EquipmentReservation reservation = reservationRepositoryPort.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Reserva não encontrada."));
 
         if (reservation.getStatus() != EquipmentReservationStatus.IN_USE) {
@@ -105,20 +109,21 @@ public class EquipmentReservationService {
         reservation.setStatus(EquipmentReservationStatus.RETURNED);
         reservation.setReturnedAt(LocalDateTime.now());
 
-        return convertToDTO(reservationRepository.save(reservation));
+        return convertToDTO(reservationRepositoryPort.save(reservation));
     }
 
+    @Override
     public List<EquipmentReservationResponseDTO> listReservations(LocalDate date, EquipmentReservationStatus status) {
         List<EquipmentReservation> reservations;
 
         if (date != null && status != null) {
-            reservations = reservationRepository.findAllByDateAndStatus(date, status);
+            reservations = reservationRepositoryPort.findAllByDateAndStatus(date, status);
         } else if (date != null) {
-            reservations = reservationRepository.findAllByDate(date);
+            reservations = reservationRepositoryPort.findAllByDate(date);
         } else if (status != null) {
-            reservations = reservationRepository.findAllByStatus(status);
+            reservations = reservationRepositoryPort.findAllByStatus(status);
         } else {
-            reservations = reservationRepository.findAll();
+            reservations = reservationRepositoryPort.findAll();
         }
 
         return reservations.stream()

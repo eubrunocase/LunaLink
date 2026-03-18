@@ -1,5 +1,6 @@
 package com.LunaLink.application.application.service.equipment;
 
+import com.LunaLink.application.application.ports.output.EquipmentReservationRepositoryPort;
 import com.LunaLink.application.application.ports.output.UserRepositoryPort;
 import com.LunaLink.application.domain.enums.EquipmentReservationStatus;
 import com.LunaLink.application.domain.enums.UserRoles;
@@ -7,7 +8,6 @@ import com.LunaLink.application.domain.model.equipment.Equipment;
 import com.LunaLink.application.domain.model.equipment.EquipmentReservation;
 import com.LunaLink.application.domain.model.users.Users;
 import com.LunaLink.application.infrastructure.repository.equipment.EquipmentRepository;
-import com.LunaLink.application.infrastructure.repository.equipment.EquipmentReservationRepository;
 import com.LunaLink.application.web.dto.EquipmentDTO.EquipmentReservationRequestDTO;
 import com.LunaLink.application.web.dto.EquipmentDTO.EquipmentReservationResponseDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +33,7 @@ import static org.mockito.Mockito.*;
 class EquipmentReservationServiceTest {
 
     @Mock
-    private EquipmentReservationRepository reservationRepository;
+    private EquipmentReservationRepositoryPort reservationRepositoryPort;
     @Mock
     private EquipmentRepository equipmentRepository;
     @Mock
@@ -60,10 +60,10 @@ class EquipmentReservationServiceTest {
         // Arrange
         when(userRepository.findByEmail("user@email.com")).thenReturn(user);
         when(equipmentRepository.findById(1L)).thenReturn(Optional.of(tv));
-        when(reservationRepository.hasConflict(any(), any(), any(), any(), anyList())).thenReturn(false);
+        when(reservationRepositoryPort.hasConflict(any(), any(), any(), any(), anyList())).thenReturn(false);
         
         EquipmentReservation savedReservation = new EquipmentReservation(tv, user, requestDTO.date(), requestDTO.startTime(), requestDTO.endTime());
-        when(reservationRepository.save(any(EquipmentReservation.class))).thenReturn(savedReservation);
+        when(reservationRepositoryPort.save(any(EquipmentReservation.class))).thenReturn(savedReservation);
 
         // Act
         EquipmentReservationResponseDTO result = service.createReservation(requestDTO, "user@email.com");
@@ -71,7 +71,7 @@ class EquipmentReservationServiceTest {
         // Assert
         assertNotNull(result);
         assertEquals(EquipmentReservationStatus.CONFIRMED, result.status());
-        verify(reservationRepository).save(any(EquipmentReservation.class));
+        verify(reservationRepositoryPort).save(any(EquipmentReservation.class));
     }
 
     @Test
@@ -80,7 +80,7 @@ class EquipmentReservationServiceTest {
         // Arrange
         when(userRepository.findByEmail("user@email.com")).thenReturn(user);
         when(equipmentRepository.findById(1L)).thenReturn(Optional.of(tv));
-        when(reservationRepository.hasConflict(any(), any(), any(), any(), anyList())).thenReturn(true);
+        when(reservationRepositoryPort.hasConflict(any(), any(), any(), any(), anyList())).thenReturn(true);
 
         // Act & Assert
         IllegalStateException exception = assertThrows(IllegalStateException.class,
@@ -97,8 +97,8 @@ class EquipmentReservationServiceTest {
         EquipmentReservation reservation = new EquipmentReservation(tv, user, LocalDate.now(), LocalTime.now(), LocalTime.now().plusHours(2));
         reservation.setStatus(EquipmentReservationStatus.CONFIRMED);
         
-        when(reservationRepository.findById(reservationId)).thenReturn(Optional.of(reservation));
-        when(reservationRepository.save(any(EquipmentReservation.class))).thenReturn(reservation);
+        when(reservationRepositoryPort.findById(reservationId)).thenReturn(Optional.of(reservation));
+        when(reservationRepositoryPort.save(any(EquipmentReservation.class))).thenReturn(reservation);
 
         // Act
         service.handoverEquipment(reservationId);
@@ -116,8 +116,8 @@ class EquipmentReservationServiceTest {
         EquipmentReservation reservation = new EquipmentReservation(tv, user, LocalDate.now(), LocalTime.now(), LocalTime.now().plusHours(2));
         reservation.setStatus(EquipmentReservationStatus.IN_USE);
         
-        when(reservationRepository.findById(reservationId)).thenReturn(Optional.of(reservation));
-        when(reservationRepository.save(any(EquipmentReservation.class))).thenReturn(reservation);
+        when(reservationRepositoryPort.findById(reservationId)).thenReturn(Optional.of(reservation));
+        when(reservationRepositoryPort.save(any(EquipmentReservation.class))).thenReturn(reservation);
 
         // Act
         service.returnEquipment(reservationId);

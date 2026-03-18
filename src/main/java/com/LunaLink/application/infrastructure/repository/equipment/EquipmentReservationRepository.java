@@ -1,5 +1,6 @@
 package com.LunaLink.application.infrastructure.repository.equipment;
 
+import com.LunaLink.application.application.ports.output.EquipmentReservationRepositoryPort;
 import com.LunaLink.application.domain.enums.EquipmentReservationStatus;
 import com.LunaLink.application.domain.model.equipment.EquipmentReservation;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,11 +11,22 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface EquipmentReservationRepository extends JpaRepository<EquipmentReservation, UUID> {
+public interface EquipmentReservationRepository extends JpaRepository<EquipmentReservation, UUID>, EquipmentReservationRepositoryPort {
 
+    @Override
+    EquipmentReservation save(EquipmentReservation reservation);
+
+    @Override
+    Optional<EquipmentReservation> findById(UUID id);
+
+    @Override
+    List<EquipmentReservation> findAll();
+
+    @Override
     @Query("""
         SELECT COUNT(r) > 0 FROM EquipmentReservation r
         WHERE r.equipment.id = :equipmentId
@@ -30,7 +42,12 @@ public interface EquipmentReservationRepository extends JpaRepository<EquipmentR
             @Param("activeStatuses") List<EquipmentReservationStatus> activeStatuses
     );
 
+    @Override
     List<EquipmentReservation> findAllByDate(LocalDate date);
+
+    @Override
     List<EquipmentReservation> findAllByStatus(EquipmentReservationStatus status);
+
+    @Override
     List<EquipmentReservation> findAllByDateAndStatus(LocalDate date, EquipmentReservationStatus status);
 }

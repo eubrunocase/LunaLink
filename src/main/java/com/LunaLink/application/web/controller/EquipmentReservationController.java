@@ -1,6 +1,6 @@
 package com.LunaLink.application.web.controller;
 
-import com.LunaLink.application.application.service.equipment.EquipmentReservationService;
+import com.LunaLink.application.application.facades.equipment.EquipmentReservationFacade;
 import com.LunaLink.application.domain.enums.EquipmentReservationStatus;
 import com.LunaLink.application.web.dto.EquipmentDTO.EquipmentReservationRequestDTO;
 import com.LunaLink.application.web.dto.EquipmentDTO.EquipmentReservationResponseDTO;
@@ -18,10 +18,10 @@ import java.util.UUID;
 @RequestMapping("/lunaLink/equipment-reservation")
 public class EquipmentReservationController {
 
-    private final EquipmentReservationService service;
+    private final EquipmentReservationFacade facade;
 
-    public EquipmentReservationController(EquipmentReservationService service) {
-        this.service = service;
+    public EquipmentReservationController(EquipmentReservationFacade facade) {
+        this.facade = facade;
     }
 
     @PostMapping
@@ -30,18 +30,18 @@ public class EquipmentReservationController {
             Authentication authentication) {
         
         String userEmail = authentication.getName();
-        EquipmentReservationResponseDTO response = service.createReservation(dto, userEmail);
+        EquipmentReservationResponseDTO response = facade.createReservation(dto, userEmail);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PatchMapping("/{id}/handover")
     public ResponseEntity<EquipmentReservationResponseDTO> handoverEquipment(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.handoverEquipment(id));
+        return ResponseEntity.ok(facade.handoverEquipment(id));
     }
 
     @PatchMapping("/{id}/return")
     public ResponseEntity<EquipmentReservationResponseDTO> returnEquipment(@PathVariable UUID id) {
-        return ResponseEntity.ok(service.returnEquipment(id));
+        return ResponseEntity.ok(facade.returnEquipment(id));
     }
 
     @GetMapping
@@ -49,7 +49,7 @@ public class EquipmentReservationController {
             @RequestParam(required = false) LocalDate date,
             @RequestParam(required = false) EquipmentReservationStatus status) {
         try {
-            List<EquipmentReservationResponseDTO> list = service.listReservations(date, status);
+            List<EquipmentReservationResponseDTO> list = facade.listReservations(date, status);
             return ResponseEntity.ok(list);
         } catch (Exception e) {
             System.err.println("ERRO AO LISTAR RESERVAS DE EQUIPAMENTO: " + e.getMessage());
