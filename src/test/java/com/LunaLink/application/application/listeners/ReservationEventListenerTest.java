@@ -1,6 +1,7 @@
 package com.LunaLink.application.application.listeners;
 
 import com.LunaLink.application.application.ports.output.UserRepositoryPort;
+import com.LunaLink.application.application.service.notification.WebPushService;
 import com.LunaLink.application.domain.enums.UserRoles;
 import com.LunaLink.application.domain.events.reservationEvents.ReservationApprovedEvent;
 import com.LunaLink.application.domain.events.reservationEvents.ReservationRejectedEvent;
@@ -34,6 +35,9 @@ class ReservationEventListenerTest {
     @Mock
     private SimpMessagingTemplate messagingTemplate;
 
+    @Mock
+    private WebPushService webPushService;
+
     @InjectMocks
     private ReservationEventListener listener;
 
@@ -56,6 +60,7 @@ class ReservationEventListenerTest {
 
         // Assert
         verify(messagingTemplate, times(1)).convertAndSend(eq("/topic/notifications/" + admin.getId()), any(NotificationDTO.class));
+        verify(webPushService, times(1)).sendPushNotificationToUser(eq(admin), any(NotificationDTO.class));
     }
 
     @Test
@@ -77,6 +82,7 @@ class ReservationEventListenerTest {
 
         // Assert
         verify(messagingTemplate, times(1)).convertAndSend(eq("/topic/notifications/" + userId), any(NotificationDTO.class));
+        verify(webPushService, times(1)).sendPushNotificationToUser(eq(user), any(NotificationDTO.class));
     }
 
     @Test
@@ -98,5 +104,6 @@ class ReservationEventListenerTest {
 
         // Assert
         verify(messagingTemplate, times(1)).convertAndSend(eq("/topic/notifications/" + userId), any(NotificationDTO.class));
+        verify(webPushService, times(1)).sendPushNotificationToUser(eq(user), any(NotificationDTO.class));
     }
 }

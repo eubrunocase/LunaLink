@@ -35,8 +35,8 @@ build/
 #Docker
 
 
-.env
-
 resources/
 application.properties
+
+.env
 
