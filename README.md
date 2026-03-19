@@ -1,209 +1,988 @@
-# LunaLink – API de Gerenciamento de Espaços, Residentes e Reservas
-Este repositório implementa um backend moderno para gerenciamento de espaços, residentes e reservas, contemplando autenticação segura, autorização baseada em roles e uma arquitetura modular com camadas bem definidas.
+#  LunaLink — Documentação da API
+
+> **API REST** para gerenciamento de espaços, residentes e reservas em condomínios.  
+> Stack: Java 24 · Spring Boot · Spring Security · JWT · PostgreSQL
+
+---
+
+## Sumário
+
+- [Visão Geral](#visão-geral)
+- [Autenticação](#autenticação)
+- [Perfis de Acesso (Roles)](#perfis-de-acesso-roles)
+- [Enumerações (Enums)](#enumerações-enums)
+- [Endpoints](#endpoints)
+  - [Auth](#auth)
+  - [Usuários](#usuários)
+  - [Reservas de Espaços](#reservas-de-espaços)
+  - [Espaços](#espaços)
+  - [Disponibilidade](#disponibilidade)
+  - [Entregas (Delivery)](#entregas-delivery)
+  - [Equipamentos](#equipamentos)
+  - [Notificações Push (Web Push)](#notificações-push-web-push)
+- [Modelos de Dados](#modelos-de-dados)
+- [Erros Padrão](#erros-padrão)
+- [Configuração e Execução](#configuração-e-execução)
+
+---
+
 ## Visão Geral
-- Plataforma: API REST baseada em Spring Boot com autenticação JWT.
-- Foco do domínio: gestão de residentes, administradores, espaços e reservas.
-- Principais modelos de domínio:
-    - Residentes
-    - Administradores
-    - Espaços
-    - Reservas
-    - Reservas Mensais (MonthlyReservations)
 
-- Segurança: configuração de SecurityFilterChain, UserDetailsService que busca usuários em dois repositórios (Administrador e Resident), e autenticação baseada em tokens.
-- Tecnologias: Java 24, Spring MVC, Spring Security, Lombok (quando utilizado), Jakarta EE (jakarta.*), JPA/Hibernate, BCrypt para password encoding.
-- Persistência: repositórios de domínio ( ResidentRepository, AdministratorRepository, SpaceRepository, ReservationRepository, MonthlyReservationRepository, etc.).
-- API documentation: endpoints de swagger acessíveis publicamente para facilitar testes e documentação (`/swagger-ui/**`, `/v3/api-docs/**`, `/swagger-ui.html`).
+| Item | Valor |
+|---|---|
+| Base URL | `http://localhost:8080` |
+| Formato | JSON |
+| Autenticação | Bearer Token (JWT) |
+| Porta padrão | `8080` |
+| Documentação interativa | `/swagger-ui.html` · `/v3/api-docs` |
 
-## Arquitetura e Organização
-- Camadas principais:
-    - Web: controllers (ex.: ResidentController) expõem os endpoints REST.
-    - Application/Business: services (ex.: ReservationService, AuthorizationResidentService) contêm a lógica de negócio.
-    - Infrastructure: repositórios e componentes de infraestrutura (ex.: SecurityConfiguration, TokenService, SecurityFilter).
-    - Core/Domain: entidades como Resident, Reservation, Space, MonthlyReservations (domínios centrais do sistema).
+---
 
-- Segurança:
-    - SecurityConfiguration define as regras de autorização por rota e método HTTP.
-    - Autenticação baseada em UserDetailsService que consulta AdministratorRepository e ResidentRepository.
-    - PasswordEncoder BCryptPasswordEncoder.
-    - Stateless sessions via JWT (TokenService e SecurityFilter).
+## Autenticação
 
-- DTOs e mapeamento:
-    - Data Transfer Objects (DTOs) para requests/responses do domínio de segurança e de residentes.
-    - Exemplos de DTOs visíveis no código: AuthenticationDTO, LoginResponseDTO, etc.
+A API utiliza **autenticação stateless com JWT**. O fluxo é:
 
-## Fluxos Principais
-- Autenticação
-    - Endpoint de login público: POST /lunaLink/auth/login
-    - Retorna um token JWT (quando credenciais válidas)
-    - Sessões são stateless (sem sessão no servidor)
+1. Faça `POST /lunaLink/auth/login` com e-mail e senha.
+2. Receba o token JWT no corpo da resposta (string plana).
+3. Inclua o token no header `Authorization` de todas as requisições protegidas.
 
-- Autorização por role
-    - ADMINISTRADOR tem acesso a endpoints de administração (ex.: /lunaLink/adm/**)
-    - Residentes podem ter acesso específico conforme configuração (ex.: /lunaLink/resident, /lunaLink/reservation, etc.)
-    - Endpoints de swagger continuam públicos para facilitar documentação
+```http
+Authorization: Bearer <token_jwt>
+```
 
-- Operações de Residentes
-    - POST /lunaLink/resident: criar um novo residente (permitido sem autenticação conforme configuração)
-    - GET /lunaLink/resident: listar residentes (requer ADMINISTRATOR)
-    - DELETE /lunaLink/resident/{id}: excluir residente (requer autenticação, conforme configuração)
-    - PUT /lunaLink/resident/{id}: atualizar residente
+> ⚠️ Tokens não expiram automaticamente nesta implementação — a expiração depende da configuração de `api.security.token.secret`.
 
-- Operações de Reservas
-    - POST /lunaLink/reservation: criar reserva (permitido publicamente)
-    - GET /lunaLink/reservation: listar reservas (permitido publicamente)
-    - DELETE /lunaLink/reservation: excluir reserva (requer ADMINISTRATOR)
-    - Outras operações podem existir conforme implementação de Service/Controller
+---
 
-- Operações de Espaços
-    - POST /lunaLink/space/**: criação de espaço (permitido publicamente)
-    - GET /lunaLink/space/**: consulta de espaços (permitido publicamente)
+## Perfis de Acesso (Roles)
 
-- Perfis de usuário via Token
-    - GET /lunaLink/resident/profile: retorna o perfil do usuário logado com base no token JWT fornecido em Authorization
+| Role | Descrição |
+|---|---|
+| `ADMIN_ROLE` | Acesso total — gerencia usuários, aprova/rejeita reservas, administra entregas e equipamentos |
+| `RESIDENT_ROLE` | Morador — pode criar reservas, consultar entregas e reservar equipamentos |
+| `EMPLOYEE` | Funcionário — acesso operacional conforme regras de negócio |
 
+---
 
-> Observação: as regras de autorização estão definidas em SecurityConfiguration, incluindo permissões para endpoints de docs, login e recursos sensíveis.
-> 
+## Enumerações (Enums)
 
-## Estrutura de Dados (Domínio)
-- Resident
-    - Usuário com login e senha criptografada
-    - Perfil utilizado para autenticação via Token JWT
+### `ReservationStatus`
+| Valor | Descrição |
+|---|---|
+| `PENDING` | Aguardando aprovação |
+| `APPROVED` | Aprovada pelo administrador |
+| `REJECTED` | Rejeitada pelo administrador |
+| `CANCELLED` | Cancelada pelo morador |
 
-- Administrator
-    - Usuário com privilégios administrativos
-    - Autenticação via login/senha
+### `DeliveryStatus`
+| Valor | Descrição |
+|---|---|
+| `PENDING` | Encomenda aguardando retirada |
+| `DELIVERED` | Encomenda retirada |
 
-- Space
-    - Tipo de espaço (ex.: sala, ambiente, etc.)
-    - Identificação e disponibilidade
+### `EquipmentReservationStatus`
+| Valor | Descrição |
+|---|---|
+| `CONFIRMED` | Reserva confirmada |
+| `IN_USE` | Equipamento em uso |
+| `RETURNED` | Equipamento devolvido |
+| `CANCELED` | Reserva cancelada |
 
-- Reservation
-    - Data da reserva
-    - Espaço reservado
-    - Residente que realizou a reserva
+### `SpaceType`
+| Valor | Descrição |
+|---|---|
+| `SALAO_FESTAS` | Salão de Festas |
+| `CHURRASQUEIRA` | Churrasqueira |
+| `ACADEMIA` | Academia |
+| `CAMPO_FUTEBOL` | Campo de Futebol |
 
-- MonthlyReservations
-    - Registro de reservas mensais para um residente específico
+---
 
-## Endpoints (Resumo)
-- Autenticação e docs
-    - POST /lunaLink/auth/login — autenticação (public)
-    - /swagger-ui/**, /v3/api-docs/**, /swagger-ui.html — documentação (public)
+## Endpoints
 
-- Residentes
-    - POST /lunaLink/resident — criar residente (public)
-    - GET /lunaLink/resident — listar residentes (ADMINISTRATOR)
-    - DELETE /lunaLink/resident/{id} — excluir residente (autenticado)
-    - PUT /lunaLink/resident/{id} — atualizar residente (autenticado)
-    - GET /lunaLink/resident/profile — perfil do usuário via token (autenticado)
+---
 
-- Reservas
-    - POST /lunaLink/reservation — criar reserva (public)
-    - GET /lunaLink/reservation — listar reservas (public)
-    - DELETE /lunaLink/reservation — excluir reserva (ADMINISTRATOR)
+### Auth
 
-- Espaços
-    - POST /lunaLink/space/** — criar espaço (public)
-    - GET /lunaLink/space/** — listar espaço (public)
+#### `POST /lunaLink/auth/login`
 
-- Outras
-    - GET /lunaLink/monthlyReservation/** — operações relacionadas a monthly reservations (public)
+Realiza o login e retorna o token JWT.
 
-Observação: a configuração de permissões pode exigir autenticação para alguns endpoints não explicitamente protegidos no código de rota. Consulte SecurityConfiguration para entender as regras completas.
-## Modelos de Segurança
-- Autenticação
-    - UserDetailsService que consulta:
-        - AdministratorRepository.findByLogin(username)
-        - ResidentRepository.findByLogin(username)
+**Acesso:** Público
 
-    - PasswordEncoder: BCryptPasswordEncoder
-    - AuthenticationManager com DaoAuthenticationProvider
+**Request Body:**
+```json
+{
+  "email": "morador@email.com",
+  "password": "senha123"
+}
+```
 
-- Autorização
-    - Roles utilizadas: ADMINISTRATOR (e possivelmente outros papéis no domínio)
-    - Contexto de segurança baseado em JWT (token-based, stateless)
+**Resposta de sucesso `200 OK`:**
+```
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+```
+> A resposta é uma string simples com o token JWT, sem envoltório JSON.
 
-- Proteção de Endpoints
-    - CSRF desativado (CSRF disabled)
-    - Sessão: STATELESS
-    - Filtros de segurança adicionados antes do UsernamePasswordAuthenticationFilter
+**Respostas de erro:**
 
-## Configurações e Dependências
-- Linguagem e plataforma:
-    - Java SDK 24
-    - Spring Boot (com Spring MVC e Spring Security)
-    - Jakarta EE (jakarta.* imports)
-    - Lombok (quando utilizado)
+| Código | Descrição |
+|---|---|
+| `400 Bad Request` | Credenciais inválidas ou body malformado |
 
-- Persistência:
-    - JPA/Hibernate (via repositórios)
-    - Banco de dados relacional (ex.: PostgreSQL, MySQL) — configurações via application.properties/application.yaml
+---
 
-- Build:
-    - Maven ou Gradle (recomendado conforme o projeto)
+### Usuários
 
-- Segurança:
-    - BCryptPasswordEncoder
-    - JWT para autenticação/autorizações
+Base path: `/lunaLink/users`
 
-Sugestão de configuração típica (exemplos genéricos; adapte conforme seu ambiente):
-- spring.datasource.url, spring.datasource.username, spring.datasource.password
-- spring.jpa.hibernate.ddl-auto (update/create)
-- jwt.secret (ou configuração equivalente para o TokenService)
+#### `GET /lunaLink/users`
 
-## Build e Execução
-- Pré-requisitos:
-    - JDK 17+ (ajuste se necessário para Java 24)
-    - Maven ou Gradle
-    - Banco de dados configurado e acessível
+Lista todos os usuários cadastrados.
 
-- Com Maven:
-    - mvn clean package
-    - java -jar target/nome-do-aplicativo.jar
-    - Ou: mvn spring-boot:run
+**Acesso:** Autenticado
 
-- Com Gradle:
-    - ./gradlew bootRun
-    - Ou: ./gradlew clean build
+**Resposta `200 OK`:**
+```json
+[
+  {
+    "id": "550e8400-e29b-41d4-a716-446655440000",
+    "name": "João Silva",
+    "apartment": "101",
+    "email": "joao@email.com",
+    "role": "RESIDENT_ROLE",
+    "reservation": [
+      {
+        "id": "a1b2c3d4-...",
+        "date": "2026-04-15",
+        "spaceType": "SALAO_FESTAS"
+      }
+    ]
+  }
+]
+```
 
-- Testes
-    - mvn test ou ./gradlew test
+---
 
-Notas:
-- Ajuste as propriedades de conexão do banco de dados e a configuração de JWT conforme o ambiente (dev, test, prod).
-- As URLs de documentação do Swagger ficam públicas para facilitar testes.
+#### `GET /lunaLink/users/{id}`
 
-## Desenvolvimento e Contribuição
-- Estrutura recomendada:
-    - Camada Web: controllers (ex.: ResidentController)
-    - Camada Application/Business: services (ex.: ReservationService)
-    - Camada Infra: repositórios, SecurityConfiguration, TokenService
-    - Domínio: entidades como Resident, Reservation, Space, MonthlyReservations
+Busca um usuário pelo ID.
 
-- Padronização:
-    - Use DTOs para requests/responses quando necessário
-    - Adote tratamento de exceções claro e mensagens descritivas
-    - Documente endpoints com comentários ou ferramentas de documentação (Swagger)
+**Acesso:** Autenticado
 
-- Contribuição:
-    - Fork do repositório
-    - Criar branch de feature/bugfix
-    - Submeter pull request com descrição detalhada
+**Path Parameters:**
 
-## Observações Técnicas Relevantes
-- O código demonstra uma configuração de segurança com autenticação baseada em dois repositórios de usuário (administradores e residentes), o que facilita um fluxo de login centralizado com roles distintas.
-- O serviço de autenticação gerencia a validação de credenciais via DaoAuthenticationProvider e user details de diferentes origens.
-- O fluxo de validação de reservas implementa checagens de conflito antes de salvar, incluindo disponibilidade de espaço e unicidade de reservas por usuário.
-- O sistema utiliza um modelo de reservas mensais para manter um histórico adicional por residente.
+| Parâmetro | Tipo | Descrição |
+|---|---|---|
+| `id` | UUID | ID do usuário |
 
-## Perguntas Frequentes (FAQ)
-- Como funciona a autenticação?
-    - O endpoint de login recebe credenciais, valida via AuthenticationManager e retorna um token JWT utilizado para autorizar chamadas subsequentes.
+**Resposta `200 OK`:** Mesmo schema de `GET /lunaLink/users`.
 
-- Quais endpoints são públicos?
-    - Swagger (docs) e o endpoint de login são públicos. Vários endpoints de POST/GET para recursos como espaços e reservas podem ser públicos conforme configuração, mas muitas rotas requerem autenticação conforme SecurityConfiguration.
+---
 
-- Onde posso encontrar a documentação de API?
-    - Swagger UI em /swagger-ui/** e /v3/api-docs/**
+#### `GET /lunaLink/users/summary`
+
+Retorna uma lista resumida de usuários (nome + identificação básica).
+
+**Acesso:** Autenticado
+
+**Resposta `200 OK`:**
+```json
+[
+  {
+    "id": "550e8400-...",
+    "name": "João Silva",
+    "apartment": "101"
+  }
+]
+```
+
+---
+
+#### `POST /lunaLink/users/create`
+
+Cria um novo usuário.
+
+**Acesso:** `ADMIN_ROLE`
+
+**Request Body:**
+```json
+{
+  "name": "Maria Santos",
+  "apartment": "202",
+  "email": "maria@email.com",
+  "password": "senhaSegura123",
+  "role": "RESIDENT_ROLE"
+}
+```
+
+**Resposta `200 OK`:** Schema completo de `ResponseUserDTO`.
+
+---
+
+#### `PUT /lunaLink/users/update/{id}`
+
+Atualiza os dados de um usuário.
+
+**Acesso:** `ADMIN_ROLE`
+
+**Path Parameters:**
+
+| Parâmetro | Tipo | Descrição |
+|---|---|---|
+| `id` | UUID | ID do usuário |
+
+**Request Body:** Mesmo schema do `POST /create`.
+
+**Resposta `200 OK`:** Schema completo de `ResponseUserDTO`.
+
+---
+
+#### `DELETE /lunaLink/users/delete/{id}`
+
+Remove um usuário.
+
+**Acesso:** `ADMIN_ROLE`
+
+**Path Parameters:**
+
+| Parâmetro | Tipo | Descrição |
+|---|---|---|
+| `id` | UUID | ID do usuário |
+
+**Resposta:** `204 No Content`
+
+---
+
+### Reservas de Espaços
+
+Base path: `/lunaLink/reservation`
+
+#### `POST /lunaLink/reservation`
+
+Cria uma nova reserva para o usuário autenticado.
+
+**Acesso:** Autenticado
+
+**Request Body:**
+```json
+{
+  "date": "2026-05-10",
+  "space": 1
+}
+```
+
+| Campo | Tipo | Obrigatório | Descrição |
+|---|---|---|---|
+| `date` | `LocalDate` (`yyyy-MM-dd`) | ✅ | Data da reserva |
+| `space` | `Long` | ✅ | ID do espaço |
+
+**Resposta `201 Created`:**
+```json
+{
+  "id": "a1b2c3d4-e5f6-...",
+  "date": "2026-05-10",
+  "user": {
+    "id": "550e8400-...",
+    "name": "João Silva",
+    "email": "joao@email.com"
+  },
+  "space": {
+    "id": 1,
+    "type": "SALAO_FESTAS"
+  },
+  "status": "PENDING",
+  "createdAt": "2026-03-19T10:30:00",
+  "canceledAt": null
+}
+```
+
+---
+
+#### `GET /lunaLink/reservation`
+
+Lista todas as reservas.
+
+**Acesso:** Autenticado
+
+**Resposta `200 OK`:** Array de `ReservationResponseDTO`.
+
+---
+
+#### `GET /lunaLink/reservation/{id}`
+
+Busca uma reserva pelo ID.
+
+**Acesso:** Autenticado
+
+**Path Parameters:**
+
+| Parâmetro | Tipo | Descrição |
+|---|---|---|
+| `id` | UUID | ID da reserva |
+
+**Resposta `200 OK`:** `ReservationResponseDTO`.
+
+---
+
+#### `PUT /lunaLink/reservation/{id}`
+
+Atualiza uma reserva existente.
+
+**Acesso:** Autenticado
+
+**Request Body:**
+```json
+{
+  "date": "2026-06-01",
+  "spaceId": 2
+}
+```
+
+**Resposta `200 OK`:** `ReservationResponseDTO` atualizado.
+
+---
+
+#### `DELETE /lunaLink/reservation/{id}`
+
+Remove uma reserva.
+
+**Acesso:** `ADMIN_ROLE`
+
+**Resposta:** `204 No Content`
+
+---
+
+#### `PUT /lunaLink/reservation/{id}/approve`
+
+Aprova uma reserva pendente.
+
+**Acesso:** `ADMIN_ROLE`
+
+**Resposta `200 OK`:** `ReservationResponseDTO` com `status: "APPROVED"`.
+
+---
+
+#### `PUT /lunaLink/reservation/{id}/reject`
+
+Rejeita uma reserva pendente.
+
+**Acesso:** `ADMIN_ROLE`
+
+**Resposta `200 OK`:** `ReservationResponseDTO` com `status: "REJECTED"`.
+
+---
+
+#### `GET /lunaLink/reservation/checkAvaliability/{date}/{spaceId}`
+
+Verifica se o usuário autenticado pode fazer uma reserva na data e espaço informados.
+
+**Acesso:** Autenticado
+
+**Path Parameters:**
+
+| Parâmetro | Tipo | Descrição |
+|---|---|---|
+| `date` | `LocalDate` (`yyyy-MM-dd`) | Data a verificar |
+| `spaceId` | `Long` | ID do espaço |
+
+**Resposta `200 OK`:**
+```json
+true
+```
+
+---
+
+#### `GET /lunaLink/reservation/report/monthly`
+
+Gera relatório mensal de reservas.
+
+**Acesso:** `ADMIN_ROLE`
+
+**Query Parameters:**
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+|---|---|---|---|
+| `month` | `int` | ✅ | Mês (1–12) |
+| `year` | `int` | ✅ | Ano (ex: 2026) |
+
+**Resposta `200 OK`:**
+```json
+[
+  {
+    "month": 5,
+    "year": 2026,
+    "totalReservations": 12,
+    "approvedReservations": 9,
+    "rejectedReservations": 2,
+    "pendingReservations": 1
+  }
+]
+```
+
+---
+
+### Espaços
+
+Base path: `/lunaLink/space`
+
+#### `GET /lunaLink/space`
+
+Lista todos os espaços disponíveis no condomínio.
+
+**Acesso:** Autenticado
+
+**Resposta `200 OK`:**
+```json
+[
+  {
+    "id": 1,
+    "type": "SALAO_FESTAS",
+    "description": "Salão de Festas Principal"
+  },
+  {
+    "id": 2,
+    "type": "CHURRASQUEIRA"
+  }
+]
+```
+
+---
+
+### Disponibilidade
+
+Base path: `/lunaLink/availabilitySpaces/{spaceId}/availability`
+
+**Acesso:** Autenticado (todos os endpoints desta seção)
+
+#### `GET /lunaLink/availabilitySpaces/{spaceId}/availability/status`
+
+Verifica a disponibilidade de um espaço em uma data específica.
+
+**Path Parameters:**
+
+| Parâmetro | Tipo | Descrição |
+|---|---|---|
+| `spaceId` | `Long` | ID do espaço |
+
+**Query Parameters:**
+
+| Parâmetro | Tipo | Obrigatório | Formato |
+|---|---|---|---|
+| `date` | `LocalDate` | ✅ | `yyyy-MM-dd` |
+
+**Resposta `200 OK`:**
+```json
+{
+  "spaceId": 1,
+  "date": "2026-05-10",
+  "available": true
+}
+```
+
+---
+
+#### `GET /lunaLink/availabilitySpaces/{spaceId}/availability/month/{year}/{month}`
+
+Retorna disponibilidade completa de um espaço em um mês.
+
+**Path Parameters:**
+
+| Parâmetro | Tipo | Validação | Descrição |
+|---|---|---|---|
+| `spaceId` | `Long` | — | ID do espaço |
+| `year` | `int` | mínimo: 2020 | Ano |
+| `month` | `int` | 1–12 | Mês |
+
+**Resposta `200 OK`:**
+```json
+{
+  "spaceId": 1,
+  "year": 2026,
+  "month": 5,
+  "unavailableDates": ["2026-05-05", "2026-05-10"],
+  "availableDates": ["2026-05-01", "2026-05-02", "..."],
+  "totalDays": 31,
+  "unavailableCount": 2,
+  "availableCount": 29,
+  "occupancyPercentage": 6.45
+}
+```
+
+---
+
+#### `GET /lunaLink/availabilitySpaces/{spaceId}/availability/stats/{year}/{month}`
+
+Retorna estatísticas de ocupação de um espaço em determinado mês.
+
+**Path Parameters:** Mesmos de `/month/{year}/{month}`.
+
+**Resposta `200 OK`:**
+```json
+{
+  "spaceId": 1,
+  "year": 2026,
+  "month": 5,
+  "totalDays": 31,
+  "unavailableDays": 10,
+  "availableDays": 21,
+  "occupancyPercentage": 32.26
+}
+```
+
+---
+
+#### `POST /lunaLink/availabilitySpaces/{spaceId}/availability/period`
+
+Verifica disponibilidade de um espaço em um período customizado.
+
+**Path Parameters:**
+
+| Parâmetro | Tipo | Descrição |
+|---|---|---|
+| `spaceId` | `Long` | ID do espaço |
+
+**Request Body:**
+```json
+{
+  "startDate": "2026-05-01",
+  "endDate": "2026-05-31"
+}
+```
+
+**Resposta `200 OK`:**
+```json
+{
+  "spaceId": 1,
+  "startDate": "2026-05-01",
+  "endDate": "2026-05-31",
+  "totalDaysInPeriod": 31,
+  "unavailableDates": ["2026-05-05", "2026-05-10"],
+  "availableDates": ["2026-05-01", "..."],
+  "fullyAvailable": false,
+  "fullyBooked": false
+}
+```
+
+---
+
+### Entregas (Delivery)
+
+Base path: `/lunaLink/delivery`
+
+**Acesso:** Autenticado (todos os endpoints desta seção)
+
+#### `GET /lunaLink/delivery/findAll`
+
+Lista todas as entregas registradas.
+
+**Resposta `200 OK`:**
+```json
+[
+  {
+    "id": "uuid-...",
+    "user": "uuid-do-morador",
+    "protocolNumber": "PKG-2026-001",
+    "discrimination": "Caixa Amazon",
+    "image": null,
+    "createdAt": "2026-03-19T09:00:00",
+    "createdBy": "porteiro@email.com",
+    "otherRecipient": null,
+    "status": "PENDING",
+    "deliveredAt": null,
+    "pickedUpBy": null
+  }
+]
+```
+
+---
+
+#### `GET /lunaLink/delivery/find/{id}`
+
+Busca uma entrega pelo ID.
+
+**Path Parameters:**
+
+| Parâmetro | Tipo | Descrição |
+|---|---|---|
+| `id` | UUID | ID da entrega |
+
+**Resposta `200 OK`:** Schema de `ResponseDeliveryDTO`.
+
+---
+
+#### `POST /lunaLink/delivery/create`
+
+Registra uma nova entrega recebida na portaria.
+
+**Request Body:**
+```json
+{
+  "user": "uuid-do-morador",
+  "protocolNumber": "PKG-2026-002",
+  "discrimination": "Envelope Correios",
+  "image": null,
+  "otherRecipient": null
+}
+```
+
+| Campo | Tipo | Obrigatório | Descrição |
+|---|---|---|---|
+| `user` | UUID | ✅ | ID do morador destinatário |
+| `protocolNumber` | String | — | Número de protocolo ou rastreio |
+| `discrimination` | String | — | Descrição do pacote |
+| `image` | byte[] | — | Foto da encomenda (Base64) |
+| `otherRecipient` | String | — | Nome de outro destinatário (se diferente do morador) |
+
+**Resposta `200 OK`:** Schema de `ResponseDeliveryDTO`.
+
+---
+
+#### `PUT /lunaLink/delivery/update/{id}`
+
+Atualiza os dados de uma entrega.
+
+**Path Parameters:**
+
+| Parâmetro | Tipo | Descrição |
+|---|---|---|
+| `id` | UUID | ID da entrega |
+
+**Request Body:** Mesmo schema do `POST /create`.
+
+**Resposta `200 OK`:** Schema de `ResponseDeliveryDTO` atualizado.
+
+---
+
+#### `PUT /lunaLink/delivery/{id}/confirm-receipt`
+
+Confirma a retirada de uma entrega pelo morador.
+
+**Path Parameters:**
+
+| Parâmetro | Tipo | Descrição |
+|---|---|---|
+| `id` | UUID | ID da entrega |
+
+**Query Parameters:**
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+|---|---|---|---|
+| `pickedUpBy` | String | — | Nome de quem retirou (se diferente do titular) |
+
+**Resposta `200 OK`:** `ResponseDeliveryDTO` com `status: "DELIVERED"` e `deliveredAt` preenchido.
+
+---
+
+### Equipamentos
+
+Base path: `/lunaLink/equipment-reservation`
+
+#### `POST /lunaLink/equipment-reservation`
+
+Cria uma reserva de equipamento para o usuário autenticado.
+
+**Acesso:** Autenticado
+
+**Request Body:**
+```json
+{
+  "equipmentId": 1,
+  "date": "2026-05-15",
+  "startTime": "08:00:00",
+  "endTime": "10:00:00"
+}
+```
+
+| Campo | Tipo | Obrigatório | Descrição |
+|---|---|---|---|
+| `equipmentId` | Long | ✅ | ID do equipamento |
+| `date` | `LocalDate` | ✅ | Data da reserva |
+| `startTime` | `LocalTime` | ✅ | Horário de início (`HH:mm:ss`) |
+| `endTime` | `LocalTime` | ✅ | Horário de término (`HH:mm:ss`) |
+
+**Resposta `201 Created`:**
+```json
+{
+  "id": "uuid-...",
+  "equipmentName": "Projetor",
+  "userName": "João Silva",
+  "userApartment": "101",
+  "date": "2026-05-15",
+  "startTime": "08:00:00",
+  "endTime": "10:00:00",
+  "status": "CONFIRMED",
+  "createdAt": "2026-03-19T10:00:00",
+  "pickedUpAt": null,
+  "returnedAt": null
+}
+```
+
+---
+
+#### `GET /lunaLink/equipment-reservation`
+
+Lista reservas de equipamentos com filtros opcionais.
+
+**Acesso:** `ADMIN_ROLE`
+
+**Query Parameters:**
+
+| Parâmetro | Tipo | Obrigatório | Descrição |
+|---|---|---|---|
+| `date` | `LocalDate` | — | Filtrar por data |
+| `status` | `EquipmentReservationStatus` | — | Filtrar por status |
+
+**Resposta `200 OK`:** Array de `EquipmentReservationResponseDTO`.
+
+---
+
+#### `PATCH /lunaLink/equipment-reservation/{id}/handover`
+
+Registra a entrega (check-in) do equipamento ao usuário.
+
+**Acesso:** `ADMIN_ROLE`
+
+**Path Parameters:**
+
+| Parâmetro | Tipo | Descrição |
+|---|---|---|
+| `id` | UUID | ID da reserva |
+
+**Resposta `200 OK`:** `EquipmentReservationResponseDTO` com `status: "IN_USE"` e `pickedUpAt` preenchido.
+
+---
+
+#### `PATCH /lunaLink/equipment-reservation/{id}/return`
+
+Registra a devolução (check-out) do equipamento.
+
+**Acesso:** `ADMIN_ROLE`
+
+**Path Parameters:**
+
+| Parâmetro | Tipo | Descrição |
+|---|---|---|
+| `id` | UUID | ID da reserva |
+
+**Resposta `200 OK`:** `EquipmentReservationResponseDTO` com `status: "RETURNED"` e `returnedAt` preenchido.
+
+---
+
+### Notificações Push (Web Push)
+
+Base path: `/lunaLink/push`
+
+#### `GET /lunaLink/push/public-key`
+
+Retorna a chave pública VAPID para configuração de Web Push no cliente.
+
+**Acesso:** Público
+
+**Resposta `200 OK`:**
+```json
+{
+  "publicKey": "BNV..."
+}
+```
+
+---
+
+#### `POST /lunaLink/push/subscribe`
+
+Registra a assinatura de notificações push do usuário autenticado.
+
+**Acesso:** Autenticado
+
+**Request Body:**
+```json
+{
+  "endpoint": "https://fcm.googleapis.com/fcm/send/...",
+  "keys": {
+    "p256dh": "...",
+    "auth": "..."
+  }
+}
+```
+
+**Resposta `200 OK`:** Sem corpo.
+
+---
+
+#### `POST /lunaLink/push/unsubscribe`
+
+Remove a assinatura de notificações push.
+
+**Acesso:** Autenticado
+
+**Request Body:**
+```json
+{
+  "endpoint": "https://fcm.googleapis.com/fcm/send/..."
+}
+```
+
+**Resposta `200 OK`:** Sem corpo.
+
+---
+
+## Modelos de Dados
+
+### `ResponseUserDTO`
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `id` | UUID | Identificador único |
+| `name` | String | Nome completo |
+| `apartment` | String | Número do apartamento |
+| `email` | String | E-mail do usuário |
+| `role` | UserRoles | Perfil de acesso |
+| `reservation` | Array | Lista resumida de reservas |
+
+### `ReservationResponseDTO`
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `id` | UUID | Identificador único |
+| `date` | LocalDate | Data da reserva |
+| `user` | UserSummaryDTO | Dados básicos do usuário |
+| `space` | SpaceSummaryDTO | Dados básicos do espaço |
+| `status` | ReservationStatus | Status atual |
+| `createdAt` | LocalDateTime | Data/hora de criação |
+| `canceledAt` | LocalDateTime | Data/hora de cancelamento (null se não cancelado) |
+
+### `ResponseDeliveryDTO`
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `id` | UUID | Identificador único |
+| `user` | UUID | ID do morador |
+| `protocolNumber` | String | Número de protocolo |
+| `discrimination` | String | Descrição da encomenda |
+| `image` | byte[] | Foto da encomenda |
+| `createdAt` | LocalDateTime | Data/hora de registro |
+| `createdBy` | String | Quem registrou (porteiro) |
+| `otherRecipient` | String | Outro destinatário |
+| `status` | DeliveryStatus | Status da entrega |
+| `deliveredAt` | LocalDateTime | Data/hora de retirada |
+| `pickedUpBy` | String | Quem retirou |
+
+### `EquipmentReservationResponseDTO`
+| Campo | Tipo | Descrição |
+|---|---|---|
+| `id` | UUID | Identificador único |
+| `equipmentName` | String | Nome do equipamento |
+| `userName` | String | Nome do usuário |
+| `userApartment` | String | Apartamento do usuário |
+| `date` | LocalDate | Data da reserva |
+| `startTime` | LocalTime | Horário de início |
+| `endTime` | LocalTime | Horário de término |
+| `status` | EquipmentReservationStatus | Status atual |
+| `createdAt` | LocalDateTime | Data de criação |
+| `pickedUpAt` | LocalDateTime | Data de retirada |
+| `returnedAt` | LocalDateTime | Data de devolução |
+
+---
+
+## Erros Padrão
+
+| Código HTTP | Descrição |
+|---|---|
+| `400 Bad Request` | Parâmetros inválidos ou body malformado |
+| `401 Unauthorized` | Token ausente ou inválido |
+| `403 Forbidden` | Sem permissão para o recurso |
+| `404 Not Found` | Recurso não encontrado |
+| `500 Internal Server Error` | Erro interno da aplicação |
+
+**Schema de erro padrão:**
+```json
+{
+  "timestamp": 1742400000000,
+  "status": 400,
+  "error": "Bad Request",
+  "message": "Data é obrigatória",
+  "path": "/lunaLink/reservation"
+}
+```
+
+---
+
+## Configuração e Execução
+
+### Variáveis de Ambiente
+
+| Variável | Descrição |
+|---|---|
+| `DB_URL` | URL de conexão com o PostgreSQL (ex: `jdbc:postgresql://localhost:5432/lunalink`) |
+| `DB_USERNAME` | Usuário do banco de dados |
+| `DB_PASSWORD` | Senha do banco de dados |
+| `api.security.token.secret` | Chave secreta para assinatura do JWT |
+| `VAPID_PUBLIC_KEY` | Chave pública VAPID para Web Push |
+| `VAPID_PRIVATE_KEY` | Chave privada VAPID para Web Push |
+| `VAPID_SUBJECT` | Subject VAPID (ex: `mailto:admin@lunalink.com`) |
+
+### Executando com Maven
+
+```bash
+# Build
+mvn clean package
+
+# Execução
+java -jar target/application.jar
+
+# Ou diretamente
+mvn spring-boot:run
+```
+
+### Executando com Docker
+
+```bash
+docker-compose up --build
+```
+
+### Executando Testes
+
+```bash
+mvn test
+```
+
+---
+
+## Tabela Resumo de Endpoints
+
+| Método | Endpoint | Acesso | Descrição |
+|---|---|---|---|
+| `POST` | `/lunaLink/auth/login` | Público | Login e geração de token JWT |
+| `GET` | `/lunaLink/users` | Autenticado | Listar todos os usuários |
+| `GET` | `/lunaLink/users/{id}` | Autenticado | Buscar usuário por ID |
+| `GET` | `/lunaLink/users/summary` | Autenticado | Resumo de usuários |
+| `POST` | `/lunaLink/users/create` | ADMIN | Criar usuário |
+| `PUT` | `/lunaLink/users/update/{id}` | ADMIN | Atualizar usuário |
+| `DELETE` | `/lunaLink/users/delete/{id}` | ADMIN | Remover usuário |
+| `POST` | `/lunaLink/reservation` | Autenticado | Criar reserva |
+| `GET` | `/lunaLink/reservation` | Autenticado | Listar reservas |
+| `GET` | `/lunaLink/reservation/{id}` | Autenticado | Buscar reserva por ID |
+| `PUT` | `/lunaLink/reservation/{id}` | Autenticado | Atualizar reserva |
+| `DELETE` | `/lunaLink/reservation/{id}` | ADMIN | Remover reserva |
+| `PUT` | `/lunaLink/reservation/{id}/approve` | ADMIN | Aprovar reserva |
+| `PUT` | `/lunaLink/reservation/{id}/reject` | ADMIN | Rejeitar reserva |
+| `GET` | `/lunaLink/reservation/checkAvaliability/{date}/{spaceId}` | Autenticado | Verificar disponibilidade |
+| `GET` | `/lunaLink/reservation/report/monthly` | ADMIN | Relatório mensal |
+| `GET` | `/lunaLink/space` | Autenticado | Listar espaços |
+| `GET` | `/lunaLink/availabilitySpaces/{spaceId}/availability/status` | Autenticado | Status de disponibilidade |
+| `GET` | `/lunaLink/availabilitySpaces/{spaceId}/availability/month/{year}/{month}` | Autenticado | Disponibilidade mensal |
+| `GET` | `/lunaLink/availabilitySpaces/{spaceId}/availability/stats/{year}/{month}` | Autenticado | Estatísticas de ocupação |
+| `POST` | `/lunaLink/availabilitySpaces/{spaceId}/availability/period` | Autenticado | Disponibilidade por período |
+| `GET` | `/lunaLink/delivery/findAll` | Autenticado | Listar entregas |
+| `GET` | `/lunaLink/delivery/find/{id}` | Autenticado | Buscar entrega por ID |
+| `POST` | `/lunaLink/delivery/create` | Autenticado | Registrar entrega |
+| `PUT` | `/lunaLink/delivery/update/{id}` | Autenticado | Atualizar entrega |
+| `PUT` | `/lunaLink/delivery/{id}/confirm-receipt` | Autenticado | Confirmar retirada |
+| `POST` | `/lunaLink/equipment-reservation` | Autenticado | Criar reserva de equipamento |
+| `GET` | `/lunaLink/equipment-reservation` | ADMIN | Listar reservas de equipamentos |
+| `PATCH` | `/lunaLink/equipment-reservation/{id}/handover` | ADMIN | Entregar equipamento |
+| `PATCH` | `/lunaLink/equipment-reservation/{id}/return` | ADMIN | Receber devolução |
+| `GET` | `/lunaLink/push/public-key` | Público | Obter chave VAPID pública |
+| `POST` | `/lunaLink/push/subscribe` | Autenticado | Assinar notificações push |
+| `POST` | `/lunaLink/push/unsubscribe` | Autenticado | Cancelar notificações push |
+
+---
+
+*Documentação gerada a partir do código-fonte do repositório LunaLink — Março 2026.*
