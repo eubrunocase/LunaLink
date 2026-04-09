@@ -96,6 +96,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/lunaLink/occurrences").authenticated()
                         .requestMatchers(HttpMethod.GET, "/lunaLink/occurrences/{uuid}").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/lunaLink/occurrences/{uuid}").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/lunaLink/occurrences/{uuid}").authenticated()
 
                         // Qualquer outra requisição deve estar autenticada
                         .anyRequest().authenticated()

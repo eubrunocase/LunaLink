@@ -1,6 +1,5 @@
 package com.LunaLink.application.application.ports.input;
 
-import com.LunaLink.application.domain.model.occurrence.Occurrence;
 import com.LunaLink.application.web.dto.OccurrenceDTO.OccurrenceCreateRequestDTO;
 import com.LunaLink.application.web.dto.OccurrenceDTO.OccurrenceResponseDTO;
 

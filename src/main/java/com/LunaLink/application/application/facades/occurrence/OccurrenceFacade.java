@@ -25,8 +25,8 @@ public class OccurrenceFacade {
         return occurrenceServicePort.findAll();
     }
 
-    public void deleteOccurrence(String id) {
-        occurrenceServicePort.deleteOccurrence(UUID.fromString(id));
+    public void deleteOccurrence(UUID id) {
+        occurrenceServicePort.deleteOccurrence(id);
     }
 
     public OccurrenceResponseDTO findOccurrenceById(UUID uuid) {

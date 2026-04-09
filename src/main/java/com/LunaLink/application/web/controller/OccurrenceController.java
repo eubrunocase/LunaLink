@@ -42,4 +42,12 @@ public class OccurrenceController {
         OccurrenceResponseDTO occurrence = occurrenceFacade.findOccurrenceById(uuid);
         return ResponseEntity.ok(occurrence);
     }
+
+
+    @DeleteMapping("/delete/{uuid}")
+    public ResponseEntity<Void> deleteOccurrence(@PathVariable UUID uuid) {
+        occurrenceFacade.deleteOccurrence(uuid);
+        return ResponseEntity.noContent().build();
+    }
+
 }
