@@ -47,6 +47,9 @@ public class SecurityConfiguration {
                         .requestMatchers("/actuator/prometheus").permitAll()
                         .requestMatchers(HttpMethod.POST,"/lunaLink/auth/login").permitAll()
                         .requestMatchers(HttpMethod.PUT,"/ws-lunalink").permitAll() // WebSocket Handshake
+                        
+                        // Push Subscription (Requer login, qualquer role)
+                        .requestMatchers("/lunaLink/push/**").authenticated()
 
                         // ================= Administrador (Gestão de Usuários) =================
                         // Apenas Admin pode criar, editar ou deletar usuários
@@ -87,6 +90,13 @@ public class SecurityConfiguration {
                         // Apenas Admin/Funcionário faz check-in/check-out e lista
                         .requestMatchers(HttpMethod.PATCH, "/lunaLink/equipment-reservation/**").hasRole("ADMIN_ROLE")
                         .requestMatchers(HttpMethod.GET, "/lunaLink/equipment-reservation/**").hasRole("ADMIN_ROLE")
+                        
+                        // ================= Ocorrências (US-03) =================
+                        .requestMatchers(HttpMethod.POST, "/lunaLink/occurrences").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/lunaLink/occurrences").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/lunaLink/occurrences/{uuid}").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/lunaLink/occurrences/{uuid}").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/lunaLink/occurrences/{uuid}").authenticated()
 
                         // Qualquer outra requisição deve estar autenticada
                         .anyRequest().authenticated()
