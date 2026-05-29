@@ -83,6 +83,17 @@ public class ReservationService implements ReservationServicePort {
             return reservationMapper.toDto(savedReservation);
     }
 
+    public List<ReservationResponseDTO> findReservationByUserId(UUID userId) {
+        List<Reservation> reservations = reservationRepository.findByUserId(userId);
+        return reservationMapper.toDtoLists(reservations);
+    }
+
+    @Override
+    public List<ReservationResponseDTO> findReservationsByUserId(UUID userId) {
+        List<Reservation> reservations = reservationRepository.findByUserId(userId);
+        return reservationMapper.toDtoLists(reservations);
+    }
+
     @Override
     public List<ReservationResponseDTO> findAllReservations() {
         List<Reservation> reservations = reservationRepository.findAll();

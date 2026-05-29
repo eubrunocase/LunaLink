@@ -13,6 +13,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,6 +33,7 @@ public class ReservationController {
     public ResponseEntity<ReservationResponseDTO> createNewReservation (@RequestBody @Valid ReservationCreateDTO data,
                                                                         Authentication authentication) {
         String email = authentication.getName();
+        System.out.println(data.toString());
         ReservationResponseDTO reservationSaved = facade.createReservationForAuthenticatedUser(data, email);
         return ResponseEntity.status(HttpStatus.CREATED).body(reservationSaved);
     }
@@ -39,6 +41,11 @@ public class ReservationController {
     @GetMapping
     public ResponseEntity<List<ReservationResponseDTO>> listReservations () {
         return ResponseEntity.ok(facade.findAllReservations());
+    }
+
+    @GetMapping("/findByUser/{id}")
+    public ResponseEntity<List<ReservationResponseDTO>> findByUserId(@PathVariable UUID id) {
+        return ResponseEntity.ok(facade.findReservationsByUserId(id));
     }
 
     @DeleteMapping("/{id}")

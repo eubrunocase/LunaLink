@@ -22,4 +22,6 @@ public interface ReservationServicePort {
 
     List<MonthlyReservationReportDTO> generateMonthlyReport(int month, int year);
 
+    List<ReservationResponseDTO> findReservationsByUserId(UUID userId);
+
 }

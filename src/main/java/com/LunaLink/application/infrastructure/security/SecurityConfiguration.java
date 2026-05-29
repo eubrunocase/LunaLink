@@ -33,6 +33,7 @@ public class SecurityConfiguration {
         this.securityFilter = securityFilter;
     }
 
+
    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
         return http
@@ -70,14 +71,16 @@ public class SecurityConfiguration {
 
                         // Reservas (Criação e Leitura)
                         .requestMatchers(HttpMethod.POST,"/lunaLink/reservation").authenticated()
-                        .requestMatchers(HttpMethod.GET,"/lunaLink/reservation/**").authenticated()
                         .requestMatchers(HttpMethod.GET,"/lunaLink/reservation/checkAvaliability/**").authenticated()
-                        
+                        .requestMatchers(HttpMethod.GET,"/lunaLink/reservation/findByUser/**").authenticated()
+
                         // Reservas (Ações Administrativas Específicas)
+                        .requestMatchers(HttpMethod.GET,"/lunaLink/reservation").hasRole("ADMIN_ROLE")
+                        .requestMatchers(HttpMethod.GET,"/lunaLink/reservation/report/**").hasRole("ADMIN_ROLE")
                         .requestMatchers(HttpMethod.DELETE,"/lunaLink/reservation/**").hasRole("ADMIN_ROLE")
                         .requestMatchers(HttpMethod.PUT,"/lunaLink/reservation/{id}/approve").hasRole("ADMIN_ROLE")
                         .requestMatchers(HttpMethod.PUT,"/lunaLink/reservation/{id}/reject").hasRole("ADMIN_ROLE")
-                        .requestMatchers(HttpMethod.GET,"/lunaLink/reservation/report/**").hasRole("ADMIN_ROLE")
+                        .requestMatchers(HttpMethod.GET,"/lunaLink/reservation/**").authenticated()
 
                         // Espaços (Leitura)
                         .requestMatchers(HttpMethod.GET,"/lunaLink/space/**").authenticated()

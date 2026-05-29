@@ -6,6 +6,7 @@ import com.LunaLink.application.web.dto.UserDTO.ResponseUserDTO;
 import com.LunaLink.application.web.dto.UserDTO.UserSummaryDTO;
 import com.LunaLink.application.web.mapperImpl.UserMapperImpl;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,6 +33,13 @@ public class UsersController {
     public ResponseEntity<List<ResponseUserDTO>> findAllUsers () {
         List<ResponseUserDTO> users = userFacade.findAllResidents();
         return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<ResponseUserDTO> getMe(Authentication authentication) {
+        String email = authentication.getName();
+        ResponseUserDTO user = userFacade.findResidentByEmail(email);
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/summary")

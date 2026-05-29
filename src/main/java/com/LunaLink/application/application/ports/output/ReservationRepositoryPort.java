@@ -30,7 +30,7 @@ public interface ReservationRepositoryPort {
     //ReservationResponseDTO findReservationById(UUID id);
 
     Optional<Reservation> findById(UUID id);
-
+    List<Reservation> findByUserId(UUID id);
 
     /**
      * Busca todas as datas indisponíveis (com reservas) para um espaço em um mês específico

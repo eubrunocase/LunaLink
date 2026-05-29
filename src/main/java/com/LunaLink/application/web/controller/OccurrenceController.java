@@ -26,6 +26,7 @@ public class OccurrenceController {
     public ResponseEntity<OccurrenceResponseDTO> createOccurrence(
             @Valid @RequestBody OccurrenceCreateRequestDTO dto,
             Authentication authentication) {
+        System.out.println(dto.toString());
         String userEmail = authentication.getName();
         OccurrenceResponseDTO response = occurrenceFacade.createOccurrence(dto, userEmail);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);

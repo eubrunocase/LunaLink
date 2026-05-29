@@ -48,6 +48,10 @@ public class ReservationServiceFacade {
         return reservation;
     }
 
+    public List<ReservationResponseDTO> findReservationsByUserId (UUID id) {
+        return reservationService.findReservationsByUserId(id);
+    }
+
      public void deleteReservation (UUID id) {
         reservationService.deleteReservation(id);
      }
