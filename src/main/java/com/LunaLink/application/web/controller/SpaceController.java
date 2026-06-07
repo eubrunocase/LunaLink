@@ -1,7 +1,8 @@
 package com.LunaLink.application.web.controller;
 
-import com.LunaLink.application.application.service.space.SpaceService;
-import com.LunaLink.application.domain.model.space.Space;
+import com.LunaLink.application.application.facades.space.SpaceFacade;
+import com.LunaLink.application.web.dto.SpaceDTO.SpaceResponseDTO;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,15 +11,15 @@ import java.util.List;
 @RequestMapping("/lunaLink/space")
 public class SpaceController {
 
-    private final SpaceService spaceService;
+    private final SpaceFacade spaceFacade;
 
-    public SpaceController(SpaceService spaceService) {
-        this.spaceService = spaceService;
+    public SpaceController(SpaceFacade spaceFacade) {
+        this.spaceFacade = spaceFacade;
     }
 
     @GetMapping
-    public List<Space> listAllSpaces () {
-        return spaceService.listAllReservations();
+    public ResponseEntity<List<SpaceResponseDTO>> listAllSpaces() {
+        return ResponseEntity.ok(spaceFacade.listAllSpaces());
     }
 
 }

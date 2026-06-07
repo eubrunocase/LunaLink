@@ -59,7 +59,7 @@ public class UsersController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public void deleteUser(UUID id) {
+    public void deleteUser(@PathVariable UUID id) {
         userFacade.deleteUser(id);
     }
 
