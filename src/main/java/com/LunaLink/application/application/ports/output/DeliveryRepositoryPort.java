@@ -11,4 +11,5 @@ public interface DeliveryRepositoryPort {
     void deleteById(UUID id);
     List<Delivery> findAll();
     Delivery findDeliveryById(UUID id);
+    List<Delivery> findAllByUserId(UUID userId);
 }

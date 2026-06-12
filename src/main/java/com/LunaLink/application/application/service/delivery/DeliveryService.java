@@ -63,6 +63,13 @@ public class DeliveryService implements DeliveryServicePort {
     }
 
     @Override
+    public List<ResponseDeliveryDTO> findDeliveriesByUserId(UUID userId) {
+        if (userId == null) throw new RuntimeException("userId não pode ser nulo.");
+        List<Delivery> deliveries = repository.findAllByUserId(userId);
+        return mapper.toDTOList(deliveries);
+    }
+
+    @Override
     @Transactional
     public void deleteDelivery(UUID id) {
         if (id == null) throw new RuntimeException("MÉTODO deleteDelivery USER DE DeliveryService: Delivery não pode ser nulo.");

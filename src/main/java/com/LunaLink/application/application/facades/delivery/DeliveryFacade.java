@@ -36,6 +36,10 @@ public class DeliveryFacade {
         return deliveryServicePort.findAllDeliveries();
     }
 
+    public List<ResponseDeliveryDTO> findDeliveriesByUserId(UUID userId) {
+        return deliveryServicePort.findDeliveriesByUserId(userId);
+    }
+
     public ResponseDeliveryDTO confirmReceipt(UUID id, String pickedUpBy) {
         return deliveryServicePort.confirmReceipt(id, pickedUpBy);
     }

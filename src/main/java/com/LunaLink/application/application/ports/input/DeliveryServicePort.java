@@ -11,6 +11,7 @@ public interface DeliveryServicePort {
     ResponseDeliveryDTO createDelivery(RequestDeliveryDTO requestDeliveryDTO);
     ResponseDeliveryDTO findDeliveryById(UUID id);
     List<ResponseDeliveryDTO> findAllDeliveries();
+    List<ResponseDeliveryDTO> findDeliveriesByUserId(UUID userId);
     void deleteDelivery(UUID id);
     ResponseDeliveryDTO updateDelivery(UUID id, RequestDeliveryDTO requestDeliveryDTO);
     ResponseDeliveryDTO confirmReceipt(UUID deliveryId, String pickedUpBy);

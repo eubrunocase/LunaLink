@@ -25,6 +25,12 @@ public class DeliveryController {
         return ResponseEntity.ok(responseDeliveryDTOs);
     }
 
+    @GetMapping("/findByUser/{userId}")
+    public ResponseEntity<List<ResponseDeliveryDTO>> findByUser(@PathVariable UUID userId) {
+        List<ResponseDeliveryDTO> deliveries = deliveryFacade.findDeliveriesByUserId(userId);
+        return ResponseEntity.ok(deliveries);
+    }
+
     @GetMapping("/find/{id}")
     public ResponseEntity<ResponseDeliveryDTO> findById(@PathVariable UUID id) {
         ResponseDeliveryDTO responseDeliveryDTO = deliveryFacade.findById(id);
