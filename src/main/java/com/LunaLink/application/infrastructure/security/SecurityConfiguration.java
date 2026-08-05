@@ -45,7 +45,7 @@ public class SecurityConfiguration {
                         // ================= Públicos (Infraestrutura e Login) =================
                         .requestMatchers( "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/error").permitAll()
-                        .requestMatchers("/actuator/prometheus").permitAll()
+                        .requestMatchers("/actuator/health", "/actuator/prometheus").permitAll()
                         .requestMatchers(HttpMethod.POST,"/lunaLink/auth/login").permitAll()
                         .requestMatchers(HttpMethod.PUT,"/ws-lunalink").permitAll() // WebSocket Handshake
                         

@@ -39,3 +39,4 @@ resources/
 application.properties
 
 .env
+.DS_Store

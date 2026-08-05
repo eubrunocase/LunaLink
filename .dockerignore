@@ -1,0 +1,12 @@
+.git/
+.gitignore
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.DS_Store
+target/
+.env
+docs/
+config/
