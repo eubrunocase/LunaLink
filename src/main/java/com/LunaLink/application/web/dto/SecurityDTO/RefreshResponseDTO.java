@@ -1,6 +1,6 @@
 package com.LunaLink.application.web.dto.SecurityDTO;
 
-public record LoginResponseDTO(
+public record RefreshResponseDTO(
         String accessToken,
         String refreshToken,
         long expiresIn,

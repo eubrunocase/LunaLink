@@ -1,5 +1,6 @@
 package com.LunaLink.application.web.exception;
 
+import com.LunaLink.application.application.service.auth.InvalidRefreshTokenException;
 import com.LunaLink.application.web.dto.ErrorDTO.StandardErrorDTO;
 import com.LunaLink.application.web.dto.ErrorDTO.ValidationErrorDTO;
 import jakarta.servlet.http.HttpServletRequest;
@@ -51,6 +52,19 @@ public class GlobalExceptionHandler {
                 request.getRequestURI()
         );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+    }
+
+    // Trata refresh token inválido/reutilizado/expirado
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+    public ResponseEntity<StandardErrorDTO> handleInvalidRefreshToken(InvalidRefreshTokenException ex, HttpServletRequest request) {
+        StandardErrorDTO error = new StandardErrorDTO(
+                LocalDateTime.now(),
+                HttpStatus.UNAUTHORIZED.value(),
+                "Unauthorized",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 
     // Trata os erros de dados não encontrados (ex: Usuário ou Espaço não existe)

@@ -71,12 +71,15 @@ public class UserService implements UserServicePort {
         userForUpdate.setEmail(data.email());
         userForUpdate.setPassword(encoder.encode(data.password()));
         userForUpdate.setRole(data.role());
+        userForUpdate.incrementTokenVersion();
         userRepositoryPort.save(userForUpdate);
             return userMapper.toDTO(userForUpdate);
     }
 
     @Override
     public void deleteUser(UUID id) {
+        Users user = userRepositoryPort.findById(id).get();
+        user.incrementTokenVersion();
         userRepositoryPort.deleteById(id);
     }
 

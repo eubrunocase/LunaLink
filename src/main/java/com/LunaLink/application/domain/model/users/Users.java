@@ -3,6 +3,7 @@ package com.LunaLink.application.domain.model.users;
 import com.LunaLink.application.domain.enums.UserRoles;
 import com.LunaLink.application.domain.model.reservation.Reservation;
 import com.LunaLink.application.domain.model.valueObject.Email;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
@@ -17,7 +18,6 @@ import java.util.UUID;
 
 @Getter
 @Setter
-@Data
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Entity
 @Table(name = "users")
@@ -43,9 +43,12 @@ public class Users implements UserDetails {
     @AttributeOverride(name = "address", column = @Column(name = "email", nullable = false, unique = true))
     private Email email;
 
-    @JsonProperty("password")
+    @JsonIgnore
     @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false, columnDefinition = "integer default 0")
+    private Integer tokenVersion = 0;
 
     @JsonProperty("role")
     @Enumerated(EnumType.STRING)
@@ -147,14 +150,25 @@ public class Users implements UserDetails {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", apartment='" + apartment + '\'' +
-                ", email='" + email + '\'' +
-                ", password='" + password + '\'' +
                 ", role=" + role +
+                ", tokenVersion=" + tokenVersion +
                 '}';
     }
 
     public void setRole(UserRoles role) {
         this.role = role;
+    }
+
+    public Integer getTokenVersion() {
+        return tokenVersion != null ? tokenVersion : 0;
+    }
+
+    public void setTokenVersion(Integer tokenVersion) {
+        this.tokenVersion = tokenVersion;
+    }
+
+    public void incrementTokenVersion() {
+        this.tokenVersion = (this.tokenVersion == null ? 0 : this.tokenVersion) + 1;
     }
 
     public List<Reservation> getReservations() {

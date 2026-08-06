@@ -1,12 +1,18 @@
 package com.LunaLink.application.infrastructure.security;
 
 import com.LunaLink.application.application.ports.output.UserRepositoryPort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,30 +22,30 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.List;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
 
-    private final SecurityFilter securityFilter;
+    private static final Logger log = LoggerFactory.getLogger(SecurityConfiguration.class);
 
-    public SecurityConfiguration(SecurityFilter securityFilter) {
+    private final SecurityFilter securityFilter;
+    private final RestAuthenticationEntryPoint restAuthenticationEntryPoint;
+
+    public SecurityConfiguration(SecurityFilter securityFilter,
+                                 RestAuthenticationEntryPoint restAuthenticationEntryPoint) {
         this.securityFilter = securityFilter;
+        this.restAuthenticationEntryPoint = restAuthenticationEntryPoint;
     }
 
-
    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .cors(Customizer.withDefaults())
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(restAuthenticationEntryPoint))
                 .authorizeHttpRequests(authorize -> authorize
 
                         // ================= Públicos (Infraestrutura e Login) =================
@@ -47,6 +53,9 @@ public class SecurityConfiguration {
                         .requestMatchers("/error").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/prometheus").permitAll()
                         .requestMatchers(HttpMethod.POST,"/lunaLink/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/lunaLink/auth/refresh").permitAll()
+                        .requestMatchers(HttpMethod.POST,"/lunaLink/auth/logout").permitAll()
+                        .requestMatchers("/ws-lunalink/**").permitAll()
                         .requestMatchers(HttpMethod.PUT,"/ws-lunalink").permitAll() // WebSocket Handshake
                         
                         // Push Subscription (Requer login, qualquer role)
@@ -103,19 +112,28 @@ public class SecurityConfiguration {
 
                         // Qualquer outra requisição deve estar autenticada
                         .anyRequest().authenticated()
-                ) .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+                )
+                .addFilterAfter(securityFilter, ExceptionTranslationFilter.class)
                 .build();
+    }
+
+    @Bean
+    public AuthenticationEventPublisher authenticationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        return new DefaultAuthenticationEventPublisher(applicationEventPublisher);
     }
 
     @Bean
     public AuthenticationManager authenticationManager(
             UserDetailsService userDetailsService,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder,
+            AuthenticationEventPublisher eventPublisher) {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder);
 
-        return new ProviderManager(authenticationProvider);
+        ProviderManager providerManager = new ProviderManager(authenticationProvider);
+        providerManager.setAuthenticationEventPublisher(eventPublisher);
+        return providerManager;
     }
 
     @Bean
@@ -127,7 +145,7 @@ public class SecurityConfiguration {
 
                 UserDetails residentUser = userRepositoryPort.findByEmail(username);
                 if (residentUser != null) {
-                    System.out.println("Usuário encontrado: " + username);
+                    log.debug("Usuário encontrado: {}", username);
                     return residentUser;
                 }
 
@@ -139,21 +157,6 @@ public class SecurityConfiguration {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-
-        configuration.setAllowedOrigins(List.of("*"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(false);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 
 }
