@@ -22,32 +22,31 @@ public class OccurrenceController {
         this.occurrenceFacade = occurrenceFacade;
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<OccurrenceResponseDTO> createOccurrence(
             @Valid @RequestBody OccurrenceCreateRequestDTO dto,
             Authentication authentication) {
-        System.out.println(dto.toString());
         String userEmail = authentication.getName();
         OccurrenceResponseDTO response = occurrenceFacade.createOccurrence(dto, userEmail);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/findAll")
-    public ResponseEntity<List<OccurrenceResponseDTO>> findAll() {
-        List<OccurrenceResponseDTO> occurrences = occurrenceFacade.findAllOcurrences();
+    public ResponseEntity<List<OccurrenceResponseDTO>> findAll(Authentication authentication) {
+        List<OccurrenceResponseDTO> occurrences = occurrenceFacade.findAllOcurrences(authentication.getName());
         return ResponseEntity.ok(occurrences);
     }
 
     @GetMapping("/find/{uuid}")
-    public ResponseEntity<OccurrenceResponseDTO> findById(@RequestParam UUID uuid) {
-        OccurrenceResponseDTO occurrence = occurrenceFacade.findOccurrenceById(uuid);
+    public ResponseEntity<OccurrenceResponseDTO> findById(@PathVariable UUID uuid, Authentication authentication) {
+        OccurrenceResponseDTO occurrence = occurrenceFacade.findOccurrenceById(uuid, authentication.getName());
         return ResponseEntity.ok(occurrence);
     }
 
 
     @DeleteMapping("/delete/{uuid}")
-    public ResponseEntity<Void> deleteOccurrence(@PathVariable UUID uuid) {
-        occurrenceFacade.deleteOccurrence(uuid);
+    public ResponseEntity<Void> deleteOccurrence(@PathVariable UUID uuid, Authentication authentication) {
+        occurrenceFacade.deleteOccurrence(uuid, authentication.getName());
         return ResponseEntity.noContent().build();
     }
 

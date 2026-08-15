@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public interface OccurrenceServicePort {
     OccurrenceResponseDTO createOccurrence(OccurrenceCreateRequestDTO dto, String userEmail);
-    void deleteOccurrence(UUID uuid);
-    OccurrenceResponseDTO findById(UUID uuid);
-    List<OccurrenceResponseDTO> findAll();
+    void deleteOccurrence(UUID uuid, String userEmail);
+    OccurrenceResponseDTO findById(UUID uuid, String userEmail);
+    List<OccurrenceResponseDTO> findAll(String userEmail);
 }

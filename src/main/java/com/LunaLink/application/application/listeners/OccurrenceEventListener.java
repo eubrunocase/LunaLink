@@ -6,10 +6,11 @@ import com.LunaLink.application.domain.enums.UserRoles;
 import com.LunaLink.application.domain.events.occurrenceEvents.OccurrenceCreatedEvent;
 import com.LunaLink.application.domain.model.users.Users;
 import com.LunaLink.application.web.dto.NotificationDTO.NotificationDTO;
-import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,7 +29,7 @@ public class OccurrenceEventListener {
     }
 
     @Async
-    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT, fallbackExecution = true)
     public void handleOccurrenceCreatedEvent(OccurrenceCreatedEvent event) {
         List<Users> admins = userRepositoryPort.findByRole(UserRoles.ADMIN_ROLE);
         for (Users admin : admins) {

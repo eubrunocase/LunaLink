@@ -3,6 +3,7 @@ package com.LunaLink.application.application.service.occurrence;
 import com.LunaLink.application.application.ports.input.OccurrenceServicePort;
 import com.LunaLink.application.application.ports.output.OccurrenceRepositoryPort;
 import com.LunaLink.application.application.ports.output.UserRepositoryPort;
+import com.LunaLink.application.domain.enums.UserRoles;
 import com.LunaLink.application.domain.events.occurrenceEvents.OccurrenceCreatedEvent;
 import com.LunaLink.application.domain.model.occurrence.Occurrence;
 import com.LunaLink.application.domain.model.users.Users;
@@ -72,25 +73,46 @@ public class OccurrenceService implements OccurrenceServicePort {
     }
 
     @Override
-    public void deleteOccurrence(UUID uuid) {
+    public void deleteOccurrence(UUID uuid, String userEmail) {
+        Users requester = userRepositoryPort.findByEmail(userEmail);
         Optional<Occurrence> o = occurrenceRepositoryPort.findById(uuid);
-        if (o.isPresent()) {
-            occurrenceRepositoryPort.deleteById(uuid);
+        if (o.isEmpty()) {
+            return;
         }
+        if (requester != null && requester.getRole() != UserRoles.ADMIN_ROLE
+                && !o.get().getUser().getId().equals(requester.getId())) {
+            throw new IllegalArgumentException("Você não pode excluir uma ocorrência de outro morador.");
+        }
+        occurrenceRepositoryPort.deleteById(uuid);
     }
 
     @Override
-    public OccurrenceResponseDTO findById(UUID uuid) {
+    public OccurrenceResponseDTO findById(UUID uuid, String userEmail) {
+        Users requester = userRepositoryPort.findByEmail(userEmail);
         Optional<Occurrence> o = occurrenceRepositoryPort.findById(uuid);
-        OccurrenceResponseDTO dto = mapper.toDto(o.orElse(null));
-        return dto;
+        if (o.isEmpty()) {
+            throw new IllegalArgumentException("Ocorrência não encontrada.");
+        }
+        if (requester == null || (requester.getRole() != UserRoles.ADMIN_ROLE
+                && !o.get().getUser().getId().equals(requester.getId()))) {
+            throw new IllegalArgumentException("Ocorrência não encontrada.");
+        }
+        return mapper.toDto(o.get());
     }
 
     @Override
-    public List<OccurrenceResponseDTO> findAll() {
-        List<OccurrenceResponseDTO> dtoList = occurrenceRepositoryPort.findAll().stream()
+    public List<OccurrenceResponseDTO> findAll(String userEmail) {
+        Users requester = userRepositoryPort.findByEmail(userEmail);
+        List<Occurrence> occurrences;
+        if (requester != null && requester.getRole() == UserRoles.ADMIN_ROLE) {
+            occurrences = occurrenceRepositoryPort.findAll();
+        } else {
+            occurrences = occurrenceRepositoryPort.findAll().stream()
+                    .filter(o -> requester != null && o.getUser().getId().equals(requester.getId()))
+                    .toList();
+        }
+        return occurrences.stream()
                 .map(mapper::toDto)
                 .toList();
-        return dtoList;
     }
 }

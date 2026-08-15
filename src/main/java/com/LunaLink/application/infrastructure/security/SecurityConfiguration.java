@@ -104,6 +104,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/lunaLink/equipment-reservation/**").hasRole("ADMIN_ROLE")
                         
                         // ================= Ocorrências (US-03) =================
+                        // Abertura de ocorrência: restrita ao morador
                         .requestMatchers(HttpMethod.POST, "/lunaLink/occurrences").authenticated()
                         .requestMatchers(HttpMethod.GET, "/lunaLink/occurrences").authenticated()
                         .requestMatchers(HttpMethod.GET, "/lunaLink/occurrences/{uuid}").authenticated()

@@ -21,15 +21,15 @@ public class OccurrenceFacade {
         return occurrenceServicePort.createOccurrence(dto, userEmail);
     }
 
-    public List<OccurrenceResponseDTO> findAllOcurrences(){
-        return occurrenceServicePort.findAll();
+    public List<OccurrenceResponseDTO> findAllOcurrences(String userEmail){
+        return occurrenceServicePort.findAll(userEmail);
     }
 
-    public void deleteOccurrence(UUID id) {
-        occurrenceServicePort.deleteOccurrence(id);
+    public void deleteOccurrence(UUID id, String userEmail) {
+        occurrenceServicePort.deleteOccurrence(id, userEmail);
     }
 
-    public OccurrenceResponseDTO findOccurrenceById(UUID uuid) {
-        return occurrenceServicePort.findById(uuid);
+    public OccurrenceResponseDTO findOccurrenceById(UUID uuid, String userEmail) {
+        return occurrenceServicePort.findById(uuid, userEmail);
     }
 }
