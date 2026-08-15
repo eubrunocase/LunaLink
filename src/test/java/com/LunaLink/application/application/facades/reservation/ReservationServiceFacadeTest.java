@@ -2,6 +2,7 @@ package com.LunaLink.application.application.facades.reservation;
 
 import com.LunaLink.application.application.ports.input.ReservationServicePort;
 import com.LunaLink.application.application.ports.input.UserServicePort;
+import com.LunaLink.application.domain.enums.ReportFormat;
 import com.LunaLink.application.domain.enums.UserRoles;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationCreateDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
@@ -137,5 +138,26 @@ class ReservationServiceFacadeTest {
 
         // Assert
         verify(reservationService, times(1)).checkAvaliability(date, spaceId, userId);
+    }
+
+    @Test
+    @DisplayName("Deve delegar criação de exportação do relatório mensal")
+    void createMonthlyReportExport_ShouldCallService() {
+        facade.createMonthlyReportExport(5, 2026, ReportFormat.PDF);
+        verify(reservationService, times(1)).createMonthlyReportExport(5, 2026, ReportFormat.PDF);
+    }
+
+    @Test
+    @DisplayName("Deve delegar consulta de status de exportação")
+    void getMonthlyReportExportStatus_ShouldCallService() {
+        facade.getMonthlyReportExportStatus("job-123");
+        verify(reservationService, times(1)).getMonthlyReportExportStatus("job-123");
+    }
+
+    @Test
+    @DisplayName("Deve delegar obtenção do arquivo de exportação")
+    void getMonthlyReportExportFile_ShouldCallService() {
+        facade.getMonthlyReportExportFile("job-123");
+        verify(reservationService, times(1)).getMonthlyReportExportFile("job-123");
     }
 }

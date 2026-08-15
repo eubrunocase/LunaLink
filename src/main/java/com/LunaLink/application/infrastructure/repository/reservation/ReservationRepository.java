@@ -6,6 +6,7 @@ import com.LunaLink.application.domain.model.space.Space;
 import com.LunaLink.application.domain.model.users.Users;
 import com.LunaLink.application.domain.model.reservation.Reservation;
 import com.LunaLink.application.application.ports.output.ReservationRepositoryPort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -155,6 +156,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID>,
 
     @Query("""
         SELECT r FROM Reservation r
+        JOIN FETCH r.user
+        JOIN FETCH r.space
         WHERE MONTH(r.date) = :month AND YEAR(r.date) = :year
         AND r.status IN :statuses
         AND r.space.type IN :spaceTypes
@@ -164,6 +167,25 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID>,
             @Param("year") int year,
             @Param("statuses") List<ReservationStatus> statuses,
             @Param("spaceTypes") List<SpaceType> spaceTypes
+    );
+
+    @Query("""
+        SELECT r FROM Reservation r
+        JOIN FETCH r.user
+        JOIN FETCH r.space
+        WHERE MONTH(r.date) = :month AND YEAR(r.date) = :year
+        AND r.status IN :statuses
+        AND r.space.type IN :spaceTypes
+        AND r.id > :afterId
+        ORDER BY r.id
+    """)
+    List<Reservation> findReservationsForReportPage(
+            @Param("month") int month,
+            @Param("year") int year,
+            @Param("statuses") List<ReservationStatus> statuses,
+            @Param("spaceTypes") List<SpaceType> spaceTypes,
+            @Param("afterId") UUID afterId,
+            Pageable pageable
     );
 
 }

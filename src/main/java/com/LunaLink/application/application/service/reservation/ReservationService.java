@@ -1,8 +1,11 @@
 package com.LunaLink.application.application.service.reservation;
 
 import com.LunaLink.application.application.ports.output.UserRepositoryPort;
+import com.LunaLink.application.application.service.report.ReportExportJob;
+import com.LunaLink.application.application.service.report.ReportExportService;
+import com.LunaLink.application.application.service.report.ReportFilters;
+import com.LunaLink.application.domain.enums.ReportFormat;
 import com.LunaLink.application.domain.enums.ReservationStatus;
-import com.LunaLink.application.domain.enums.SpaceType;
 import com.LunaLink.application.domain.events.reservationEvents.ReservationApprovedEvent;
 import com.LunaLink.application.domain.events.reservationEvents.ReservationRejectedEvent;
 import com.LunaLink.application.domain.events.reservationEvents.ReservationRequestedEvent;
@@ -15,9 +18,10 @@ import com.LunaLink.application.application.ports.input.ReservationServicePort;
 import com.LunaLink.application.application.ports.output.ReservationRepositoryPort;
 import com.LunaLink.application.infrastructure.repository.space.SpaceRepository;
 import com.LunaLink.application.web.dto.ReservationsDTO.MonthlyReservationReportDTO;
+import com.LunaLink.application.web.dto.ReservationsDTO.ReportExportJobResponseDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -35,20 +39,20 @@ public class ReservationService implements ReservationServicePort {
     private final ReservationRepositoryPort reservationRepository;
     private final ReservationMapper reservationMapper;
     private final EventPublisher publisher;
-
-    private static final List<ReservationStatus> VALID_STATUSES_FOR_REPORT = List.of(ReservationStatus.APPROVED);
-    private static final List<SpaceType> BILLABLE_SPACE_TYPES = List.of(SpaceType.SALAO_FESTAS, SpaceType.CHURRASQUEIRA);
+    private final ReportExportService reportExportService;
 
     public ReservationService(UserRepositoryPort userRepository,
                               SpaceRepository spaceRepository,
                               ReservationRepositoryPort reservationRepository,
                               ReservationMapper reservationMapper,
-                              EventPublisher publisher) {
+                              EventPublisher publisher,
+                              ReportExportService reportExportService) {
         this.userRepository = userRepository;
         this.spaceRepository = spaceRepository;
         this.reservationRepository = reservationRepository;
         this.reservationMapper = reservationMapper;
         this.publisher = publisher;
+        this.reportExportService = reportExportService;
     }
 
     @Transactional
@@ -205,6 +209,7 @@ public class ReservationService implements ReservationServicePort {
         return convertToDTO(savedReservation);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<MonthlyReservationReportDTO> generateMonthlyReport(int month, int year) {
         if (month < 1 || month > 12) {
@@ -215,12 +220,29 @@ public class ReservationService implements ReservationServicePort {
         }
 
         List<Reservation> reservations = reservationRepository.findReservationsForReport(
-                month, year, VALID_STATUSES_FOR_REPORT, BILLABLE_SPACE_TYPES
+                month, year, ReportFilters.VALID_STATUSES, ReportFilters.BILLABLE_SPACE_TYPES
         );
 
         return reservations.stream()
                 .map(this::convertToReportDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public ReportExportJobResponseDTO createMonthlyReportExport(int month, int year, ReportFormat format) {
+        ReportExportJob job = reportExportService.createJob(month, year, format);
+        reportExportService.generate(job);
+        return ReportExportJobResponseDTO.from(job);
+    }
+
+    @Override
+    public ReportExportJobResponseDTO getMonthlyReportExportStatus(String jobId) {
+        return ReportExportJobResponseDTO.from(reportExportService.getJob(jobId));
+    }
+
+    @Override
+    public ReportExportJob getMonthlyReportExportFile(String jobId) {
+        return reportExportService.getReadyJob(jobId);
     }
 
     private MonthlyReservationReportDTO convertToReportDTO(Reservation reservation) {

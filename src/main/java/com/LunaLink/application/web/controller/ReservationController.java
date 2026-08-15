@@ -2,16 +2,27 @@ package com.LunaLink.application.web.controller;
 
 import com.LunaLink.application.application.facades.reservation.ReservationServiceFacade;
 import com.LunaLink.application.application.ports.input.UserServicePort;
+import com.LunaLink.application.application.service.report.ReportExportJob;
+import com.LunaLink.application.domain.enums.ReportFormat;
 import com.LunaLink.application.web.dto.ReservationsDTO.MonthlyReservationReportDTO;
+import com.LunaLink.application.web.dto.ReservationsDTO.ReportExportJobResponseDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationCreateDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -101,6 +112,39 @@ public class ReservationController {
             @RequestParam int year) {
         List<MonthlyReservationReportDTO> report = facade.generateMonthlyReport(month, year);
         return ResponseEntity.ok(report);
+    }
+
+    @PostMapping("/report/monthly/export")
+    public ResponseEntity<ReportExportJobResponseDTO> createMonthlyReportExport(
+            @RequestParam int month,
+            @RequestParam int year,
+            @RequestParam ReportFormat format) {
+        ReportExportJobResponseDTO response = facade.createMonthlyReportExport(month, year, format);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
+    }
+
+    @GetMapping("/report/monthly/export/{jobId}/status")
+    public ResponseEntity<ReportExportJobResponseDTO> getMonthlyReportExportStatus(@PathVariable String jobId) {
+        return ResponseEntity.ok(facade.getMonthlyReportExportStatus(jobId));
+    }
+
+    @GetMapping("/report/monthly/export/{jobId}")
+    public ResponseEntity<StreamingResponseBody> downloadMonthlyReportExport(@PathVariable String jobId) {
+        ReportExportJob job = facade.getMonthlyReportExportFile(jobId);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(job.getContentType()))
+                .contentLength(job.getContentLength())
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + job.getFileName() + "\"")
+                .body(output -> copy(job, output));
+    }
+
+    private void copy(ReportExportJob job, OutputStream output) {
+        try (InputStream in = Files.newInputStream(job.getTempFile())) {
+            in.transferTo(output);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Falha ao enviar o arquivo do relatório.", e);
+        }
     }
 
 }

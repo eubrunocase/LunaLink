@@ -2,6 +2,10 @@ package com.LunaLink.application.application.service.reservation;
 
 import com.LunaLink.application.application.ports.output.ReservationRepositoryPort;
 import com.LunaLink.application.application.ports.output.UserRepositoryPort;
+import com.LunaLink.application.application.service.report.ReportExportJob;
+import com.LunaLink.application.application.service.report.ReportExportService;
+import com.LunaLink.application.domain.enums.ReportExportStatus;
+import com.LunaLink.application.domain.enums.ReportFormat;
 import com.LunaLink.application.domain.enums.ReservationStatus;
 import com.LunaLink.application.domain.enums.SpaceType;
 import com.LunaLink.application.domain.enums.UserRoles;
@@ -15,6 +19,7 @@ import com.LunaLink.application.infrastructure.eventPublisher.EventPublisher;
 import com.LunaLink.application.infrastructure.mapper.reservation.ReservationMapper;
 import com.LunaLink.application.infrastructure.repository.space.SpaceRepository;
 import com.LunaLink.application.web.dto.ReservationsDTO.MonthlyReservationReportDTO;
+import com.LunaLink.application.web.dto.ReservationsDTO.ReportExportJobResponseDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,6 +30,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,6 +39,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,6 +55,8 @@ class ReservationServiceTest {
     private ReservationMapper reservationMapper;
     @Mock
     private EventPublisher publisher;
+    @Mock
+    private ReportExportService reportExportService;
 
     @InjectMocks
     private ReservationService service;
@@ -201,5 +210,86 @@ class ReservationServiceTest {
         assertEquals("User", report.get(0).residentName());
         assertEquals("101", report.get(0).apartment());
         assertEquals("SALAO_FESTAS", report.get(0).spaceType());
+    }
+
+    @Test
+    @DisplayName("Deve lançar exceção ao gerar relatório com mês inválido")
+    void generateMonthlyReport_ShouldThrowException_WhenInvalidMonth() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> service.generateMonthlyReport(0, 2026));
+        assertTrue(exception.getMessage().contains("Mês inválido"));
+        verify(reservationRepository, never()).findReservationsForReport(anyInt(), anyInt(), anyList(), anyList());
+    }
+
+    @Test
+    @DisplayName("Deve lançar exceção ao gerar relatório com ano inválido")
+    void generateMonthlyReport_ShouldThrowException_WhenInvalidYear() {
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> service.generateMonthlyReport(5, 2019));
+        assertTrue(exception.getMessage().contains("Ano inválido"));
+        verify(reservationRepository, never()).findReservationsForReport(anyInt(), anyInt(), anyList(), anyList());
+    }
+
+    @Test
+    @DisplayName("Deve retornar lista vazia quando não houver reservas no período")
+    void generateMonthlyReport_ShouldReturnEmptyList_WhenNoReservations() {
+        when(reservationRepository.findReservationsForReport(eq(5), eq(2026), anyList(), anyList()))
+                .thenReturn(List.of());
+
+        List<MonthlyReservationReportDTO> report = service.generateMonthlyReport(5, 2026);
+
+        assertNotNull(report);
+        assertTrue(report.isEmpty());
+    }
+
+    @Test
+    @DisplayName("Deve filtrar relatório por status aprovado e espaços tarifados")
+    void generateMonthlyReport_ShouldFilterByApprovedStatusAndBillableSpaces() {
+        service.generateMonthlyReport(5, 2026);
+
+        verify(reservationRepository).findReservationsForReport(
+                eq(5),
+                eq(2026),
+                eq(List.of(ReservationStatus.APPROVED)),
+                eq(List.of(SpaceType.SALAO_FESTAS, SpaceType.CHURRASQUEIRA))
+        );
+    }
+
+    @Test
+    @DisplayName("Deve criar job de exportação e disparar geração assíncrona")
+    void createMonthlyReportExport_ShouldCreateJobAndTriggerGeneration() {
+        ReportExportJob job = ReportExportJob.create(5, 2026, ReportFormat.PDF);
+        when(reportExportService.createJob(5, 2026, ReportFormat.PDF)).thenReturn(job);
+
+        ReportExportJobResponseDTO response = service.createMonthlyReportExport(5, 2026, ReportFormat.PDF);
+
+        assertNotNull(response);
+        assertEquals(job.getId(), response.jobId());
+        assertEquals(ReportExportStatus.PROCESSING, response.status());
+        verify(reportExportService).generate(job);
+    }
+
+    @Test
+    @DisplayName("Deve consultar o status de um job de exportação")
+    void getMonthlyReportExportStatus_ShouldReturnJobStatus() {
+        ReportExportJob job = ReportExportJob.create(5, 2026, ReportFormat.DOCX).markCompleted();
+        when(reportExportService.getJob(job.getId())).thenReturn(job);
+
+        ReportExportJobResponseDTO response = service.getMonthlyReportExportStatus(job.getId());
+
+        assertEquals(job.getId(), response.jobId());
+        assertEquals(ReportExportStatus.READY, response.status());
+    }
+
+    @Test
+    @DisplayName("Deve retornar o job pronto para download")
+    void getMonthlyReportExportFile_ShouldReturnReadyJob() {
+        ReportExportJob job = ReportExportJob.create(5, 2026, ReportFormat.PDF).markCompleted();
+        job.setTempFile(Path.of("/tmp/relatorio.pdf"));
+        when(reportExportService.getReadyJob(job.getId())).thenReturn(job);
+
+        ReportExportJob result = service.getMonthlyReportExportFile(job.getId());
+
+        assertEquals(job, result);
     }
 }

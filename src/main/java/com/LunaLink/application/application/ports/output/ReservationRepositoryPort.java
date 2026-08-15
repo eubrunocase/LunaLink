@@ -5,6 +5,7 @@ import com.LunaLink.application.domain.enums.SpaceType;
 import com.LunaLink.application.domain.model.space.Space;
 import com.LunaLink.application.domain.model.users.Users;
 import com.LunaLink.application.domain.model.reservation.Reservation;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -158,6 +159,8 @@ public interface ReservationRepositoryPort {
 
     @Query("""
         SELECT r FROM Reservation r
+        JOIN FETCH r.user
+        JOIN FETCH r.space
         WHERE MONTH(r.date) = :month AND YEAR(r.date) = :year
         AND r.status IN :statuses
         AND r.space.type IN :spaceTypes
@@ -167,6 +170,32 @@ public interface ReservationRepositoryPort {
             @Param("year") int year,
             @Param("statuses") List<ReservationStatus> statuses,
             @Param("spaceTypes") List<SpaceType> spaceTypes
+    );
+
+    /**
+     * Paginação por cursor (keyset) em {@code Reservation.id} para exportação do relatório.
+     * Evita carregar todas as reservas de uma vez (e o pitfall de {@code JOIN FETCH} + {@code Pageable}).
+     *
+     * @param afterId ID cursor — use {@code new UUID(0L, 0L)} na primeira página
+     * @param pageable página com tamanho fixo (ex.: {@code PageRequest.of(0, 500)})
+     */
+    @Query("""
+        SELECT r FROM Reservation r
+        JOIN FETCH r.user
+        JOIN FETCH r.space
+        WHERE MONTH(r.date) = :month AND YEAR(r.date) = :year
+        AND r.status IN :statuses
+        AND r.space.type IN :spaceTypes
+        AND r.id > :afterId
+        ORDER BY r.id
+    """)
+    List<Reservation> findReservationsForReportPage(
+            @Param("month") int month,
+            @Param("year") int year,
+            @Param("statuses") List<ReservationStatus> statuses,
+            @Param("spaceTypes") List<SpaceType> spaceTypes,
+            @Param("afterId") UUID afterId,
+            Pageable pageable
     );
 
 }

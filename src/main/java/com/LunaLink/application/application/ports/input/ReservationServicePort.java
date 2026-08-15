@@ -1,6 +1,9 @@
 package com.LunaLink.application.application.ports.input;
 
+import com.LunaLink.application.application.service.report.ReportExportJob;
+import com.LunaLink.application.domain.enums.ReportFormat;
 import com.LunaLink.application.web.dto.ReservationsDTO.MonthlyReservationReportDTO;
+import com.LunaLink.application.web.dto.ReservationsDTO.ReportExportJobResponseDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
 
@@ -21,6 +24,10 @@ public interface ReservationServicePort {
     ReservationResponseDTO rejectReservation(UUID id);
 
     List<MonthlyReservationReportDTO> generateMonthlyReport(int month, int year);
+
+    ReportExportJobResponseDTO createMonthlyReportExport(int month, int year, ReportFormat format);
+    ReportExportJobResponseDTO getMonthlyReportExportStatus(String jobId);
+    ReportExportJob getMonthlyReportExportFile(String jobId);
 
     List<ReservationResponseDTO> findReservationsByUserId(UUID userId);
 

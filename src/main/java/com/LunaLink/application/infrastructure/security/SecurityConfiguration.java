@@ -23,6 +23,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -55,9 +56,11 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST,"/lunaLink/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST,"/lunaLink/auth/refresh").permitAll()
                         .requestMatchers(HttpMethod.POST,"/lunaLink/auth/logout").permitAll()
-                        .requestMatchers("/ws-lunalink/**").permitAll()
-                        .requestMatchers(HttpMethod.PUT,"/ws-lunalink").permitAll() // WebSocket Handshake
-                        
+                        // WebSocket (SockJS): usa PathPatternRequestMatcher (match por path) porque o
+                        // MvcRequestMatcher não casa requisições de upgrade WebSocket (caem em
+                        // anyRequest().authenticated() e geram AuthorizationDeniedException no log + fallback do SockJS)
+                        .requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/ws-lunalink/**")).permitAll()
+                        .requestMatchers(PathPatternRequestMatcher.withDefaults().matcher("/ws-lunalink")).permitAll() // Handshake (GET/PUT)
                         // Push Subscription (Requer login, qualquer role)
                         .requestMatchers("/lunaLink/push/**").authenticated()
 
@@ -86,6 +89,7 @@ public class SecurityConfiguration {
                         // Reservas (Ações Administrativas Específicas)
                         .requestMatchers(HttpMethod.GET,"/lunaLink/reservation").hasRole("ADMIN_ROLE")
                         .requestMatchers(HttpMethod.GET,"/lunaLink/reservation/report/**").hasRole("ADMIN_ROLE")
+                        .requestMatchers(HttpMethod.POST,"/lunaLink/reservation/report/**").hasRole("ADMIN_ROLE")
                         .requestMatchers(HttpMethod.DELETE,"/lunaLink/reservation/**").hasRole("ADMIN_ROLE")
                         .requestMatchers(HttpMethod.PUT,"/lunaLink/reservation/{id}/approve").hasRole("ADMIN_ROLE")
                         .requestMatchers(HttpMethod.PUT,"/lunaLink/reservation/{id}/reject").hasRole("ADMIN_ROLE")

@@ -4,6 +4,7 @@ import com.LunaLink.application.application.facades.reservation.ReservationServi
 import com.LunaLink.application.application.ports.input.UserServicePort;
 import com.LunaLink.application.domain.enums.ReservationStatus;
 import com.LunaLink.application.domain.enums.UserRoles;
+import com.LunaLink.application.web.dto.ReservationsDTO.MonthlyReservationReportDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationCreateDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
@@ -172,5 +173,28 @@ class ReservationControllerTest {
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(ReservationStatus.REJECTED, response.getBody().status());
+    }
+
+    @Test
+    @DisplayName("Deve gerar relatório mensal")
+    void getMonthlyReport_ShouldReturnReportList() {
+        // Arrange
+        int month = 5;
+        int year = 2026;
+        MonthlyReservationReportDTO reportDTO = new MonthlyReservationReportDTO(
+                "User", "101", LocalDate.of(2026, 5, 10), "SALAO_FESTAS");
+        when(facade.generateMonthlyReport(month, year)).thenReturn(List.of(reportDTO));
+
+        // Act
+        ResponseEntity<List<MonthlyReservationReportDTO>> response = controller.getMonthlyReport(month, year);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals(1, response.getBody().size());
+        assertEquals("User", response.getBody().get(0).residentName());
+        assertEquals("101", response.getBody().get(0).apartment());
+        assertEquals("SALAO_FESTAS", response.getBody().get(0).spaceType());
+        verify(facade, times(1)).generateMonthlyReport(month, year);
     }
 }

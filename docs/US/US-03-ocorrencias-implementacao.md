@@ -1,6 +1,6 @@
 # [US-03] Implementação — Registro Digital de Ocorrências e Notificação em Tempo Real
 
-> Documento técnico de como a US-03 foi implementada no backend (Spring Boot) e no frontend (Ionic/Angular). A especificação original está em [`docs/US/us1.md`](US/us1.md).
+> Documento técnico de como a US-03 foi implementada no backend (Spring Boot) e no frontend (Ionic/Angular). A especificação original está em [`docs/US/us1.md`](us1.md).
 
 ## 1. Visão geral da solução
 
