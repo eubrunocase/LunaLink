@@ -17,6 +17,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -109,6 +110,31 @@ class EquipmentReservationServiceTest {
     }
 
     @Test
+    @DisplayName("Deve listar apenas as reservas do usuário logado")
+    void listMyReservations_ShouldReturnOnlyUserReservations() {
+        // Arrange
+        UUID userId = UUID.randomUUID();
+        user.setId(userId);
+
+        EquipmentReservation reservation1 = new EquipmentReservation(tv, user, LocalDate.now().plusDays(1), LocalTime.of(14, 0), LocalTime.of(16, 0));
+        reservation1.setStatus(EquipmentReservationStatus.CONFIRMED);
+        EquipmentReservation reservation2 = new EquipmentReservation(tv, user, LocalDate.now().plusDays(2), LocalTime.of(18, 0), LocalTime.of(20, 0));
+        reservation2.setStatus(EquipmentReservationStatus.RETURNED);
+
+        when(userRepository.findByEmail("user@email.com")).thenReturn(user);
+        when(reservationRepositoryPort.findAllByUserId(userId)).thenReturn(List.of(reservation1, reservation2));
+
+        // Act
+        List<EquipmentReservationResponseDTO> result = service.listMyReservations("user@email.com");
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertEquals(EquipmentReservationStatus.CONFIRMED, result.get(0).status());
+        verify(reservationRepositoryPort).findAllByUserId(userId);
+    }
+
+    @Test
     @DisplayName("Deve devolver equipamento e mudar status para RETURNED")
     void returnEquipment_ShouldChangeStatus_ToReturned() {
         // Arrange
@@ -125,5 +151,103 @@ class EquipmentReservationServiceTest {
         // Assert
         assertEquals(EquipmentReservationStatus.RETURNED, reservation.getStatus());
         assertNotNull(reservation.getReturnedAt());
+    }
+
+    @Test
+    @DisplayName("Deve cancelar reserva CONFIRMED quando o dono cancela")
+    void cancelEquipmentReservation_ShouldCancel_WhenConfirmedByOwner() {
+        // Arrange
+        UUID reservationId = UUID.randomUUID();
+        EquipmentReservation reservation = new EquipmentReservation(tv, user, LocalDate.now(), LocalTime.now(), LocalTime.now().plusHours(2));
+        reservation.setStatus(EquipmentReservationStatus.CONFIRMED);
+
+        when(userRepository.findByEmail("user@email.com")).thenReturn(user);
+        when(reservationRepositoryPort.findById(reservationId)).thenReturn(Optional.of(reservation));
+        when(reservationRepositoryPort.save(any(EquipmentReservation.class))).thenReturn(reservation);
+
+        // Act
+        EquipmentReservationResponseDTO result = service.cancelEquipmentReservation(reservationId, "user@email.com");
+
+        // Assert
+        assertEquals(EquipmentReservationStatus.CANCELED, result.status());
+        assertEquals(EquipmentReservationStatus.CANCELED, reservation.getStatus());
+        assertNotNull(reservation.getCanceledAt());
+    }
+
+    @Test
+    @DisplayName("Deve permitir que Admin/Funcionário cancele reserva de outro morador")
+    void cancelEquipmentReservation_ShouldAllow_WhenManager() {
+        // Arrange
+        UUID reservationId = UUID.randomUUID();
+        Users otherUser = new Users("Outro", "202", "other@email.com", "pass", UserRoles.RESIDENT_ROLE);
+        Users employee = new Users("Porteiro", "000", "employee@email.com", "pass", UserRoles.EMPLOYEE);
+
+        EquipmentReservation reservation = new EquipmentReservation(tv, otherUser, LocalDate.now(), LocalTime.now(), LocalTime.now().plusHours(2));
+        reservation.setStatus(EquipmentReservationStatus.CONFIRMED);
+
+        when(userRepository.findByEmail("employee@email.com")).thenReturn(employee);
+        when(reservationRepositoryPort.findById(reservationId)).thenReturn(Optional.of(reservation));
+        when(reservationRepositoryPort.save(any(EquipmentReservation.class))).thenReturn(reservation);
+
+        // Act
+        EquipmentReservationResponseDTO result = service.cancelEquipmentReservation(reservationId, "employee@email.com");
+
+        // Assert
+        assertEquals(EquipmentReservationStatus.CANCELED, result.status());
+        assertNotNull(reservation.getCanceledAt());
+    }
+
+    @Test
+    @DisplayName("Deve bloquear cancelamento de reserva de outro morador")
+    void cancelEquipmentReservation_ShouldFail_WhenNotOwner() {
+        // Arrange
+        UUID reservationId = UUID.randomUUID();
+        Users otherUser = new Users("Outro", "202", "other@email.com", "pass", UserRoles.RESIDENT_ROLE);
+
+        EquipmentReservation reservation = new EquipmentReservation(tv, otherUser, LocalDate.now(), LocalTime.now(), LocalTime.now().plusHours(2));
+        reservation.setStatus(EquipmentReservationStatus.CONFIRMED);
+
+        when(userRepository.findByEmail("user@email.com")).thenReturn(user);
+        when(reservationRepositoryPort.findById(reservationId)).thenReturn(Optional.of(reservation));
+
+        // Act & Assert
+        AccessDeniedException exception = assertThrows(AccessDeniedException.class,
+                () -> service.cancelEquipmentReservation(reservationId, "user@email.com"));
+
+        assertEquals("Você não pode cancelar uma reserva de outro morador.", exception.getMessage());
+        verify(reservationRepositoryPort, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Deve bloquear cancelamento de reserva não CONFIRMED")
+    void cancelEquipmentReservation_ShouldFail_WhenNotConfirmed() {
+        // Arrange
+        UUID reservationId = UUID.randomUUID();
+        EquipmentReservation reservation = new EquipmentReservation(tv, user, LocalDate.now(), LocalTime.now(), LocalTime.now().plusHours(2));
+        reservation.setStatus(EquipmentReservationStatus.IN_USE);
+
+        when(reservationRepositoryPort.findById(reservationId)).thenReturn(Optional.of(reservation));
+
+        // Act & Assert
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> service.cancelEquipmentReservation(reservationId, "user@email.com"));
+
+        assertEquals("Apenas reservas CONFIRMED podem ser canceladas. Status atual: " + EquipmentReservationStatus.IN_USE, exception.getMessage());
+        verify(reservationRepositoryPort, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Deve falhar ao cancelar reserva inexistente")
+    void cancelEquipmentReservation_ShouldFail_WhenNotFound() {
+        // Arrange
+        UUID reservationId = UUID.randomUUID();
+        when(reservationRepositoryPort.findById(reservationId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> service.cancelEquipmentReservation(reservationId, "user@email.com"));
+
+        assertEquals("Reserva não encontrada.", exception.getMessage());
+        verify(reservationRepositoryPort, never()).save(any());
     }
 }

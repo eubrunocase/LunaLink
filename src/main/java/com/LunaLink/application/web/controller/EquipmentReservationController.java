@@ -44,6 +44,20 @@ public class EquipmentReservationController {
         return ResponseEntity.ok(facade.returnEquipment(id));
     }
 
+    @PatchMapping("/{id}/cancel")
+    public ResponseEntity<EquipmentReservationResponseDTO> cancelEquipmentReservation(
+            @PathVariable UUID id,
+            Authentication authentication) {
+        String userEmail = authentication.getName();
+        return ResponseEntity.ok(facade.cancelEquipmentReservation(id, userEmail));
+    }
+
+    @GetMapping("/mine")
+    public ResponseEntity<List<EquipmentReservationResponseDTO>> listMyReservations(Authentication authentication) {
+        String userEmail = authentication.getName();
+        return ResponseEntity.ok(facade.listMyReservations(userEmail));
+    }
+
     @GetMapping
     public ResponseEntity<List<EquipmentReservationResponseDTO>> listReservations(
             @RequestParam(required = false) LocalDate date,

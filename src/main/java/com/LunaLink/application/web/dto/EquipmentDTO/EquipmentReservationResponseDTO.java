@@ -19,5 +19,6 @@ public record EquipmentReservationResponseDTO(
         @JsonProperty("status") EquipmentReservationStatus status,
         @JsonProperty("createdAt") LocalDateTime createdAt,
         @JsonProperty("pickedUpAt") LocalDateTime pickedUpAt,
-        @JsonProperty("returnedAt") LocalDateTime returnedAt
+        @JsonProperty("returnedAt") LocalDateTime returnedAt,
+        @JsonProperty("canceledAt") LocalDateTime canceledAt
 ) {}

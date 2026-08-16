@@ -40,7 +40,7 @@ class EquipmentReservationControllerTest {
         Authentication authentication = mock(Authentication.class);
         when(authentication.getName()).thenReturn("test@email.com");
 
-        EquipmentReservationResponseDTO responseDTO = new EquipmentReservationResponseDTO(UUID.randomUUID(), "TV", "User", "101", LocalDate.now(), LocalTime.now(), LocalTime.now().plusHours(1), EquipmentReservationStatus.CONFIRMED, LocalDateTime.now(), null, null);
+        EquipmentReservationResponseDTO responseDTO = new EquipmentReservationResponseDTO(UUID.randomUUID(), "TV", "User", "101", LocalDate.now(), LocalTime.now(), LocalTime.now().plusHours(1), EquipmentReservationStatus.CONFIRMED, LocalDateTime.now(), null, null, null);
         when(facade.createReservation(requestDTO, "test@email.com")).thenReturn(responseDTO);
 
         // Act
@@ -56,7 +56,7 @@ class EquipmentReservationControllerTest {
     void handoverEquipment_ShouldReturnOk() {
         // Arrange
         UUID id = UUID.randomUUID();
-        EquipmentReservationResponseDTO responseDTO = new EquipmentReservationResponseDTO(id, "TV", "User", "101", LocalDate.now(), LocalTime.now(), LocalTime.now().plusHours(1), EquipmentReservationStatus.IN_USE, LocalDateTime.now(), LocalDateTime.now(), null);
+        EquipmentReservationResponseDTO responseDTO = new EquipmentReservationResponseDTO(id, "TV", "User", "101", LocalDate.now(), LocalTime.now(), LocalTime.now().plusHours(1), EquipmentReservationStatus.IN_USE, LocalDateTime.now(), LocalDateTime.now(), null, null);
         when(facade.handoverEquipment(id)).thenReturn(responseDTO);
 
         // Act
@@ -72,7 +72,7 @@ class EquipmentReservationControllerTest {
     void returnEquipment_ShouldReturnOk() {
         // Arrange
         UUID id = UUID.randomUUID();
-        EquipmentReservationResponseDTO responseDTO = new EquipmentReservationResponseDTO(id, "TV", "User", "101", LocalDate.now(), LocalTime.now(), LocalTime.now().plusHours(1), EquipmentReservationStatus.RETURNED, LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now());
+        EquipmentReservationResponseDTO responseDTO = new EquipmentReservationResponseDTO(id, "TV", "User", "101", LocalDate.now(), LocalTime.now(), LocalTime.now().plusHours(1), EquipmentReservationStatus.RETURNED, LocalDateTime.now(), LocalDateTime.now(), LocalDateTime.now(), null);
         when(facade.returnEquipment(id)).thenReturn(responseDTO);
 
         // Act
@@ -84,12 +84,49 @@ class EquipmentReservationControllerTest {
     }
 
     @Test
+    @DisplayName("Deve cancelar reserva de equipamento")
+    void cancelEquipmentReservation_ShouldReturnOk() {
+        // Arrange
+        UUID id = UUID.randomUUID();
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getName()).thenReturn("test@email.com");
+
+        EquipmentReservationResponseDTO responseDTO = new EquipmentReservationResponseDTO(id, "TV", "User", "101", LocalDate.now(), LocalTime.now(), LocalTime.now().plusHours(1), EquipmentReservationStatus.CANCELED, LocalDateTime.now(), null, null, LocalDateTime.now());
+        when(facade.cancelEquipmentReservation(id, "test@email.com")).thenReturn(responseDTO);
+
+        // Act
+        ResponseEntity<EquipmentReservationResponseDTO> response = controller.cancelEquipmentReservation(id, authentication);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(EquipmentReservationStatus.CANCELED, response.getBody().status());
+    }
+
+    @Test
+    @DisplayName("Deve listar as próprias reservas de equipamento")
+    void listMyReservations_ShouldReturnList() {
+        // Arrange
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getName()).thenReturn("test@email.com");
+
+        List<EquipmentReservationResponseDTO> list = List.of(new EquipmentReservationResponseDTO(UUID.randomUUID(), "TV", "User", "101", LocalDate.now(), LocalTime.now(), LocalTime.now().plusHours(1), EquipmentReservationStatus.CONFIRMED, LocalDateTime.now(), null, null, null));
+        when(facade.listMyReservations("test@email.com")).thenReturn(list);
+
+        // Act
+        ResponseEntity<List<EquipmentReservationResponseDTO>> response = controller.listMyReservations(authentication);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(1, response.getBody().size());
+    }
+
+    @Test
     @DisplayName("Deve listar reservas de equipamento")
     void listReservations_ShouldReturnList() {
         // Arrange
         LocalDate date = LocalDate.now();
         EquipmentReservationStatus status = EquipmentReservationStatus.CONFIRMED;
-        List<EquipmentReservationResponseDTO> list = List.of(new EquipmentReservationResponseDTO(UUID.randomUUID(), "TV", "User", "101", date, LocalTime.now(), LocalTime.now().plusHours(1), status, LocalDateTime.now(), null, null));
+        List<EquipmentReservationResponseDTO> list = List.of(new EquipmentReservationResponseDTO(UUID.randomUUID(), "TV", "User", "101", date, LocalTime.now(), LocalTime.now().plusHours(1), status, LocalDateTime.now(), null, null, null));
         when(facade.listReservations(date, status)).thenReturn(list);
 
         // Act

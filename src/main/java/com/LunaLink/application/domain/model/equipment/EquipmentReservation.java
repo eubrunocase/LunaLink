@@ -52,6 +52,8 @@ public class EquipmentReservation {
 
     private LocalDateTime returnedAt;
 
+    private LocalDateTime canceledAt;
+
     public EquipmentReservation(Equipment equipment, Users user, LocalDate date, LocalTime startTime, LocalTime endTime) {
         this.equipment = equipment;
         this.user = user;
@@ -143,5 +145,13 @@ public class EquipmentReservation {
 
     public void setReturnedAt(LocalDateTime returnedAt) {
         this.returnedAt = returnedAt;
+    }
+
+    public LocalDateTime getCanceledAt() {
+        return canceledAt;
+    }
+
+    public void setCanceledAt(LocalDateTime canceledAt) {
+        this.canceledAt = canceledAt;
     }
 }

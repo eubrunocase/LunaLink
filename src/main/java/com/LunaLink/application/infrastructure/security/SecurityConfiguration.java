@@ -100,12 +100,16 @@ public class SecurityConfiguration {
                         // Espaços (Escrita - Apenas Admin deveria criar espaços, se houver endpoint)
                         .requestMatchers(HttpMethod.POST,"/lunaLink/space/**").hasRole("ADMIN_ROLE")
 
-                        // ================= Equipamentos (US-02) =================
-                        // Morador cria reserva
+                        // ================= Equipamentos (US-04) =================
+                        // Morador cria reserva (self-service); Admin/Funcionário também podem registrar em nome do morador
                         .requestMatchers(HttpMethod.POST, "/lunaLink/equipment-reservation").authenticated()
-                        // Apenas Admin/Funcionário faz check-in/check-out e lista
-                        .requestMatchers(HttpMethod.PATCH, "/lunaLink/equipment-reservation/**").hasRole("ADMIN_ROLE")
-                        .requestMatchers(HttpMethod.GET, "/lunaLink/equipment-reservation/**").hasRole("ADMIN_ROLE")
+                        // Morador visualiza as próprias reservas de equipamento
+                        .requestMatchers(HttpMethod.GET, "/lunaLink/equipment-reservation/mine").authenticated()
+                        // Morador cancela a própria reserva; Admin/Funcionário cancelam por gestão (ordem importa: matcher específico antes do genérico)
+                        .requestMatchers(HttpMethod.PATCH, "/lunaLink/equipment-reservation/{id}/cancel").authenticated()
+                        // Apenas Admin/Funcionário faz check-in/check-out (handover/return) e lista
+                        .requestMatchers(HttpMethod.PATCH, "/lunaLink/equipment-reservation/**").hasAnyRole("ADMIN_ROLE", "EMPLOYEE")
+                        .requestMatchers(HttpMethod.GET, "/lunaLink/equipment-reservation/**").hasAnyRole("ADMIN_ROLE", "EMPLOYEE")
                         
                         // ================= Ocorrências (US-03) =================
                         // Abertura de ocorrência: restrita ao morador

@@ -16,5 +16,9 @@ public interface EquipmentReservationServicePort {
 
     EquipmentReservationResponseDTO returnEquipment(UUID id);
 
+    EquipmentReservationResponseDTO cancelEquipmentReservation(UUID id, String userEmail);
+
     List<EquipmentReservationResponseDTO> listReservations(LocalDate date, EquipmentReservationStatus status);
+
+    List<EquipmentReservationResponseDTO> listMyReservations(String userEmail);
 }

@@ -66,6 +66,20 @@ class EquipmentReservationFacadeTest {
     }
 
     @Test
+    @DisplayName("Deve cancelar reserva de equipamento")
+    void cancelEquipmentReservation_ShouldCallService() {
+        // Arrange
+        UUID id = UUID.randomUUID();
+        String email = "test@email.com";
+
+        // Act
+        facade.cancelEquipmentReservation(id, email);
+
+        // Assert
+        verify(servicePort, times(1)).cancelEquipmentReservation(id, email);
+    }
+
+    @Test
     @DisplayName("Deve listar reservas de equipamento")
     void listReservations_ShouldCallService() {
         // Arrange
@@ -77,5 +91,18 @@ class EquipmentReservationFacadeTest {
 
         // Assert
         verify(servicePort, times(1)).listReservations(date, status);
+    }
+
+    @Test
+    @DisplayName("Deve listar as próprias reservas de equipamento")
+    void listMyReservations_ShouldCallService() {
+        // Arrange
+        String email = "test@email.com";
+
+        // Act
+        facade.listMyReservations(email);
+
+        // Assert
+        verify(servicePort, times(1)).listMyReservations(email);
     }
 }

@@ -4,6 +4,7 @@ import com.LunaLink.application.application.ports.input.EquipmentReservationServ
 import com.LunaLink.application.application.ports.output.EquipmentReservationRepositoryPort;
 import com.LunaLink.application.application.ports.output.UserRepositoryPort;
 import com.LunaLink.application.domain.enums.EquipmentReservationStatus;
+import com.LunaLink.application.domain.enums.UserRoles;
 import com.LunaLink.application.domain.model.equipment.Equipment;
 import com.LunaLink.application.domain.model.equipment.EquipmentReservation;
 import com.LunaLink.application.domain.model.users.Users;
@@ -11,6 +12,7 @@ import com.LunaLink.application.infrastructure.repository.equipment.EquipmentRep
 import com.LunaLink.application.web.dto.EquipmentDTO.EquipmentReservationRequestDTO;
 import com.LunaLink.application.web.dto.EquipmentDTO.EquipmentReservationResponseDTO;
 import jakarta.transaction.Transactional;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -113,6 +115,30 @@ public class EquipmentReservationService implements EquipmentReservationServiceP
     }
 
     @Override
+    @Transactional
+    public EquipmentReservationResponseDTO cancelEquipmentReservation(UUID id, String userEmail) {
+        EquipmentReservation reservation = reservationRepositoryPort.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Reserva não encontrada."));
+
+        if (reservation.getStatus() != EquipmentReservationStatus.CONFIRMED) {
+            throw new IllegalStateException("Apenas reservas CONFIRMED podem ser canceladas. Status atual: " + reservation.getStatus());
+        }
+
+        Users currentUser = userRepository.findByEmail(userEmail);
+        boolean isManager = currentUser.getRole() == UserRoles.ADMIN_ROLE
+                || currentUser.getRole() == UserRoles.EMPLOYEE;
+
+        if (!isManager && !reservation.getUser().getEmail().equals(userEmail)) {
+            throw new AccessDeniedException("Você não pode cancelar uma reserva de outro morador.");
+        }
+
+        reservation.setStatus(EquipmentReservationStatus.CANCELED);
+        reservation.setCanceledAt(LocalDateTime.now());
+
+        return convertToDTO(reservationRepositoryPort.save(reservation));
+    }
+
+    @Override
     public List<EquipmentReservationResponseDTO> listReservations(LocalDate date, EquipmentReservationStatus status) {
         List<EquipmentReservation> reservations;
 
@@ -131,6 +157,14 @@ public class EquipmentReservationService implements EquipmentReservationServiceP
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<EquipmentReservationResponseDTO> listMyReservations(String userEmail) {
+        Users user = userRepository.findByEmail(userEmail);
+        return reservationRepositoryPort.findAllByUserId(user.getId()).stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
     private EquipmentReservationResponseDTO convertToDTO(EquipmentReservation r) {
         return new EquipmentReservationResponseDTO(
                 r.getId(),
@@ -143,7 +177,8 @@ public class EquipmentReservationService implements EquipmentReservationServiceP
                 r.getStatus(),
                 r.getCreatedAt(),
                 r.getPickedUpAt(),
-                r.getReturnedAt()
+                r.getReturnedAt(),
+                r.getCanceledAt()
         );
     }
 }

@@ -31,7 +31,15 @@ public class EquipmentReservationFacade {
         return servicePort.returnEquipment(id);
     }
 
+    public EquipmentReservationResponseDTO cancelEquipmentReservation(UUID id, String userEmail) {
+        return servicePort.cancelEquipmentReservation(id, userEmail);
+    }
+
     public List<EquipmentReservationResponseDTO> listReservations(LocalDate date, EquipmentReservationStatus status) {
         return servicePort.listReservations(date, status);
+    }
+
+    public List<EquipmentReservationResponseDTO> listMyReservations(String userEmail) {
+        return servicePort.listMyReservations(userEmail);
     }
 }

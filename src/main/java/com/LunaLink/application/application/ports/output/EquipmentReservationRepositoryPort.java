@@ -17,6 +17,8 @@ public interface EquipmentReservationRepositoryPort {
 
     List<EquipmentReservation> findAll();
 
+    List<EquipmentReservation> findAllByUserId(UUID userId);
+
     boolean hasConflict(
             Long equipmentId,
             LocalDate date,

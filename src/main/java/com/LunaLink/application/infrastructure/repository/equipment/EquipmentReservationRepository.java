@@ -50,4 +50,12 @@ public interface EquipmentReservationRepository extends JpaRepository<EquipmentR
 
     @Override
     List<EquipmentReservation> findAllByDateAndStatus(LocalDate date, EquipmentReservationStatus status);
+
+    @Override
+    @Query("""
+        SELECT r FROM EquipmentReservation r
+        WHERE r.user.id = :userId
+        ORDER BY r.date DESC, r.startTime DESC
+    """)
+    List<EquipmentReservation> findAllByUserId(@Param("userId") UUID userId);
 }

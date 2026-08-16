@@ -6,6 +6,7 @@ import com.LunaLink.application.web.dto.ErrorDTO.ValidationErrorDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -65,6 +66,19 @@ public class GlobalExceptionHandler {
                 request.getRequestURI()
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
+    // Trata tentativas de acesso sem permissão (ex: cancelar reserva de outro morador)
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<StandardErrorDTO> handleAccessDeniedException(AccessDeniedException ex, HttpServletRequest request) {
+        StandardErrorDTO error = new StandardErrorDTO(
+                LocalDateTime.now(),
+                HttpStatus.FORBIDDEN.value(),
+                "Forbidden",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
     // Trata os erros de dados não encontrados (ex: Usuário ou Espaço não existe)
