@@ -18,7 +18,14 @@ public interface ReservationRepositoryPort {
 
     Reservation save(Reservation reservation);
     void deleteById(UUID id);
-    List<Reservation> findAll();
+
+    @Query("""
+        SELECT r FROM Reservation r
+        JOIN FETCH r.user
+        JOIN FETCH r.space
+        ORDER BY r.date DESC
+    """)
+    List<Reservation> findAllWithUserAndSpace();
 
     boolean existsByUserAndDateAndSpace(Users user, LocalDate date, Space space);
     boolean existsByDateAndSpace(LocalDate date, Space space);
@@ -28,10 +35,34 @@ public interface ReservationRepositoryPort {
     boolean existsByDateAndSpaceAndStatusIn(LocalDate date, Space space, List<ReservationStatus> statuses);
     boolean existsByUserAndDateAndSpaceAndStatusIn(Users user, LocalDate date, Space space, List<ReservationStatus> statuses);
     boolean existsByDateAndStatusIn(LocalDate date, List<ReservationStatus> statuses);
+
+    List<Reservation> findActiveByDateAndSpaceTypes(LocalDate date, List<SpaceType> spaceTypes, List<ReservationStatus> statuses);
+
+    @Query("""
+        SELECT r FROM Reservation r
+        JOIN FETCH r.user
+        JOIN FETCH r.space
+        WHERE r.date = :date
+          AND r.status = :status
+          AND r.space.type IN :spaceTypes
+    """)
+    List<Reservation> findByDateAndStatusAndSpaceTypes(
+            @Param("date") LocalDate date,
+            @Param("status") ReservationStatus status,
+            @Param("spaceTypes") List<SpaceType> spaceTypes
+    );
     //ReservationResponseDTO findReservationById(UUID id);
 
     Optional<Reservation> findById(UUID id);
-    List<Reservation> findByUserId(UUID id);
+
+    @Query("""
+        SELECT r FROM Reservation r
+        JOIN FETCH r.user
+        JOIN FETCH r.space
+        WHERE r.user.id = :userId
+        ORDER BY r.date DESC
+    """)
+    List<Reservation> findByUserIdWithUserAndSpace(@Param("userId") UUID userId);
 
     /**
      * Busca todas as datas indisponíveis (com reservas) para um espaço em um mês específico
@@ -196,6 +227,12 @@ public interface ReservationRepositoryPort {
             @Param("spaceTypes") List<SpaceType> spaceTypes,
             @Param("afterId") UUID afterId,
             Pageable pageable
+    );
+
+    List<Reservation> findByDateAndStatusInAndSpaceTypes(
+            LocalDate date,
+            List<ReservationStatus> statuses,
+            List<SpaceType> spaceTypes
     );
 
 }

@@ -87,7 +87,8 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET,"/lunaLink/reservation/findByUser/**").authenticated()
 
                         // Reservas (Ações Administrativas Específicas)
-                        .requestMatchers(HttpMethod.GET,"/lunaLink/reservation").hasRole("ADMIN_ROLE")
+                        .requestMatchers(HttpMethod.GET,"/lunaLink/reservation").hasAnyRole("ADMIN_ROLE", "EMPLOYEE")
+                        .requestMatchers(HttpMethod.GET,"/lunaLink/reservation/pending-inspection").hasAnyRole("ADMIN_ROLE", "EMPLOYEE")
                         .requestMatchers(HttpMethod.GET,"/lunaLink/reservation/report/**").hasRole("ADMIN_ROLE")
                         .requestMatchers(HttpMethod.POST,"/lunaLink/reservation/report/**").hasRole("ADMIN_ROLE")
                         .requestMatchers(HttpMethod.DELETE,"/lunaLink/reservation/**").hasRole("ADMIN_ROLE")
@@ -118,6 +119,15 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/lunaLink/occurrences/{uuid}").authenticated()
                         .requestMatchers(HttpMethod.DELETE, "/lunaLink/occurrences/{uuid}").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/lunaLink/occurrences/{uuid}").authenticated()
+
+                        // ================= US-05: Vistoria, Termo de Responsabilidade e Convidados =================
+                        // Vistoria (pré/pós-evento): apenas Funcionário
+                        .requestMatchers(HttpMethod.POST, "/lunaLink/reservations/*/inspection").hasAnyRole("ADMIN_ROLE", "EMPLOYEE")
+                        // Termo de Responsabilidade: apenas morador (dono da reserva)
+                        .requestMatchers(HttpMethod.POST, "/lunaLink/reservations/*/liability-term/sign").authenticated()
+                        // Convidados: consulta (Funcionário/Admin) e check-in (Funcionário)
+                        .requestMatchers(HttpMethod.GET, "/lunaLink/reservations/*/guests").hasAnyRole("ADMIN_ROLE", "EMPLOYEE")
+                        .requestMatchers(HttpMethod.PATCH, "/lunaLink/reservations/*/guests/*/check-in").hasRole("EMPLOYEE")
 
                         // Qualquer outra requisição deve estar autenticada
                         .anyRequest().authenticated()

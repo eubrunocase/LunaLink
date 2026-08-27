@@ -1,7 +1,11 @@
 package com.LunaLink.application.web.mapperImpl;
 
+import com.LunaLink.application.domain.model.reservation.Guest;
+import com.LunaLink.application.domain.model.reservation.LiabilityTerm;
 import com.LunaLink.application.domain.model.reservation.Reservation;
 import com.LunaLink.application.infrastructure.mapper.reservation.ReservationMapper;
+import com.LunaLink.application.web.dto.ReservationsDTO.GuestResponseDTO;
+import com.LunaLink.application.web.dto.ReservationsDTO.LiabilityTermResponseDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationResponseDTO;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +28,9 @@ public class ReservationMapperImpl implements ReservationMapper {
                 mapResidentToDTO(reservation),
                 mapSpaceToDTO(reservation),
                 reservation.getStatus(),
+                reservation.getNotes(),
+                mapGuestListToDTO(reservation),
+                mapLiabilityTermToDTO(reservation),
                 reservation.getCreatedAt(),
                 reservation.getCanceledAt()
         );
@@ -69,6 +76,37 @@ public class ReservationMapperImpl implements ReservationMapper {
         return new ReservationResponseDTO.SpaceSummaryDTO(
                 reservation.getSpace().getId(),
                 reservation.getSpace().getType().toString()
+        );
+    }
+
+    private List<GuestResponseDTO> mapGuestListToDTO(Reservation reservation) {
+        if (reservation.getGuestList() == null || reservation.getGuestList().isEmpty()) {
+            return Collections.emptyList();
+        }
+        return reservation.getGuestList().stream()
+                .map(this::mapGuestToDTO)
+                .collect(Collectors.toList());
+    }
+
+    private GuestResponseDTO mapGuestToDTO(Guest guest) {
+        return new GuestResponseDTO(
+                guest.getId(),
+                guest.getName(),
+                guest.isCheckedIn(),
+                guest.getCheckedInAt()
+        );
+    }
+
+    private LiabilityTermResponseDTO mapLiabilityTermToDTO(Reservation reservation) {
+        LiabilityTerm term = reservation.getLiabilityTerm();
+        if (term == null) {
+            return null;
+        }
+        return new LiabilityTermResponseDTO(
+                term.getId(),
+                term.getContent(),
+                term.isSignedByResident(),
+                term.getSignedAt()
         );
     }
 

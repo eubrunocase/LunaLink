@@ -4,6 +4,7 @@ import com.LunaLink.application.application.facades.reservation.ReservationServi
 import com.LunaLink.application.application.ports.input.UserServicePort;
 import com.LunaLink.application.application.service.report.ReportExportJob;
 import com.LunaLink.application.domain.enums.ReportFormat;
+import com.LunaLink.application.web.dto.ReservationsDTO.InspectionPendingReservationDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.MonthlyReservationReportDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReportExportJobResponseDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationCreateDTO;
@@ -14,6 +15,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
@@ -63,6 +65,14 @@ public class ReservationController {
     public ResponseEntity<Void> deleteReservation (@PathVariable UUID id) {
         facade.deleteReservation(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/pending-inspection")
+    @PreAuthorize("hasAnyRole('ADMIN_ROLE', 'EMPLOYEE')")
+    public ResponseEntity<List<InspectionPendingReservationDTO>> getPendingInspection() {
+        List<InspectionPendingReservationDTO> reservations =
+            facade.findPendingInspectionReservations();
+        return ResponseEntity.ok(reservations);
     }
 
     @GetMapping("/{id}")

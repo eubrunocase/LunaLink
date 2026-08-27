@@ -2,6 +2,7 @@ package com.LunaLink.application.application.ports.input;
 
 import com.LunaLink.application.application.service.report.ReportExportJob;
 import com.LunaLink.application.domain.enums.ReportFormat;
+import com.LunaLink.application.web.dto.ReservationsDTO.InspectionPendingReservationDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.MonthlyReservationReportDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReportExportJobResponseDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationRequestDTO;
@@ -30,5 +31,7 @@ public interface ReservationServicePort {
     ReportExportJob getMonthlyReportExportFile(String jobId);
 
     List<ReservationResponseDTO> findReservationsByUserId(UUID userId);
+
+    List<InspectionPendingReservationDTO> findPendingInspectionReservations();
 
 }

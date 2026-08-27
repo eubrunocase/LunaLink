@@ -70,17 +70,17 @@ class ReservationRepositoryTest {
     }
 
     @Test
-    @DisplayName("Deve filtrar por status aprovado e espaços tarifados")
+    @DisplayName("Deve filtrar por status confirmado e espaços tarifados")
     void findReservationsForReport_shouldFilterByStatusAndSpaceTypes() {
-        Reservation aprovadaSalao = createReservation(10, salao, ReservationStatus.APPROVED);
+        Reservation aprovadaSalao = createReservation(10, salao, ReservationStatus.CONFIRMED);
         createReservation(11, churrasqueira, ReservationStatus.PENDING);
-        createReservation(12, academia, ReservationStatus.APPROVED);
+        createReservation(12, academia, ReservationStatus.CONFIRMED);
 
         entityManager.flush();
 
         List<Reservation> result = reservationRepository.findReservationsForReport(
                 5, 2026,
-                List.of(ReservationStatus.APPROVED),
+                List.of(ReservationStatus.CONFIRMED),
                 List.of(SpaceType.SALAO_FESTAS, SpaceType.CHURRASQUEIRA)
         );
 
@@ -91,16 +91,16 @@ class ReservationRepositoryTest {
     @Test
     @DisplayName("Keyset: retorna página ordenada por id e permite paginar após o último id")
     void findReservationsForReportPage_shouldReturnPagedKeyset() {
-        createReservation(1, salao, ReservationStatus.APPROVED);
-        createReservation(2, salao, ReservationStatus.APPROVED);
-        createReservation(3, salao, ReservationStatus.APPROVED);
+        createReservation(1, salao, ReservationStatus.CONFIRMED);
+        createReservation(2, salao, ReservationStatus.CONFIRMED);
+        createReservation(3, salao, ReservationStatus.CONFIRMED);
 
         entityManager.flush();
 
         UUID minUuid = new UUID(0L, 0L);
         List<Reservation> firstPage = reservationRepository.findReservationsForReportPage(
                 5, 2026,
-                List.of(ReservationStatus.APPROVED),
+                List.of(ReservationStatus.CONFIRMED),
                 List.of(SpaceType.SALAO_FESTAS, SpaceType.CHURRASQUEIRA),
                 minUuid,
                 PageRequest.of(0, 2)
@@ -111,7 +111,7 @@ class ReservationRepositoryTest {
 
         List<Reservation> secondPage = reservationRepository.findReservationsForReportPage(
                 5, 2026,
-                List.of(ReservationStatus.APPROVED),
+                List.of(ReservationStatus.CONFIRMED),
                 List.of(SpaceType.SALAO_FESTAS, SpaceType.CHURRASQUEIRA),
                 afterId,
                 PageRequest.of(0, 2)
@@ -129,12 +129,12 @@ class ReservationRepositoryTest {
     @Test
     @DisplayName("Keyset: retorna lista vazia quando não há reservas após o cursor")
     void findReservationsForReportPage_shouldReturnEmptyWhenAfterLast() {
-        Reservation last = createReservation(15, churrasqueira, ReservationStatus.APPROVED);
+        Reservation last = createReservation(15, churrasqueira, ReservationStatus.CONFIRMED);
         entityManager.flush();
 
         List<Reservation> result = reservationRepository.findReservationsForReportPage(
                 5, 2026,
-                List.of(ReservationStatus.APPROVED),
+                List.of(ReservationStatus.CONFIRMED),
                 List.of(SpaceType.SALAO_FESTAS, SpaceType.CHURRASQUEIRA),
                 last.getId(),
                 PageRequest.of(0, 2)

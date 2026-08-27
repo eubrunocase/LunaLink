@@ -4,6 +4,7 @@ import com.LunaLink.application.application.ports.input.UserServicePort;
 import com.LunaLink.application.application.ports.input.ReservationServicePort;
 import com.LunaLink.application.application.service.report.ReportExportJob;
 import com.LunaLink.application.domain.enums.ReportFormat;
+import com.LunaLink.application.web.dto.ReservationsDTO.InspectionPendingReservationDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.MonthlyReservationReportDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReportExportJobResponseDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReservationCreateDTO;
@@ -31,14 +32,16 @@ public class ReservationServiceFacade {
            return null;
        }
 
-        ResponseUserDTO user = userServicePort.findUserByEmail(email);
-        ReservationRequestDTO request = new ReservationRequestDTO(
-                user.id(),
-                data.date(),
-                data.spaceId()
-        );
+       ResponseUserDTO user = userServicePort.findUserByEmail(email);
+       ReservationRequestDTO request = new ReservationRequestDTO(
+               user.id(),
+               data.date(),
+               data.spaceId(),
+               data.notes(),
+               data.guestList()
+       );
 
-        return reservationService.createReservation(request);
+       return reservationService.createReservation(request);
     }
 
     public List<ReservationResponseDTO> findAllReservations () {
@@ -90,6 +93,10 @@ public class ReservationServiceFacade {
 
     public ReportExportJob getMonthlyReportExportFile(String jobId) {
         return reservationService.getMonthlyReportExportFile(jobId);
+    }
+
+    public List<InspectionPendingReservationDTO> findPendingInspectionReservations() {
+        return reservationService.findPendingInspectionReservations();
     }
 
 }

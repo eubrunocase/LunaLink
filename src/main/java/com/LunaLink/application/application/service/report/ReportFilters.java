@@ -7,7 +7,7 @@ import java.util.List;
 
 public final class ReportFilters {
 
-    public static final List<ReservationStatus> VALID_STATUSES = List.of(ReservationStatus.APPROVED);
+    public static final List<ReservationStatus> VALID_STATUSES = List.of(ReservationStatus.CONFIRMED);
     public static final List<SpaceType> BILLABLE_SPACE_TYPES = List.of(SpaceType.SALAO_FESTAS, SpaceType.CHURRASQUEIRA);
 
     private ReportFilters() {

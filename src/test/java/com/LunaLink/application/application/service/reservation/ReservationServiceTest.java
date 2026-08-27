@@ -10,6 +10,7 @@ import com.LunaLink.application.domain.enums.ReservationStatus;
 import com.LunaLink.application.domain.enums.SpaceType;
 import com.LunaLink.application.domain.enums.UserRoles;
 import com.LunaLink.application.domain.events.reservationEvents.ReservationApprovedEvent;
+import com.LunaLink.application.domain.events.reservationEvents.ReservationAwaitingInspectionEvent;
 import com.LunaLink.application.domain.events.reservationEvents.ReservationRejectedEvent;
 import com.LunaLink.application.domain.events.reservationEvents.ReservationRequestedEvent;
 import com.LunaLink.application.domain.model.reservation.Reservation;
@@ -82,7 +83,7 @@ class ReservationServiceTest {
         reservation.setUser(user);
         reservation.setSpace(space);
 
-        requestDTO = new ReservationRequestDTO(user.getId(), LocalDate.now().plusDays(1), space.getId());
+        requestDTO = new ReservationRequestDTO(user.getId(), LocalDate.now().plusDays(1), space.getId(), null, null);
     }
 
     @Test
@@ -91,12 +92,12 @@ class ReservationServiceTest {
         // Arrange
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(spaceRepository.findSpaceById(space.getId())).thenReturn(Optional.of(space));
-        when(reservationRepository.existsByDateAndStatusIn(any(), anyList())).thenReturn(false);
+        when(reservationRepository.findActiveByDateAndSpaceTypes(any(), anyList(), anyList())).thenReturn(List.of());
         when(reservationRepository.save(any(Reservation.class))).thenReturn(reservation);
         
         ReservationResponseDTO expectedResponse = new ReservationResponseDTO(
                 reservation.getId(), reservation.getDate(), null, null, 
-                ReservationStatus.PENDING, LocalDateTime.now(), null
+                ReservationStatus.PENDING, null, null, null, LocalDateTime.now(), null
         );
         when(reservationMapper.toDto(any(Reservation.class))).thenReturn(expectedResponse);
 
@@ -115,7 +116,23 @@ class ReservationServiceTest {
         // Arrange
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(spaceRepository.findSpaceById(space.getId())).thenReturn(Optional.of(space));
-        when(reservationRepository.existsByDateAndStatusIn(any(), anyList())).thenReturn(true);
+
+        Users otherUser = new Users("Other", "202", "other@test.com", "pass", UserRoles.RESIDENT_ROLE);
+        otherUser.setId(UUID.randomUUID());
+
+        Space salaoSpace = new Space();
+        salaoSpace.setId(10L);
+        salaoSpace.setType(SpaceType.SALAO_FESTAS);
+
+        Reservation existingReservation = new Reservation();
+        existingReservation.setId(UUID.randomUUID());
+        existingReservation.setDate(LocalDate.now().plusDays(1));
+        existingReservation.setStatus(ReservationStatus.CONFIRMED);
+        existingReservation.setUser(otherUser);
+        existingReservation.setSpace(salaoSpace);
+
+        when(reservationRepository.findActiveByDateAndSpaceTypes(any(), anyList(), anyList()))
+                .thenReturn(List.of(existingReservation));
 
         // Act & Assert
         IllegalStateException exception = assertThrows(IllegalStateException.class, 
@@ -126,24 +143,45 @@ class ReservationServiceTest {
     }
 
     @Test
-    @DisplayName("Deve aprovar reserva pendente com sucesso")
-    void approveReservation_ShouldUpdateStatus_WhenPending() {
+    @DisplayName("Deve aprovar reserva de Campo de Futebol e confirmar direto (sem vistoria)")
+    void approveReservation_ShouldConfirmDirectly_WhenCampoFutebol() {
         // Arrange
-        UUID reservationId = reservation.getId();
-        when(reservationRepository.findById(reservationId)).thenReturn(Optional.of(reservation));
-        when(reservationRepository.save(any(Reservation.class))).thenReturn(reservation);
-        
-        ReservationResponseDTO expectedResponse = new ReservationResponseDTO(
-                reservationId, reservation.getDate(), null, null, 
-                ReservationStatus.APPROVED, LocalDateTime.now(), null
-        );
+        Space campoFutebol = new Space();
+        campoFutebol.setId(2L);
+        campoFutebol.setType(SpaceType.CAMPO_FUTEBOL);
+
+        Reservation reservationCampo = new Reservation();
+        reservationCampo.setId(UUID.randomUUID());
+        reservationCampo.setDate(LocalDate.now().plusDays(1));
+        reservationCampo.setStatus(ReservationStatus.PENDING);
+        reservationCampo.setUser(user);
+        reservationCampo.setSpace(campoFutebol);
+
+        when(reservationRepository.findById(reservationCampo.getId())).thenReturn(Optional.of(reservationCampo));
+        when(reservationRepository.save(any(Reservation.class))).thenReturn(reservationCampo);
 
         // Act
-        ReservationResponseDTO result = service.approveReservation(reservationId);
+        ReservationResponseDTO result = service.approveReservation(reservationCampo.getId());
 
         // Assert
-        assertEquals(ReservationStatus.APPROVED, reservation.getStatus());
+        assertEquals(ReservationStatus.CONFIRMED, reservationCampo.getStatus());
         verify(publisher, times(1)).publishEvent(any(ReservationApprovedEvent.class));
+    }
+
+    @Test
+    @DisplayName("Deve aprovar reserva de Salão de Festas e aguardar vistoria")
+    void approveReservation_ShouldAwaitInspection_WhenSalaoFestas() {
+        // Arrange
+        when(reservationRepository.findById(reservation.getId())).thenReturn(Optional.of(reservation));
+        when(reservationRepository.save(any(Reservation.class))).thenReturn(reservation);
+
+        // Act
+        ReservationResponseDTO result = service.approveReservation(reservation.getId());
+
+        // Assert
+        assertEquals(ReservationStatus.AWAITING_INSPECTION, reservation.getStatus());
+        verify(publisher, times(1)).publishEvent(any(ReservationApprovedEvent.class));
+        verify(publisher, times(1)).publishEvent(any(ReservationAwaitingInspectionEvent.class));
     }
 
     @Test
@@ -183,7 +221,7 @@ class ReservationServiceTest {
         // Arrange
         when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
         when(spaceRepository.findSpaceById(space.getId())).thenReturn(Optional.of(space));
-        when(reservationRepository.existsByDateAndStatusIn(any(), anyList())).thenReturn(false);
+        when(reservationRepository.findActiveByDateAndSpaceTypes(any(), anyList(), anyList())).thenReturn(List.of());
 
         // Act
         Boolean isAvailable = service.checkAvaliability(LocalDate.now(), space.getId(), user.getId());
@@ -243,14 +281,14 @@ class ReservationServiceTest {
     }
 
     @Test
-    @DisplayName("Deve filtrar relatório por status aprovado e espaços tarifados")
-    void generateMonthlyReport_ShouldFilterByApprovedStatusAndBillableSpaces() {
+    @DisplayName("Deve filtrar relatório por status confirmado e espaços tarifados")
+    void generateMonthlyReport_ShouldFilterByConfirmedStatusAndBillableSpaces() {
         service.generateMonthlyReport(5, 2026);
 
         verify(reservationRepository).findReservationsForReport(
                 eq(5),
                 eq(2026),
-                eq(List.of(ReservationStatus.APPROVED)),
+                eq(List.of(ReservationStatus.CONFIRMED)),
                 eq(List.of(SpaceType.SALAO_FESTAS, SpaceType.CHURRASQUEIRA))
         );
     }

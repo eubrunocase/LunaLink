@@ -6,16 +6,21 @@ import com.LunaLink.application.application.service.report.ReportExportService;
 import com.LunaLink.application.application.service.report.ReportFilters;
 import com.LunaLink.application.domain.enums.ReportFormat;
 import com.LunaLink.application.domain.enums.ReservationStatus;
+import com.LunaLink.application.domain.enums.SpaceType;
 import com.LunaLink.application.domain.events.reservationEvents.ReservationApprovedEvent;
+import com.LunaLink.application.domain.events.reservationEvents.ReservationAwaitingInspectionEvent;
 import com.LunaLink.application.domain.events.reservationEvents.ReservationRejectedEvent;
 import com.LunaLink.application.domain.events.reservationEvents.ReservationRequestedEvent;
 import com.LunaLink.application.domain.model.space.Space;
 import com.LunaLink.application.domain.model.users.Users;
 import com.LunaLink.application.domain.model.reservation.Reservation;
+import com.LunaLink.application.infrastructure.config.SpaceEquipmentCatalog;
 import com.LunaLink.application.infrastructure.eventPublisher.EventPublisher;
 import com.LunaLink.application.infrastructure.mapper.reservation.ReservationMapper;
 import com.LunaLink.application.application.ports.input.ReservationServicePort;
 import com.LunaLink.application.application.ports.output.ReservationRepositoryPort;
+import com.LunaLink.application.domain.enums.InspectionType;
+import com.LunaLink.application.web.dto.ReservationsDTO.InspectionPendingReservationDTO;
 import com.LunaLink.application.infrastructure.repository.space.SpaceRepository;
 import com.LunaLink.application.web.dto.ReservationsDTO.MonthlyReservationReportDTO;
 import com.LunaLink.application.web.dto.ReservationsDTO.ReportExportJobResponseDTO;
@@ -27,6 +32,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -55,6 +61,19 @@ public class ReservationService implements ReservationServicePort {
         this.reportExportService = reportExportService;
     }
 
+    private static final List<SpaceType> EXCLUSIVE_SPACE_TYPES = List.of(
+            SpaceType.SALAO_FESTAS,
+            SpaceType.CHURRASQUEIRA,
+            SpaceType.CAMPO_FUTEBOL
+    );
+
+    private static final List<ReservationStatus> ACTIVE_STATUSES = List.of(
+            ReservationStatus.PENDING,
+            ReservationStatus.AWAITING_INSPECTION,
+            ReservationStatus.AWAITING_SIGNATURE,
+            ReservationStatus.CONFIRMED
+    );
+
     @Transactional
     @Override
     public ReservationResponseDTO createReservation(ReservationRequestDTO data)  {
@@ -63,13 +82,8 @@ public class ReservationService implements ReservationServicePort {
             Space s = spaceRepository.findSpaceById(data.spaceId())
                     .orElseThrow(() -> new IllegalArgumentException("Espaço não encontrado. Verifique o ID e tente novamente."));
 
-            List<ReservationStatus> activeStatuses = List.of(ReservationStatus.PENDING, ReservationStatus.APPROVED);
+            validateDailyExclusivity(data.date(), r.getId(), s.getType());
 
-            if (reservationRepository.existsByDateAndStatusIn(data.date(), activeStatuses)) {
-                throw new IllegalStateException(
-                        String.format("Data indisponível. Já existe uma reserva ativa (Pendente ou Aprovada) para o dia %s.",
-                                data.date()));
-            }
             Reservation reservation = new Reservation();
             reservation.setDate(data.date());
             reservation.setStatus(ReservationStatus.PENDING);
@@ -87,23 +101,51 @@ public class ReservationService implements ReservationServicePort {
             return reservationMapper.toDto(savedReservation);
     }
 
+    private void validateDailyExclusivity(LocalDate date, UUID requestingUserId, SpaceType requestedSpaceType) {
+        List<Reservation> activeReservations = reservationRepository
+                .findActiveByDateAndSpaceTypes(date, EXCLUSIVE_SPACE_TYPES, ACTIVE_STATUSES);
+
+        if (activeReservations.isEmpty()) {
+            return;
+        }
+
+        boolean sameUserHasAllReservations = activeReservations.stream()
+                .allMatch(r -> r.getUser().getId().equals(requestingUserId));
+
+        if (sameUserHasAllReservations) {
+            return;
+        }
+
+        boolean hasDifferentUserReservation = activeReservations.stream()
+                .anyMatch(r -> !r.getUser().getId().equals(requestingUserId));
+
+        if (hasDifferentUserReservation) {
+            throw new IllegalStateException(
+                    String.format("Data indisponível. Já existe uma reserva ativa para o dia %s em um dos espaços exclusivos (Salão de Festas, Churrasqueira ou Campo de Futebol).", date));
+        }
+    }
+
+    @Transactional(readOnly = true)
     public List<ReservationResponseDTO> findReservationByUserId(UUID userId) {
-        List<Reservation> reservations = reservationRepository.findByUserId(userId);
+        List<Reservation> reservations = reservationRepository.findByUserIdWithUserAndSpace(userId);
         return reservationMapper.toDtoLists(reservations);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ReservationResponseDTO> findReservationsByUserId(UUID userId) {
-        List<Reservation> reservations = reservationRepository.findByUserId(userId);
+        List<Reservation> reservations = reservationRepository.findByUserIdWithUserAndSpace(userId);
         return reservationMapper.toDtoLists(reservations);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<ReservationResponseDTO> findAllReservations() {
-        List<Reservation> reservations = reservationRepository.findAll();
+        List<Reservation> reservations = reservationRepository.findAllWithUserAndSpace();
         return reservationMapper.toDtoLists(reservations);
     }
 
+    @Transactional(readOnly = true)
     @Override
     public ReservationResponseDTO findReservationById(UUID id) {
         Optional<Reservation> reservation = reservationRepository.findById(id);
@@ -151,15 +193,17 @@ public class ReservationService implements ReservationServicePort {
         Users r = userRepository.findById(user).orElseThrow(() -> new IllegalArgumentException("ERRO: Resident not found"));
         Space s = spaceRepository.findSpaceById(spaceId).orElseThrow(() -> new IllegalArgumentException("ERRO: Space not found"));
 
-        List<ReservationStatus> activeStatuses = List.of(ReservationStatus.PENDING, ReservationStatus.APPROVED);
+        List<Reservation> activeReservations = reservationRepository
+                .findActiveByDateAndSpaceTypes(date, EXCLUSIVE_SPACE_TYPES, ACTIVE_STATUSES);
 
-        // Retorna falso se já houver qualquer reserva na data
-        if (reservationRepository.existsByDateAndStatusIn(date, activeStatuses)) {
-            System.out.println("Data indisponível: O condomínio já possui um evento reservado no dia " + date);
-            return false;
-        }
+        if (activeReservations.isEmpty()) {
             return true;
+        }
 
+        boolean sameUserHasAllReservations = activeReservations.stream()
+                .allMatch(res -> res.getUser().getId().equals(user));
+
+        return sameUserHasAllReservations;
     }
 
     @Transactional
@@ -172,16 +216,34 @@ public class ReservationService implements ReservationServicePort {
             throw new IllegalStateException("Apenas reservas com status PENDENTE podem ser aprovadas.");
         }
 
-        reservation.setStatus(ReservationStatus.APPROVED);
+        com.LunaLink.application.domain.enums.SpaceType spaceType = reservation.getSpace().getType();
+        boolean requiresInspection = com.LunaLink.application.infrastructure.config.SpaceEquipmentCatalog.requiresInspection(spaceType);
+
+        if (requiresInspection) {
+            reservation.setStatus(ReservationStatus.AWAITING_INSPECTION);
+        } else {
+            reservation.setStatus(ReservationStatus.CONFIRMED);
+        }
+
         Reservation savedReservation = reservationRepository.save(reservation);
 
-        ReservationApprovedEvent event = new ReservationApprovedEvent(
+        ReservationApprovedEvent approvedEvent = new ReservationApprovedEvent(
                 id,
                 reservation.getUser().getId(),
                 reservation.getDate(),
                 reservation.getSpace()
         );
-        publisher.publishEvent(event);
+        publisher.publishEvent(approvedEvent);
+
+        if (requiresInspection) {
+            ReservationAwaitingInspectionEvent inspectionEvent = new ReservationAwaitingInspectionEvent(
+                    id,
+                    reservation.getUser().getId(),
+                    reservation.getDate(),
+                    reservation.getSpace()
+            );
+            publisher.publishEvent(inspectionEvent);
+        }
 
         return convertToDTO(savedReservation);
     }
@@ -245,6 +307,47 @@ public class ReservationService implements ReservationServicePort {
         return reportExportService.getReadyJob(jobId);
     }
 
+    @Override
+    public List<InspectionPendingReservationDTO> findPendingInspectionReservations() {
+        List<SpaceType> inspectionSpaces = List.of(SpaceType.SALAO_FESTAS, SpaceType.CHURRASQUEIRA);
+
+        List<Reservation> preEventReservations = reservationRepository
+            .findByDateAndStatusInAndSpaceTypes(
+                LocalDate.now(),
+                List.of(ReservationStatus.AWAITING_INSPECTION),
+                inspectionSpaces
+            );
+
+        List<Reservation> postEventReservations = reservationRepository
+            .findByDateAndStatusInAndSpaceTypes(
+                LocalDate.now().minusDays(1),
+                List.of(ReservationStatus.CONFIRMED),
+                inspectionSpaces
+            );
+
+        List<InspectionPendingReservationDTO> result = new ArrayList<>();
+
+        preEventReservations.forEach(r -> result.add(new InspectionPendingReservationDTO(
+            r.getId(),
+            r.getDate(),
+            r.getSpace().getType(),
+            r.getSpace().getType().name(),
+            InspectionType.PRE_EVENT,
+            r.getUser().getName()
+        )));
+
+        postEventReservations.forEach(r -> result.add(new InspectionPendingReservationDTO(
+            r.getId(),
+            r.getDate(),
+            r.getSpace().getType(),
+            r.getSpace().getType().name(),
+            InspectionType.POST_EVENT,
+            r.getUser().getName()
+        )));
+
+        return result;
+    }
+
     private MonthlyReservationReportDTO convertToReportDTO(Reservation reservation) {
         return new MonthlyReservationReportDTO(
                 reservation.getUser().getName(),
@@ -255,22 +358,7 @@ public class ReservationService implements ReservationServicePort {
     }
 
     private ReservationResponseDTO convertToDTO(Reservation reservation) {
-        return new ReservationResponseDTO(
-                reservation.getId(),
-                reservation.getDate(),
-                new ReservationResponseDTO.UserSummaryDTO(
-                        reservation.getUser().getId(),
-                        reservation.getUser().getName(),
-                        reservation.getUser().getEmail()
-                ),
-                new ReservationResponseDTO.SpaceSummaryDTO(
-                        reservation.getSpace().getId(),
-                        reservation.getSpace().getType().toString()
-                ),
-                reservation.getStatus(),
-                reservation.getCreatedAt(),
-                reservation.getCanceledAt()
-        );
+        return reservationMapper.toDto(reservation);
     }
 
 }

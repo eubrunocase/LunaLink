@@ -25,10 +25,40 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID>,
     boolean existsByDateAndSpaceAndStatusIn(LocalDate date, Space space, List<ReservationStatus> statuses);
     boolean existsByUserAndDateAndSpaceAndStatusIn(Users user, LocalDate date, Space space, List<ReservationStatus> statuses);
     boolean existsByDateAndStatusIn(LocalDate date, List<ReservationStatus> statuses);
+
+    @Query("""
+        SELECT r FROM Reservation r
+        JOIN FETCH r.user
+        JOIN FETCH r.space
+        WHERE r.date = :date
+          AND r.space.type IN :spaceTypes
+          AND r.status IN :statuses
+    """)
+    List<Reservation> findActiveByDateAndSpaceTypes(
+            @Param("date") LocalDate date,
+            @Param("spaceTypes") List<SpaceType> spaceTypes,
+            @Param("statuses") List<ReservationStatus> statuses
+    );
     //ReservationResponseDTO findReservationById(UUID id);
 
     Optional<Reservation> findById(UUID id);
-    List<Reservation> findByUserId(UUID id);
+
+    @Query("""
+        SELECT r FROM Reservation r
+        JOIN FETCH r.user
+        JOIN FETCH r.space
+        ORDER BY r.date DESC
+    """)
+    List<Reservation> findAllWithUserAndSpace();
+
+    @Query("""
+        SELECT r FROM Reservation r
+        JOIN FETCH r.user
+        JOIN FETCH r.space
+        WHERE r.user.id = :userId
+        ORDER BY r.date DESC
+    """)
+    List<Reservation> findByUserIdWithUserAndSpace(@Param("userId") UUID userId);
 
     /**
      * Busca todas as datas indisponíveis (com reservas) para um espaço em um mês específico
@@ -186,6 +216,18 @@ public interface ReservationRepository extends JpaRepository<Reservation, UUID>,
             @Param("spaceTypes") List<SpaceType> spaceTypes,
             @Param("afterId") UUID afterId,
             Pageable pageable
+    );
+
+    @Query("SELECT r FROM Reservation r " +
+           "JOIN FETCH r.user u " +
+           "JOIN FETCH r.space s " +
+           "WHERE r.date = :date " +
+           "AND r.status IN :statuses " +
+           "AND s.type IN :spaceTypes")
+    List<Reservation> findByDateAndStatusInAndSpaceTypes(
+        @Param("date") LocalDate date,
+        @Param("statuses") List<ReservationStatus> statuses,
+        @Param("spaceTypes") List<SpaceType> spaceTypes
     );
 
 }

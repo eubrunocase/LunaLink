@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public record ReservationResponseDTO(@JsonProperty("id") UUID id,
@@ -12,6 +13,9 @@ public record ReservationResponseDTO(@JsonProperty("id") UUID id,
                                      @JsonProperty("user") UserSummaryDTO user,
                                      @JsonProperty("space") SpaceSummaryDTO space,
                                      @JsonProperty("status") ReservationStatus status,
+                                     @JsonProperty("notes") String notes,
+                                     @JsonProperty("guestList") List<GuestResponseDTO> guestList,
+                                     @JsonProperty("liabilityTerm") LiabilityTermResponseDTO liabilityTerm,
                                      @JsonProperty("createdAt") LocalDateTime createdAt,
                                      @JsonProperty("canceledAt") LocalDateTime canceledAt) {
 

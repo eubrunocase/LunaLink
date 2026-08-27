@@ -75,7 +75,7 @@ class ReportExportServiceTest {
         Reservation r = new Reservation();
         r.setId(UUID.randomUUID());
         r.setDate(LocalDate.of(2026, 5, day));
-        r.setStatus(ReservationStatus.APPROVED);
+        r.setStatus(ReservationStatus.CONFIRMED);
         r.assignTo(user, space);
         return r;
     }

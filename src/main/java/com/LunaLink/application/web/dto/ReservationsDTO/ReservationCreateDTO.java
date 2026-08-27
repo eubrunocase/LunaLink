@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record ReservationCreateDTO(@JsonProperty("date")
                                    @Valid
@@ -14,6 +15,12 @@ public record ReservationCreateDTO(@JsonProperty("date")
                                    @JsonProperty("space")
                                    @Valid
                                    @NotNull(message = "ID do espaço é obrigatório")
-                                   Long spaceId
+                                   Long spaceId,
+
+                                   @JsonProperty("notes")
+                                   String notes,
+
+                                   @JsonProperty("guestList")
+                                   List<String> guestList
 ) {
 }

@@ -45,11 +45,11 @@ class ReservationControllerTest {
     @DisplayName("Deve criar nova reserva")
     void createNewReservation_ShouldReturnCreated() {
         // Arrange
-        ReservationCreateDTO createDTO = new ReservationCreateDTO(LocalDate.now(), 1L);
+        ReservationCreateDTO createDTO = new ReservationCreateDTO(LocalDate.now(), 1L, null, null);
         Authentication authentication = mock(Authentication.class);
         when(authentication.getName()).thenReturn("testUser@email.com");
 
-        ReservationResponseDTO responseDTO = new ReservationResponseDTO(UUID.randomUUID(), LocalDate.now(), null, null, ReservationStatus.PENDING, LocalDateTime.now(), null);
+        ReservationResponseDTO responseDTO = new ReservationResponseDTO(UUID.randomUUID(), LocalDate.now(), null, null, ReservationStatus.PENDING, null, null, null, LocalDateTime.now(), null);
         when(facade.createReservationForAuthenticatedUser(createDTO, "testUser@email.com")).thenReturn(responseDTO);
 
         // Act
@@ -64,7 +64,7 @@ class ReservationControllerTest {
     @DisplayName("Deve listar reservas")
     void listReservations_ShouldReturnList() {
         // Arrange
-        List<ReservationResponseDTO> reservations = List.of(new ReservationResponseDTO(UUID.randomUUID(), LocalDate.now(), null, null, ReservationStatus.PENDING, LocalDateTime.now(), null));
+        List<ReservationResponseDTO> reservations = List.of(new ReservationResponseDTO(UUID.randomUUID(), LocalDate.now(), null, null, ReservationStatus.PENDING, null, null, null, LocalDateTime.now(), null));
         when(facade.findAllReservations()).thenReturn(reservations);
 
         // Act
@@ -94,7 +94,7 @@ class ReservationControllerTest {
     void findReservationById_ShouldReturnReservation() {
         // Arrange
         UUID id = UUID.randomUUID();
-        ReservationResponseDTO responseDTO = new ReservationResponseDTO(id, LocalDate.now(), null, null, ReservationStatus.PENDING, LocalDateTime.now(), null);
+        ReservationResponseDTO responseDTO = new ReservationResponseDTO(id, LocalDate.now(), null, null, ReservationStatus.PENDING, null, null, null, LocalDateTime.now(), null);
         when(facade.findReservationById(id)).thenReturn(responseDTO);
 
         // Act
@@ -110,8 +110,8 @@ class ReservationControllerTest {
     void updateReservation_ShouldReturnUpdated() {
         // Arrange
         UUID id = UUID.randomUUID();
-        ReservationRequestDTO requestDTO = new ReservationRequestDTO(UUID.randomUUID(), LocalDate.now(), 1L);
-        ReservationResponseDTO responseDTO = new ReservationResponseDTO(id, LocalDate.now(), null, null, ReservationStatus.PENDING, LocalDateTime.now(), null);
+        ReservationRequestDTO requestDTO = new ReservationRequestDTO(UUID.randomUUID(), LocalDate.now(), 1L, null, null);
+        ReservationResponseDTO responseDTO = new ReservationResponseDTO(id, LocalDate.now(), null, null, ReservationStatus.PENDING, null, null, null, LocalDateTime.now(), null);
         when(facade.updateReservation(id, requestDTO)).thenReturn(responseDTO);
 
         // Act
@@ -148,7 +148,7 @@ class ReservationControllerTest {
     void approveReservation_ShouldReturnApproved() {
         // Arrange
         UUID id = UUID.randomUUID();
-        ReservationResponseDTO responseDTO = new ReservationResponseDTO(id, LocalDate.now(), null, null, ReservationStatus.APPROVED, LocalDateTime.now(), null);
+        ReservationResponseDTO responseDTO = new ReservationResponseDTO(id, LocalDate.now(), null, null, ReservationStatus.CONFIRMED, null, null, null, LocalDateTime.now(), null);
         when(facade.approveReservation(id)).thenReturn(responseDTO);
 
         // Act
@@ -156,7 +156,7 @@ class ReservationControllerTest {
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(ReservationStatus.APPROVED, response.getBody().status());
+        assertEquals(ReservationStatus.CONFIRMED, response.getBody().status());
     }
 
     @Test
@@ -164,7 +164,7 @@ class ReservationControllerTest {
     void rejectReservation_ShouldReturnRejected() {
         // Arrange
         UUID id = UUID.randomUUID();
-        ReservationResponseDTO responseDTO = new ReservationResponseDTO(id, LocalDate.now(), null, null, ReservationStatus.REJECTED, LocalDateTime.now(), null);
+        ReservationResponseDTO responseDTO = new ReservationResponseDTO(id, LocalDate.now(), null, null, ReservationStatus.REJECTED, null, null, null, LocalDateTime.now(), null);
         when(facade.rejectReservation(id)).thenReturn(responseDTO);
 
         // Act

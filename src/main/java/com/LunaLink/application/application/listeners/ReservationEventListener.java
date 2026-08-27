@@ -3,9 +3,7 @@ package com.LunaLink.application.application.listeners;
 import com.LunaLink.application.application.ports.output.UserRepositoryPort;
 import com.LunaLink.application.application.service.notification.WebPushService;
 import com.LunaLink.application.domain.enums.UserRoles;
-import com.LunaLink.application.domain.events.reservationEvents.ReservationApprovedEvent;
-import com.LunaLink.application.domain.events.reservationEvents.ReservationRejectedEvent;
-import com.LunaLink.application.domain.events.reservationEvents.ReservationRequestedEvent;
+import com.LunaLink.application.domain.events.reservationEvents.*;
 import com.LunaLink.application.domain.model.users.Users;
 import com.LunaLink.application.web.dto.NotificationDTO.NotificationDTO;
 import org.springframework.context.event.EventListener;
@@ -44,11 +42,8 @@ public class ReservationEventListener {
                     LocalDateTime.now()
             );
             
-            // 1. Enviar via WebSocket (Para painel aberto)
             String destination = "/topic/notifications/" + admin.getId();
             messagingTemplate.convertAndSend(destination, notification);
-            
-            // 2. Enviar via Web Push (Para PWA em background)
             webPushService.sendPushNotificationToUser(admin, notification);
         }
     }
@@ -60,18 +55,96 @@ public class ReservationEventListener {
 
         if (residentOpt.isPresent()) {
             Users resident = residentOpt.get();
-            NotificationDTO notification = new NotificationDTO(
-                    "Reserva Aprovada!",
-                    "Sua reserva para o dia " + event.getDate() + " foi aprovada.",
+
+            NotificationDTO notificationToAdmin = new NotificationDTO(
+                    "Reserva Aprovada",
+                    "A reserva do espaço " + event.getSpace().getType() +
+                            " para o dia " + event.getDate() + " foi aprovada.",
                     "RESERVATION_APPROVED",
                     LocalDateTime.now()
             );
-            
-            // 1. Enviar via WebSocket
+
+            List<Users> admins = repository.findByRole(UserRoles.ADMIN_ROLE);
+            for (Users admin : admins) {
+                String destination = "/topic/notifications/" + admin.getId();
+                messagingTemplate.convertAndSend(destination, notificationToAdmin);
+                webPushService.sendPushNotificationToUser(admin, notificationToAdmin);
+            }
+
+            NotificationDTO notificationToResident = new NotificationDTO(
+                    "Reserva Aprovada!",
+                    "Sua reserva para o dia " + event.getDate() +
+                            " foi aprovada. Aguardando vistoria.",
+                    "RESERVATION_APPROVED",
+                    LocalDateTime.now()
+            );
+
+            String destination = "/topic/notifications/" + resident.getId();
+            messagingTemplate.convertAndSend(destination, notificationToResident);
+            webPushService.sendPushNotificationToUser(resident, notificationToResident);
+        }
+    }
+
+    @Async
+    @EventListener
+    public void handleReservationAwaitingInspectionEvent(ReservationAwaitingInspectionEvent event) {
+        List<Users> employees = repository.findByRole(UserRoles.EMPLOYEE);
+        for (Users employee : employees) {
+            NotificationDTO notification = new NotificationDTO(
+                    "Vistoria Necessária",
+                    "A reserva do espaço " + event.getSpace().getType() +
+                            " para o dia " + event.getDate() +
+                            " foi aprovada e aguarda vistoria pré-evento.",
+                    "RESERVATION_AWAITING_INSPECTION",
+                    LocalDateTime.now()
+            );
+
+            String destination = "/topic/notifications/" + employee.getId();
+            messagingTemplate.convertAndSend(destination, notification);
+            webPushService.sendPushNotificationToUser(employee, notification);
+        }
+    }
+
+    @Async
+    @EventListener
+    public void handleReservationAwaitingSignatureEvent(ReservationAwaitingSignatureEvent event) {
+        Optional<Users> residentOpt = repository.findById(event.getUserId());
+
+        if (residentOpt.isPresent()) {
+            Users resident = residentOpt.get();
+            NotificationDTO notification = new NotificationDTO(
+                    "Termo de Responsabilidade Disponível",
+                    "A vistoria do espaço " + event.getSpace().getType() +
+                            " para o dia " + event.getDate() +
+                            " foi concluída. Por favor, assine o termo de responsabilidade.",
+                    "RESERVATION_AWAITING_SIGNATURE",
+                    LocalDateTime.now()
+            );
+
             String destination = "/topic/notifications/" + resident.getId();
             messagingTemplate.convertAndSend(destination, notification);
-            
-            // 2. Enviar via Web Push
+            webPushService.sendPushNotificationToUser(resident, notification);
+        }
+    }
+
+    @Async
+    @EventListener
+    public void handleReservationConfirmedEvent(ReservationConfirmedEvent event) {
+        Optional<Users> residentOpt = repository.findById(event.getUserId());
+
+        if (residentOpt.isPresent()) {
+            Users resident = residentOpt.get();
+            NotificationDTO notification = new NotificationDTO(
+                    "Reserva Confirmada!",
+                    "Sua reserva do espaço " + event.getSpace().getType() +
+                            " para o dia " + event.getDate() +
+                            " foi confirmada com sucesso.",
+                    "RESERVATION_CONFIRMED",
+                    LocalDateTime.now()
+            );
+
+            String destination = "/topic/notifications/" + resident.getId();
+            messagingTemplate.convertAndSend(destination, notification);
             webPushService.sendPushNotificationToUser(resident, notification);
         }
     }
@@ -90,11 +163,8 @@ public class ReservationEventListener {
                     LocalDateTime.now()
             );
             
-            // 1. Enviar via WebSocket
             String destination = "/topic/notifications/" + resident.getId();
             messagingTemplate.convertAndSend(destination, notification);
-            
-            // 2. Enviar via Web Push
             webPushService.sendPushNotificationToUser(resident, notification);
         }
     }

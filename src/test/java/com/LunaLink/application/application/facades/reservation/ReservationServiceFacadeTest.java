@@ -37,7 +37,7 @@ class ReservationServiceFacadeTest {
     void createReservationForAuthenticatedUser_ShouldCallService_WhenValidData() {
         // Arrange
         String email = "testUser@email.com";
-        ReservationCreateDTO createDTO = new ReservationCreateDTO(LocalDate.now(), 1L);
+        ReservationCreateDTO createDTO = new ReservationCreateDTO(LocalDate.now(), 1L, null, null);
         ResponseUserDTO userDTO = new ResponseUserDTO(UUID.randomUUID(), "Test User", "101", email, UserRoles.RESIDENT_ROLE, null);
 
         when(userServicePort.findUserByEmail(email)).thenReturn(userDTO);
@@ -90,7 +90,7 @@ class ReservationServiceFacadeTest {
     void updateReservation_ShouldCallService() {
         // Arrange
         UUID id = UUID.randomUUID();
-        ReservationRequestDTO requestDTO = new ReservationRequestDTO(UUID.randomUUID(), LocalDate.now(), 1L);
+        ReservationRequestDTO requestDTO = new ReservationRequestDTO(UUID.randomUUID(), LocalDate.now(), 1L, null, null);
 
         // Act
         facade.updateReservation(id, requestDTO);
