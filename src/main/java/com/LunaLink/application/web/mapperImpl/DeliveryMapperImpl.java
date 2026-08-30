@@ -20,7 +20,7 @@ public class DeliveryMapperImpl implements DeliveryMapper {
                                        delivery.getUserId(),
                                        delivery.getProtocolNumber(),
                                        delivery.getDiscrimination(),
-                                       delivery.getImage(),
+                                       delivery.getVoucherKey(),
                                        delivery.getCreatedAt(),
                                        delivery.getCreatedBy(),
                                        delivery.getOtherRecipient(),
@@ -37,7 +37,7 @@ public class DeliveryMapperImpl implements DeliveryMapper {
         return new Delivery(deliveryDTO.userId(),
                             deliveryDTO.protocolNumber(),
                             deliveryDTO.discrimination(),
-                            deliveryDTO.image(),
+                            deliveryDTO.voucherKey(),
                             deliveryDTO.otherRecipient());
     }
 

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -53,6 +54,19 @@ public class DeliveryController {
     public ResponseEntity<ResponseDeliveryDTO> confirmReceipt(@PathVariable UUID id, @RequestParam(required = false) String pickedUpBy) {
         ResponseDeliveryDTO responseDeliveryDTO = deliveryFacade.confirmReceipt(id, pickedUpBy);
         return ResponseEntity.ok(responseDeliveryDTO);
+    }
+
+    @PostMapping("/upload-url")
+    public ResponseEntity<Map<String, String>> generateUploadUrl(@RequestParam UUID userId,
+                                                                 @RequestParam String fileName) {
+        Map<String, String> uploadData = deliveryFacade.generateUploadData(userId, fileName);
+        return ResponseEntity.ok(uploadData);
+    }
+
+    @GetMapping("/{id}/download-url")
+    public ResponseEntity<Map<String, String>> generateDownloadUrl(@PathVariable UUID id) {
+        String downloadUrl = deliveryFacade.generateDownloadUrl(id);
+        return ResponseEntity.ok(Map.of("downloadUrl", downloadUrl));
     }
 
 }

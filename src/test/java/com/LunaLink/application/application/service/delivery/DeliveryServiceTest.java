@@ -1,5 +1,6 @@
 package com.LunaLink.application.application.service.delivery;
 
+import com.LunaLink.application.application.ports.input.StorageService;
 import com.LunaLink.application.application.ports.output.DeliveryRepositoryPort;
 import com.LunaLink.application.domain.enums.DeliveryStatus;
 import com.LunaLink.application.domain.events.deliveryEvents.DeliveryCreatedEvent;
@@ -8,18 +9,23 @@ import com.LunaLink.application.infrastructure.eventPublisher.EventPublisher;
 import com.LunaLink.application.infrastructure.mapper.delivery.DeliveryMapper;
 import com.LunaLink.application.web.dto.DeliveryDTO.RequestDeliveryDTO;
 import com.LunaLink.application.web.dto.DeliveryDTO.ResponseDeliveryDTO;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,8 +40,17 @@ class DeliveryServiceTest {
     @Mock
     private EventPublisher publisher;
 
+    @Mock
+    private StorageService storageService;
+
     @InjectMocks
     private DeliveryService service;
+
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(service, "uploadExpirationMinutes", 15L);
+        ReflectionTestUtils.setField(service, "downloadExpirationMinutes", 15L);
+    }
 
     @Test
     @DisplayName("Deve criar uma entrega com sucesso e publicar evento")
@@ -147,5 +162,84 @@ class DeliveryServiceTest {
             () -> service.confirmReceipt(deliveryId, "Alguém"));
             
         assertEquals("Encomenda não encontrada", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Deve gerar dados de upload com key no formato correto")
+    void generateUploadData_ShouldReturnUploadUrlAndKey() {
+        UUID userId = UUID.randomUUID();
+        String fileName = "comprovante.jpg";
+        String expectedUploadUrl = "http://minio:9000/lunalink/upload-url?X-Amz-Algorithm=...";
+
+        when(storageService.generateUploadUrl(any(String.class), any(Duration.class)))
+                .thenReturn(expectedUploadUrl);
+
+        Map<String, String> result = service.generateUploadData(userId, fileName);
+
+        assertNotNull(result);
+        assertTrue(result.containsKey("uploadUrl"));
+        assertTrue(result.containsKey("key"));
+        assertEquals(expectedUploadUrl, result.get("uploadUrl"));
+        assertTrue(result.get("key").startsWith("encomendas/" + userId + "/"));
+        assertTrue(result.get("key").endsWith("-" + fileName));
+
+        verify(storageService).generateUploadUrl(
+                eq(result.get("key")),
+                eq(Duration.ofMinutes(15))
+        );
+    }
+
+    @Test
+    @DisplayName("Deve gerar key com UUID aleatório no nome do arquivo")
+    void generateUploadData_ShouldGenerateUniqueKey() {
+        UUID userId = UUID.randomUUID();
+        String fileName = "nota-fiscal.pdf";
+
+        when(storageService.generateUploadUrl(any(String.class), any(Duration.class)))
+                .thenReturn("http://url");
+
+        Map<String, String> result1 = service.generateUploadData(userId, fileName);
+        Map<String, String> result2 = service.generateUploadData(userId, fileName);
+
+        assertNotEquals(result1.get("key"), result2.get("key"));
+    }
+
+    @Test
+    @DisplayName("Deve gerar URL de download usando voucherKey da encomenda")
+    void generateDownloadUrl_ShouldReturnUrl_WhenDeliveryExists() {
+        UUID deliveryId = UUID.randomUUID();
+        String voucherKey = "encomendas/user-uuid/abc-comprovante.jpg";
+        String expectedDownloadUrl = "http://minio:9000/lunalink/download-url?X-Amz-Algorithm=...";
+
+        Delivery delivery = new Delivery();
+        delivery.setVoucherKey(voucherKey);
+
+        when(repository.findDeliveryById(deliveryId)).thenReturn(delivery);
+        when(storageService.generateDownloadUrl(eq(voucherKey), any(Duration.class)))
+                .thenReturn(expectedDownloadUrl);
+
+        String result = service.generateDownloadUrl(deliveryId);
+
+        assertNotNull(result);
+        assertEquals(expectedDownloadUrl, result);
+
+        verify(storageService).generateDownloadUrl(
+                eq(voucherKey),
+                eq(Duration.ofMinutes(15))
+        );
+    }
+
+    @Test
+    @DisplayName("Deve lançar exceção ao gerar download URL para encomenda inexistente")
+    void generateDownloadUrl_ShouldThrowException_WhenDeliveryNotFound() {
+        UUID deliveryId = UUID.randomUUID();
+
+        when(repository.findDeliveryById(deliveryId)).thenReturn(null);
+
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> service.generateDownloadUrl(deliveryId));
+
+        assertEquals("Encomenda não encontrada", exception.getMessage());
+        verify(storageService, never()).generateDownloadUrl(any(), any());
     }
 }

@@ -1,6 +1,7 @@
 package com.LunaLink.application.application.service.delivery;
 
 import com.LunaLink.application.application.ports.input.DeliveryServicePort;
+import com.LunaLink.application.application.ports.input.StorageService;
 import com.LunaLink.application.application.ports.output.DeliveryRepositoryPort;
 import com.LunaLink.application.domain.enums.DeliveryStatus;
 import com.LunaLink.application.domain.events.deliveryEvents.DeliveryCreatedEvent;
@@ -10,23 +11,36 @@ import com.LunaLink.application.infrastructure.mapper.delivery.DeliveryMapper;
 import com.LunaLink.application.web.dto.DeliveryDTO.RequestDeliveryDTO;
 import com.LunaLink.application.web.dto.DeliveryDTO.ResponseDeliveryDTO;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
 public class DeliveryService implements DeliveryServicePort {
 
-
     private final DeliveryRepositoryPort repository;
     private final DeliveryMapper mapper;
     private final EventPublisher publisher;
+    private final StorageService storageService;
 
-    public DeliveryService(DeliveryRepositoryPort repository, DeliveryMapper mapper, EventPublisher publisher) {
+    @Value("${minio.presigned.upload-expiration-minutes:15}")
+    private long uploadExpirationMinutes;
+
+    @Value("${minio.presigned.download-expiration-minutes:15}")
+    private long downloadExpirationMinutes;
+
+    public DeliveryService(DeliveryRepositoryPort repository,
+                           DeliveryMapper mapper,
+                           EventPublisher publisher,
+                           StorageService storageService) {
         this.repository = repository;
         this.mapper = mapper;
         this.publisher = publisher;
+        this.storageService = storageService;
     }
 
     @Override
@@ -83,7 +97,7 @@ public class DeliveryService implements DeliveryServicePort {
         deliveryForUpdate.setProtocolNumber(requestDeliveryDTO.protocolNumber());
         deliveryForUpdate.setDiscrimination(requestDeliveryDTO.discrimination());
         deliveryForUpdate.setUserId(requestDeliveryDTO.userId());
-        deliveryForUpdate.setImage(requestDeliveryDTO.image());
+        deliveryForUpdate.setVoucherKey(requestDeliveryDTO.voucherKey());
         deliveryForUpdate.setOtherRecipient(requestDeliveryDTO.otherRecipient());
         return mapper.toDTO(repository.save(deliveryForUpdate));
     }
@@ -101,6 +115,24 @@ public class DeliveryService implements DeliveryServicePort {
 
         delivery.markAsDelivered(pickedUpBy);
         return mapper.toDTO(repository.save(delivery));
+    }
+
+    @Override
+    public Map<String, String> generateUploadData(UUID userId, String fileName) {
+        String key = "encomendas/" + userId + "/" + UUID.randomUUID() + "-" + fileName;
+        Duration expiration = Duration.ofMinutes(uploadExpirationMinutes);
+        String uploadUrl = storageService.generateUploadUrl(key, expiration);
+        return Map.of("uploadUrl", uploadUrl, "key", key);
+    }
+
+    @Override
+    public String generateDownloadUrl(UUID deliveryId) {
+        Delivery delivery = repository.findDeliveryById(deliveryId);
+        if (delivery == null) {
+            throw new RuntimeException("Encomenda não encontrada");
+        }
+        Duration expiration = Duration.ofMinutes(downloadExpirationMinutes);
+        return storageService.generateDownloadUrl(delivery.getVoucherKey(), expiration);
     }
 
 }

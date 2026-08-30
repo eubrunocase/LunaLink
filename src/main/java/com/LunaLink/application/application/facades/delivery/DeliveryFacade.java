@@ -5,6 +5,7 @@ import com.LunaLink.application.web.dto.DeliveryDTO.RequestDeliveryDTO;
 import com.LunaLink.application.web.dto.DeliveryDTO.ResponseDeliveryDTO;
 import org.springframework.stereotype.Component;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Component
@@ -42,6 +43,14 @@ public class DeliveryFacade {
 
     public ResponseDeliveryDTO confirmReceipt(UUID id, String pickedUpBy) {
         return deliveryServicePort.confirmReceipt(id, pickedUpBy);
+    }
+
+    public Map<String, String> generateUploadData(UUID userId, String fileName) {
+        return deliveryServicePort.generateUploadData(userId, fileName);
+    }
+
+    public String generateDownloadUrl(UUID deliveryId) {
+        return deliveryServicePort.generateDownloadUrl(deliveryId);
     }
 
 }

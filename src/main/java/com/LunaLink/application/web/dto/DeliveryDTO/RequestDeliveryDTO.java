@@ -9,6 +9,6 @@ public record RequestDeliveryDTO(
                                  @JsonProperty("user") @NotNull UUID userId,
                                  @JsonProperty("protocolNumber") String protocolNumber,
                                  @JsonProperty("discrimination") String discrimination,
-                                 @JsonProperty("image") byte[] image,
+                                 @JsonProperty("voucherKey") @NotNull String voucherKey,
                                  @JsonProperty("otherRecipient") String otherRecipient) {
 }

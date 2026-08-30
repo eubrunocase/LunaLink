@@ -41,8 +41,9 @@ public class Delivery {
     @Column(name = "createdBy", nullable = false, updatable = false)
     private String createdBy;
 
-    @Column(name = "image", columnDefinition = "BYTEA", nullable = true)
-    private byte[] image;
+    @JsonProperty("voucherKey")
+    @Column(name = "voucherKey", nullable = false)
+    private String voucherKey;
 
     @JsonProperty("otherRecipient")
     @Column(name = "otherRecipient", nullable = true)
@@ -58,11 +59,11 @@ public class Delivery {
     @Column(name = "pickedUpBy")
     private String pickedUpBy;
 
-    public Delivery(UUID userId, String protocolNumber, String discrimination, byte[] image, String otherRecipient) {
+    public Delivery(UUID userId, String protocolNumber, String discrimination, String voucherKey, String otherRecipient) {
         this.userId = userId;
         this.protocolNumber = protocolNumber;
         this.discrimination = discrimination;
-        this.image = image;
+        this.voucherKey = voucherKey;
         this.otherRecipient = otherRecipient;
         this.status = DeliveryStatus.PENDING;
     }
@@ -87,10 +88,6 @@ public class Delivery {
         return id;
     }
 
-    public byte[] getImage() {
-        return image;
-    }
-
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -101,9 +98,6 @@ public class Delivery {
 
     public String getOtherRecipient() {
         return otherRecipient;
-    }
-    public void setImage(byte[] image) {
-        this.image = image;
     }
 
     public UUID getUserId() {
@@ -116,6 +110,14 @@ public class Delivery {
 
     public String getDiscrimination() {
         return discrimination;
+    }
+
+    public String getVoucherKey() {
+        return voucherKey;
+    }
+
+    public void setVoucherKey(String voucherKey) {
+        this.voucherKey = voucherKey;
     }
 
     public void setUserId(UUID userId) {

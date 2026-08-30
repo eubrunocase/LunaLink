@@ -3,29 +3,21 @@ networks:
     driver: bridge
 
 services:
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
+  minIO:
+    image: minio/minio:latest
+    container_name: minIO
     restart: unless-stopped
     ports:
-      - "9090:9090"
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: "minioadmin"
+      MINIO_ROOT_PASSWORD: "minioadmin"
     volumes:
-      - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - minio_data:/data
     networks:
       - observability-net
-
-  grafana:
-    image: grafana/grafana-oss:latest
-    container_name: grafana
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    volumes:
-      - grafana-data:/var/lib/grafana
-    depends_on:
-      - prometheus
-    networks:
-      - observability-net
+    command: server /data --console-address ":9001"
 
   postgres-db:
     image: postgres:14
@@ -69,12 +61,20 @@ services:
       VAPID_SUBJECT: ${VAPID_SUBJECT}
       MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,metrics,prometheus
       MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED: "true"
+      MINIO_ENDPOINT: http://minIO:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: lunalink
     depends_on:
       postgres-db:
         condition: service_healthy
+      minIO:
+        condition: service_started
     networks:
       - observability-net
 
 volumes:
   grafana-data:
   postgres-data:
+  minio_data:
+    driver: local
