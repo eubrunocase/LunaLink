@@ -24,6 +24,7 @@ class MinioConfigTest {
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(minioConfig, "endpoint", "http://localhost:9000");
+        ReflectionTestUtils.setField(minioConfig, "presignedEndpoint", "http://localhost:9000");
         ReflectionTestUtils.setField(minioConfig, "accessKey", "minioadmin");
         ReflectionTestUtils.setField(minioConfig, "secretKey", "minioadmin");
         ReflectionTestUtils.setField(minioConfig, "bucket", "lunalink");

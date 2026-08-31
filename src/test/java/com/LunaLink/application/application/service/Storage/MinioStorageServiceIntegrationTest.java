@@ -39,7 +39,7 @@ class MinioStorageServiceIntegrationTest {
                 .credentials("minioadmin", "minioadmin")
                 .build();
 
-        storageService = new MinioStorageService(minioClient, BUCKET);
+        storageService = new MinioStorageService(minioClient, minioClient, BUCKET);
 
         try {
             boolean exists = minioClient.bucketExists(

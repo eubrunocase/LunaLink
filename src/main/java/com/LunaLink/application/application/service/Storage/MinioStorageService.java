@@ -3,6 +3,7 @@ package com.LunaLink.application.application.service.Storage;
 import com.LunaLink.application.application.ports.input.StorageService;
 import io.minio.*;
 import io.minio.http.Method;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -13,18 +14,21 @@ import java.util.concurrent.TimeUnit;
 public class MinioStorageService implements StorageService {
 
     private final MinioClient minioClient;
+    private final MinioClient presignedClient;
     private final String bucket;
 
-    public MinioStorageService(MinioClient minioClient,
+    public MinioStorageService(@Qualifier("minioClient") MinioClient minioClient,
+                               @Qualifier("minioPresignedClient") MinioClient minioPresignedClient,
                                @Value("${minio.bucket}") String bucket) {
         this.minioClient = minioClient;
+        this.presignedClient = minioPresignedClient;
         this.bucket = bucket;
     }
 
     @Override
     public String generateUploadUrl(String key, Duration expiration) {
         try {
-            return minioClient.getPresignedObjectUrl(
+            return presignedClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.PUT)
                             .bucket(bucket)
@@ -39,7 +43,7 @@ public class MinioStorageService implements StorageService {
     @Override
     public String generateDownloadUrl(String key, Duration expiration) {
         try {
-            return minioClient.getPresignedObjectUrl(
+            return presignedClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.GET)
                             .bucket(bucket)

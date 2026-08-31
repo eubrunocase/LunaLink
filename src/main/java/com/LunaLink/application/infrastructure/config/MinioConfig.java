@@ -5,11 +5,14 @@ import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
+
+import javax.swing.plaf.synth.Region;
 
 @Configuration
 public class MinioConfig {
@@ -18,6 +21,9 @@ public class MinioConfig {
 
     @Value("${minio.endpoint}")
     private String endpoint;
+
+    @Value("${minio.presigned-endpoint:${minio.endpoint}}")
+    private String presignedEndpoint;
 
     @Value("${minio.access-key}")
     private String accessKey;
@@ -28,10 +34,21 @@ public class MinioConfig {
     @Value("${minio.bucket}")
     private String bucket;
 
+    @Qualifier("minioClient")
     @Bean
     public MinioClient minioClient() {
         return MinioClient.builder()
                 .endpoint(endpoint)
+                .credentials(accessKey, secretKey)
+                .build();
+    }
+
+    @Qualifier("minioPresignedClient")
+    @Bean
+    public MinioClient minioPresignedClient() {
+        return MinioClient.builder()
+                .endpoint(presignedEndpoint)
+                .region("us-east-1")
                 .credentials(accessKey, secretKey)
                 .build();
     }

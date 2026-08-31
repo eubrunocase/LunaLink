@@ -62,6 +62,7 @@ services:
       MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,metrics,prometheus
       MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED: "true"
       MINIO_ENDPOINT: http://minIO:9000
+      MINIO_PRESIGNED_ENDPOINT: http://localhost:9000
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
       MINIO_BUCKET: lunalink

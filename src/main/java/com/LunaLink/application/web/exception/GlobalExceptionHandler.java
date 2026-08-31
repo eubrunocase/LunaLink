@@ -4,6 +4,8 @@ import com.LunaLink.application.application.service.auth.InvalidRefreshTokenExce
 import com.LunaLink.application.web.dto.ErrorDTO.StandardErrorDTO;
 import com.LunaLink.application.web.dto.ErrorDTO.ValidationErrorDTO;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -16,8 +18,11 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger logger = org.slf4j.LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     // Trata os erros de validação dos DTOs (@Valid)
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -97,6 +102,7 @@ public class GlobalExceptionHandler {
     // Tratamento genério para evitar vazando de stacktrace no client
     @ExceptionHandler(Exception.class)
     public ResponseEntity<StandardErrorDTO> handleGenericException(Exception ex, HttpServletRequest request) {
+        logger.error("Erro sem tratamento:", ex);
         StandardErrorDTO error = new StandardErrorDTO(
                 LocalDateTime.now(),
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),

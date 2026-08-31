@@ -6,10 +6,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.Duration;
 
@@ -23,14 +21,16 @@ class MinioStorageServiceTest {
     @Mock
     private MinioClient minioClient;
 
-    @InjectMocks
+    @Mock
+    private MinioClient minioPresignedClient;
+
     private MinioStorageService storageService;
 
     private static final String BUCKET = "lunalink";
 
     @BeforeEach
     void setUp() {
-        ReflectionTestUtils.setField(storageService, "bucket", BUCKET);
+        storageService = new MinioStorageService(minioClient, minioPresignedClient, BUCKET);
     }
 
     @Test
@@ -38,9 +38,9 @@ class MinioStorageServiceTest {
     void generateUploadUrl_ShouldReturnUrl_WhenValidKeyAndExpiration() throws Exception {
         String key = "encomendas/user-uuid/file.jpg";
         Duration expiration = Duration.ofMinutes(15);
-        String expectedUrl = "http://minio:9000/lunalink/" + key + "?X-Amz-Algorithm=...";
+        String expectedUrl = "http://localhost:9000/lunalink/" + key + "?X-Amz-Algorithm=...";
 
-        when(minioClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class)))
+        when(minioPresignedClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class)))
                 .thenReturn(expectedUrl);
 
         String result = storageService.generateUploadUrl(key, expiration);
@@ -48,7 +48,7 @@ class MinioStorageServiceTest {
         assertNotNull(result);
         assertEquals(expectedUrl, result);
 
-        verify(minioClient).getPresignedObjectUrl(argThat(args ->
+        verify(minioPresignedClient).getPresignedObjectUrl(argThat(args ->
                 args.method() == Method.PUT &&
                 args.bucket().equals(BUCKET) &&
                 args.object().equals(key)
@@ -60,9 +60,9 @@ class MinioStorageServiceTest {
     void generateDownloadUrl_ShouldReturnUrl_WhenValidKeyAndExpiration() throws Exception {
         String key = "encomendas/user-uuid/file.jpg";
         Duration expiration = Duration.ofMinutes(15);
-        String expectedUrl = "http://minio:9000/lunalink/" + key + "?X-Amz-Algorithm=...";
+        String expectedUrl = "http://localhost:9000/lunalink/" + key + "?X-Amz-Algorithm=...";
 
-        when(minioClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class)))
+        when(minioPresignedClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class)))
                 .thenReturn(expectedUrl);
 
         String result = storageService.generateDownloadUrl(key, expiration);
@@ -70,7 +70,7 @@ class MinioStorageServiceTest {
         assertNotNull(result);
         assertEquals(expectedUrl, result);
 
-        verify(minioClient).getPresignedObjectUrl(argThat(args ->
+        verify(minioPresignedClient).getPresignedObjectUrl(argThat(args ->
                 args.method() == Method.GET &&
                 args.bucket().equals(BUCKET) &&
                 args.object().equals(key)
@@ -93,7 +93,7 @@ class MinioStorageServiceTest {
         String key = "encomendas/user-uuid/file.jpg";
         Duration expiration = Duration.ofMinutes(15);
 
-        lenient().when(minioClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class)))
+        lenient().when(minioPresignedClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class)))
                 .thenThrow(new RuntimeException("MinIO connection failed"));
 
         RuntimeException exception = assertThrows(RuntimeException.class,
@@ -109,7 +109,7 @@ class MinioStorageServiceTest {
         String key = "encomendas/user-uuid/file.jpg";
         Duration expiration = Duration.ofMinutes(15);
 
-        lenient().when(minioClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class)))
+        lenient().when(minioPresignedClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class)))
                 .thenThrow(new RuntimeException("MinIO connection failed"));
 
         RuntimeException exception = assertThrows(RuntimeException.class,
@@ -140,12 +140,12 @@ class MinioStorageServiceTest {
         String key = "encomendas/user-uuid/file.jpg";
         Duration expiration = Duration.ofMinutes(10);
 
-        when(minioClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class)))
+        when(minioPresignedClient.getPresignedObjectUrl(any(GetPresignedObjectUrlArgs.class)))
                 .thenReturn("http://url");
 
         storageService.generateUploadUrl(key, expiration);
 
-        verify(minioClient).getPresignedObjectUrl(argThat(args ->
+        verify(minioPresignedClient).getPresignedObjectUrl(argThat(args ->
                 args.expiry() == (int) Duration.ofMinutes(10).toSeconds()
         ));
     }
