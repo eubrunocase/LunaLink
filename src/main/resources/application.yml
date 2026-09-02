@@ -1,0 +1,69 @@
+spring:
+  application:
+    name: application
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        id:
+          new_generator_mappings: true
+          optimizer.pooled.prefer_lo: true
+
+server:
+  port: 8080
+
+api:
+  security:
+    token:
+      secret: ${API_SECURITY_TOKEN_SECRET}
+    cors:
+      allowed-origins: http://localhost:8100,http://localhost,http://localhost:4200,http://192.168.0.224:4200
+
+webpush:
+  vapid:
+    public:
+      key: ${VAPID_PUBLIC_KEY}
+    private:
+      key: ${VAPID_PRIVATE_KEY}
+    subject: ${VAPID_SUBJECT}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
+      environment: development
+
+logging:
+  level:
+    org.springframework.security: TRACE
+
+minio:
+  endpoint: http://localhost:9000
+  presigned-endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket: lunalink
+  presigned:
+    upload-expiration-minutes: 15
+    download-expiration-minutes: 15

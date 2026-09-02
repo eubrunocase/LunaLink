@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 
-import javax.swing.plaf.synth.Region;
 
 @Configuration
 public class MinioConfig {
@@ -70,4 +69,5 @@ public class MinioConfig {
             log.error("Erro ao verificar/criar bucket no MinIO: {}", e.getMessage(), e);
         }
     }
+
 }
