@@ -6,7 +6,7 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  ECR_REPOSITORY: 214888068856.dkr.ecr.us-east-1.amazonaws.com/condominio-piloto-api
+  ECR_REPOSITORY: condominio-piloto-api
   ECS_CLUSTER: condominio-piloto-cluster
   ECS_SERVICE: condominio-piloto-service
   CONTAINER_NAME: spring-boot-api
