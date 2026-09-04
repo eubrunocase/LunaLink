@@ -23,7 +23,7 @@ public class Occurrence {
     @JoinColumn(name = "user_id", nullable = false)
     private Users user;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(name = "description",columnDefinition = "TEXT", nullable = false)
     private String description;
 
     @Column(nullable = false)
@@ -41,6 +41,7 @@ public class Occurrence {
         this.user = user;
         this.description = description;
         this.incidentDate = incidentDate;
+        this.createdAt = LocalDateTime.now();
     }
 
     public UUID getId() {

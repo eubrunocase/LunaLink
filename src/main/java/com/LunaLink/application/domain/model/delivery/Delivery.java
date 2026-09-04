@@ -22,41 +22,41 @@ public class Delivery {
     private UUID id;
 
     @JsonProperty("userId")
-    @Column(name = "userId", nullable = false)
+    @Column(nullable = false)
     private UUID userId;
 
     @JsonProperty("protocolNumber")
-    @Column(name = "protocolNumber", nullable = true)
+    @Column(nullable = true)
     private String protocolNumber;
 
     @JsonProperty("discrimination")
-    @Column(name = "discrimination", nullable = true)
+    @Column(nullable = true)
     private String discrimination;
 
     @CreatedDate
-    @Column(name = "createdAt", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @CreatedBy
-    @Column(name = "createdBy", nullable = false, updatable = false)
+    @Column(nullable = false, updatable = false)
     private String createdBy;
 
     @JsonProperty("voucherKey")
-    @Column(name = "voucherKey", nullable = false)
+    @Column(nullable = false)
     private String voucherKey;
 
     @JsonProperty("otherRecipient")
-    @Column(name = "otherRecipient", nullable = true)
+    @Column(nullable = true)
     private String otherRecipient;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private DeliveryStatus status;
 
-    @Column(name = "deliveredAt")
+    @Column
     private LocalDateTime deliveredAt;
 
-    @Column(name = "pickedUpBy")
+    @Column
     private String pickedUpBy;
 
     public Delivery(UUID userId, String protocolNumber, String discrimination, String voucherKey, String otherRecipient) {

@@ -57,11 +57,11 @@ public class Reservation {
     private String notes;
 
     @JsonProperty("createdAt")
-    @Column(name = "createdAt", nullable = true)
+    @Column(nullable = true)
     private LocalDateTime createdAt;
 
     @JsonProperty("canceledAt")
-    @Column(name = "canceledAt", nullable = true)
+    @Column(nullable = true)
     private LocalDateTime canceledAt;
 
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true)

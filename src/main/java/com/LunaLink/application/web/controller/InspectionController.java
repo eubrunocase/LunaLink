@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -38,5 +40,27 @@ public class InspectionController {
         inspectionServicePort.submitInspection(id, type, dto, employeeId);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/upload-url")
+    public ResponseEntity<Map<String, String>> generateUploadUrl(
+            @RequestParam UUID userId,
+            @RequestParam String fileName) {
+        Map<String, String> uploadData = inspectionServicePort.generateUploadData(userId, fileName);
+        return ResponseEntity.ok(uploadData);
+    }
+
+    @GetMapping("/{id}/download-url")
+    public ResponseEntity<List<Map<String, String>>> generateDownloadUrls(@PathVariable UUID id) {
+        List<Map<String, String>> downloadUrls = inspectionServicePort.generateDownloadUrls(id);
+        return ResponseEntity.ok(downloadUrls);
+    }
+
+    @GetMapping("/{inspectionId}/items/{itemId}/download-url")
+    public ResponseEntity<Map<String, String>> generateDownloadUrl(
+            @PathVariable UUID inspectionId,
+            @PathVariable UUID itemId) {
+        String downloadUrl = inspectionServicePort.generateDownloadUrl(inspectionId, itemId);
+        return ResponseEntity.ok(Map.of("downloadUrl", downloadUrl));
     }
 }

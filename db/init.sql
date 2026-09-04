@@ -44,8 +44,8 @@ CREATE TABLE public.reservation (
     date date NOT NULL,
     status character varying(255),
     notes text,
-    "createdAt" timestamp(6) without time zone,
-    "canceledAt" timestamp(6) without time zone,
+    created_at timestamp(6) without time zone,
+    canceled_at timestamp(6) without time zone,
     user_id uuid NOT NULL,
     space_id bigint NOT NULL,
     CONSTRAINT reservation_pkey PRIMARY KEY (id),
@@ -75,7 +75,7 @@ CREATE TABLE public.guest (
     id uuid NOT NULL,
     name character varying(255) NOT NULL,
     checked_in boolean NOT NULL DEFAULT false,
-    "checkedInAt" timestamp(6) without time zone,
+    checked_in_at timestamp(6) without time zone,
     reservation_id uuid NOT NULL,
     CONSTRAINT guest_pkey PRIMARY KEY (id),
     CONSTRAINT fk_guest_reservation FOREIGN KEY (reservation_id) REFERENCES public.reservation(id)
@@ -86,7 +86,7 @@ CREATE TABLE public.liability_term (
     id uuid NOT NULL,
     content text NOT NULL,
     signed_by_resident boolean NOT NULL DEFAULT false,
-    "signedAt" timestamp(6) without time zone,
+    signed_at timestamp(6) without time zone,
     reservation_id uuid NOT NULL,
     CONSTRAINT liability_term_pkey PRIMARY KEY (id),
     CONSTRAINT uk_liability_term_reservation UNIQUE (reservation_id),
@@ -96,16 +96,16 @@ CREATE TABLE public.liability_term (
 -- Tabela delivery
 CREATE TABLE public.delivery (
     id uuid NOT NULL,
-    "userId" uuid NOT NULL,
-    "protocolNumber" character varying(255),
+    user_id uuid NOT NULL,
+    protocol_number character varying(255),
     discrimination character varying(255),
-    "createdAt" timestamp(6) without time zone NOT NULL,
-    "createdBy" character varying(255) NOT NULL,
-    "voucherKey" character varying(255) NOT NULL,
-    "otherRecipient" character varying(255),
+    created_at timestamp(6) without time zone NOT NULL,
+    created_by character varying(255) NOT NULL,
+    voucher_key character varying(255) NOT NULL,
+    other_recipient character varying(255),
     status character varying(255) NOT NULL,
-    "deliveredAt" timestamp(6) without time zone,
-    "pickedUpBy" character varying(255),
+    delivered_at timestamp(6) without time zone,
+    picked_up_by character varying(255),
     CONSTRAINT delivery_pkey PRIMARY KEY (id)
 );
 
@@ -114,7 +114,7 @@ CREATE TABLE public.space_inspection (
     id uuid NOT NULL,
     type character varying(255) NOT NULL,
     notes text,
-    "inspectedAt" timestamp(6) without time zone NOT NULL,
+    inspected_at timestamp(6) without time zone NOT NULL,
     reservation_id uuid NOT NULL,
     employee_id uuid NOT NULL,
     CONSTRAINT space_inspection_pkey PRIMARY KEY (id),
@@ -125,9 +125,9 @@ CREATE TABLE public.space_inspection (
 -- Tabela space_inspection_item
 CREATE TABLE public.space_inspection_item (
     id uuid NOT NULL,
-    "equipmentName" character varying(255) NOT NULL,
+    equipment_name character varying(255) NOT NULL,
     ok_confirmed boolean NOT NULL,
-    "photoUrl" character varying(255) NOT NULL,
+    photo_url character varying(255) NOT NULL,
     inspection_id uuid NOT NULL,
     CONSTRAINT space_inspection_item_pkey PRIMARY KEY (id),
     CONSTRAINT fk_space_inspection_item_inspection FOREIGN KEY (inspection_id) REFERENCES public.space_inspection(id)
@@ -138,8 +138,8 @@ CREATE TABLE public.occurrence (
     id uuid NOT NULL,
     user_id uuid NOT NULL,
     description text NOT NULL,
-    "incidentDate" timestamp(6) without time zone NOT NULL,
-    "createdAt" timestamp(6) without time zone NOT NULL,
+    incident_date timestamp(6) without time zone NOT NULL,
+    created_at timestamp(6) without time zone NOT NULL,
     CONSTRAINT occurrence_pkey PRIMARY KEY (id),
     CONSTRAINT fk_occurrence_user FOREIGN KEY (user_id) REFERENCES public.users(id)
 );
@@ -162,10 +162,10 @@ CREATE TABLE public.equipment_reservation (
     start_time time without time zone NOT NULL,
     end_time time without time zone NOT NULL,
     status character varying(255) NOT NULL,
-    "createdAt" timestamp(6) without time zone NOT NULL,
-    "pickedUpAt" timestamp(6) without time zone,
-    "returnedAt" timestamp(6) without time zone,
-    "canceledAt" timestamp(6) without time zone,
+    created_at timestamp(6) without time zone NOT NULL,
+    picked_up_at timestamp(6) without time zone,
+    returned_at timestamp(6) without time zone,
+    canceled_at timestamp(6) without time zone,
     CONSTRAINT equipment_reservation_pkey PRIMARY KEY (id),
     CONSTRAINT fk_equipment_reservation_equipment FOREIGN KEY (equipment_id) REFERENCES public.equipment(id),
     CONSTRAINT fk_equipment_reservation_user FOREIGN KEY (user_id) REFERENCES public.users(id)

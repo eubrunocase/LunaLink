@@ -1,6 +1,7 @@
 package com.LunaLink.application.application.service.inspection;
 
 import com.LunaLink.application.application.ports.input.InspectionServicePort;
+import com.LunaLink.application.application.ports.input.StorageService;
 import com.LunaLink.application.application.ports.output.InspectionRepositoryPort;
 import com.LunaLink.application.application.ports.output.ReservationRepositoryPort;
 import com.LunaLink.application.application.ports.output.UserRepositoryPort;
@@ -14,10 +15,13 @@ import com.LunaLink.application.domain.model.users.Users;
 import com.LunaLink.application.infrastructure.config.SpaceEquipmentCatalog;
 import com.LunaLink.application.infrastructure.eventPublisher.EventPublisher;
 import com.LunaLink.application.web.dto.ReservationsDTO.InspectionSubmitDTO;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -27,15 +31,24 @@ public class InspectionService implements InspectionServicePort {
     private final ReservationRepositoryPort reservationRepository;
     private final UserRepositoryPort userRepository;
     private final EventPublisher publisher;
+    private final StorageService storageService;
+
+    @Value("15")
+    private long uploadExpirationMinutes;
+
+    @Value("15")
+    private long downloadExpirationMinutes;
 
     public InspectionService(InspectionRepositoryPort inspectionRepository,
                              ReservationRepositoryPort reservationRepository,
                              UserRepositoryPort userRepository,
-                             EventPublisher publisher) {
+                             EventPublisher publisher,
+                             StorageService storageService) {
         this.inspectionRepository = inspectionRepository;
         this.reservationRepository = reservationRepository;
         this.userRepository = userRepository;
         this.publisher = publisher;
+        this.storageService = storageService;
     }
 
     @Transactional
@@ -65,7 +78,7 @@ public class InspectionService implements InspectionServicePort {
             SpaceInspectionItem item = new SpaceInspectionItem(
                     itemDto.equipmentName(),
                     itemDto.okConfirmed(),
-                    itemDto.photoUrl()
+                    itemDto.voucherKey()
             );
             inspection.addItem(item);
         }
@@ -109,10 +122,47 @@ public class InspectionService implements InspectionServicePort {
         }
 
         for (InspectionSubmitDTO.InspectionItemDTO item : dto.items()) {
-            if (item.photoUrl() == null || item.photoUrl().isBlank()) {
+            if (item.voucherKey() == null || item.voucherKey().isBlank()) {
                 throw new IllegalArgumentException(
                         String.format("Foto obrigatória não informada para o equipamento: %s", item.equipmentName()));
             }
         }
+    }
+
+    @Override
+    public Map<String, String> generateUploadData(UUID userId, String fileName) {
+        String key = "vistorias/" + userId + "/" + UUID.randomUUID() + "-" + fileName;
+        Duration expiration = Duration.ofMinutes(uploadExpirationMinutes);
+        String uploadUrl = storageService.generateUploadUrl(key, expiration);
+        return Map.of("uploadUrl", uploadUrl, "key", key);
+    }
+
+    @Override
+    public List<Map<String, String>> generateDownloadUrls(UUID inspectionId) {
+        SpaceInspection inspection = inspectionRepository.findById(inspectionId)
+                .orElseThrow(() -> new IllegalArgumentException("Inspeção não encontrada."));
+
+        Duration expiration = Duration.ofMinutes(downloadExpirationMinutes);
+
+        return inspection.getItems().stream()
+                .map(item -> Map.of(
+                        "itemId", item.getId().toString(),
+                        "downloadUrl", storageService.generateDownloadUrl(item.getVoucherKey(), expiration)
+                ))
+                .toList();
+    }
+
+    @Override
+    public String generateDownloadUrl(UUID inspectionId, UUID itemId) {
+        SpaceInspection inspection = inspectionRepository.findById(inspectionId)
+                .orElseThrow(() -> new IllegalArgumentException("Inspeção não encontrada."));
+
+        SpaceInspectionItem item = inspection.getItems().stream()
+                .filter(i -> i.getId().equals(itemId))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Item de vistoria não encontrado."));
+
+        Duration expiration = Duration.ofMinutes(downloadExpirationMinutes);
+        return storageService.generateDownloadUrl(item.getVoucherKey(), expiration);
     }
 }

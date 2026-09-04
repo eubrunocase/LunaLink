@@ -1,5 +1,6 @@
 package com.LunaLink.application.application.service.inspection;
 
+import com.LunaLink.application.application.ports.input.StorageService;
 import com.LunaLink.application.application.ports.output.InspectionRepositoryPort;
 import com.LunaLink.application.application.ports.output.ReservationRepositoryPort;
 import com.LunaLink.application.application.ports.output.UserRepositoryPort;
@@ -9,6 +10,7 @@ import com.LunaLink.application.domain.enums.SpaceType;
 import com.LunaLink.application.domain.enums.UserRoles;
 import com.LunaLink.application.domain.events.reservationEvents.ReservationAwaitingSignatureEvent;
 import com.LunaLink.application.domain.model.inspection.SpaceInspection;
+import com.LunaLink.application.domain.model.inspection.SpaceInspectionItem;
 import com.LunaLink.application.domain.model.reservation.Reservation;
 import com.LunaLink.application.domain.model.space.Space;
 import com.LunaLink.application.domain.model.users.Users;
@@ -23,13 +25,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,6 +48,8 @@ class InspectionServiceTest {
     private UserRepositoryPort userRepository;
     @Mock
     private EventPublisher publisher;
+    @Mock
+    private StorageService storageService;
 
     @InjectMocks
     private InspectionService service;
@@ -195,5 +202,107 @@ class InspectionServiceTest {
 
         assertThrows(IllegalArgumentException.class,
                 () -> service.submitInspection(reservation.getId(), InspectionType.PRE_EVENT, dto, employee.getId()));
+    }
+
+    @Test
+    @DisplayName("Deve gerar dados de upload com URL e key")
+    void generateUploadData_ShouldReturnUrlAndKey() {
+        UUID userId = UUID.randomUUID();
+        String fileName = "foto.jpg";
+        String expectedKey = "vistorias/" + userId + "/" + fileName;
+        String expectedUrl = "https://minio.example.com/upload/vistorias/test.jpg";
+
+        when(storageService.generateUploadUrl(any(String.class), any(Duration.class))).thenReturn(expectedUrl);
+
+        Map<String, String> result = service.generateUploadData(userId, fileName);
+
+        assertNotNull(result);
+        assertTrue(result.containsKey("uploadUrl"));
+        assertTrue(result.containsKey("key"));
+        assertEquals(expectedUrl, result.get("uploadUrl"));
+        assertTrue(result.get("key").startsWith("vistorias/" + userId + "/"));
+        assertTrue(result.get("key").endsWith("-" + fileName));
+    }
+
+    @Test
+    @DisplayName("Deve gerar URLs de download para todos os itens da inspeção")
+    void generateDownloadUrls_ShouldReturnUrlsForAllItems() {
+        UUID inspectionId = UUID.randomUUID();
+
+        SpaceInspection inspection = new SpaceInspection(InspectionType.PRE_EVENT, "Teste", reservation, employee);
+        inspection.setId(inspectionId);
+
+        SpaceInspectionItem item1 = new SpaceInspectionItem("Mesas", true, "vistorias/item1.jpg");
+        item1.setId(UUID.randomUUID());
+        SpaceInspectionItem item2 = new SpaceInspectionItem("Cadeiras", true, "vistorias/item2.jpg");
+        item2.setId(UUID.randomUUID());
+
+        inspection.addItem(item1);
+        inspection.addItem(item2);
+
+        when(inspectionRepository.findById(inspectionId)).thenReturn(Optional.of(inspection));
+        when(storageService.generateDownloadUrl(any(String.class), any(Duration.class)))
+                .thenReturn("https://minio.example.com/download/item1.jpg")
+                .thenReturn("https://minio.example.com/download/item2.jpg");
+
+        List<Map<String, String>> result = service.generateDownloadUrls(inspectionId);
+
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertTrue(result.get(0).containsKey("itemId"));
+        assertTrue(result.get(0).containsKey("downloadUrl"));
+        assertEquals(item1.getId().toString(), result.get(0).get("itemId"));
+        assertEquals(item2.getId().toString(), result.get(1).get("itemId"));
+    }
+
+    @Test
+    @DisplayName("Deve gerar URL de download para item específico")
+    void generateDownloadUrl_ShouldReturnUrlForSpecificItem() {
+        UUID inspectionId = UUID.randomUUID();
+        UUID itemId = UUID.randomUUID();
+
+        SpaceInspection inspection = new SpaceInspection(InspectionType.PRE_EVENT, "Teste", reservation, employee);
+        inspection.setId(inspectionId);
+
+        SpaceInspectionItem item = new SpaceInspectionItem("Mesas", true, "vistorias/item1.jpg");
+        item.setId(itemId);
+        inspection.addItem(item);
+
+        String expectedUrl = "https://minio.example.com/download/item1.jpg";
+
+        when(inspectionRepository.findById(inspectionId)).thenReturn(Optional.of(inspection));
+        when(storageService.generateDownloadUrl(eq("vistorias/item1.jpg"), any(Duration.class))).thenReturn(expectedUrl);
+
+        String result = service.generateDownloadUrl(inspectionId, itemId);
+
+        assertNotNull(result);
+        assertEquals(expectedUrl, result);
+    }
+
+    @Test
+    @DisplayName("Deve lançar exceção quando inspeção não é encontrada no download")
+    void generateDownloadUrl_ShouldThrow_WhenInspectionNotFound() {
+        when(inspectionRepository.findById(any())).thenReturn(Optional.empty());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> service.generateDownloadUrls(UUID.randomUUID()));
+    }
+
+    @Test
+    @DisplayName("Deve lançar exceção quando item não é encontrado no download")
+    void generateDownloadUrl_ShouldThrow_WhenItemNotFound() {
+        UUID inspectionId = UUID.randomUUID();
+
+        SpaceInspection inspection = new SpaceInspection(InspectionType.PRE_EVENT, "Teste", reservation, employee);
+        inspection.setId(inspectionId);
+
+        SpaceInspectionItem item = new SpaceInspectionItem("Mesas", true, "vistorias/item1.jpg");
+        item.setId(UUID.randomUUID());
+        inspection.addItem(item);
+
+        when(inspectionRepository.findById(inspectionId)).thenReturn(Optional.of(inspection));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> service.generateDownloadUrl(inspectionId, UUID.randomUUID()));
     }
 }

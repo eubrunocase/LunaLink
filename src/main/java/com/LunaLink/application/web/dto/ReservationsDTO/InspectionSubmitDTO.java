@@ -24,9 +24,9 @@ public record InspectionSubmitDTO(
             @JsonProperty("okConfirmed")
             boolean okConfirmed,
 
-            @JsonProperty("photoUrl")
+            @JsonProperty("voucherKey")
             @NotEmpty(message = "Foto do item é obrigatória")
-            String photoUrl
+            String voucherKey
     ) {
     }
 }

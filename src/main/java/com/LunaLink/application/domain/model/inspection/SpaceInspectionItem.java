@@ -30,18 +30,18 @@ public class SpaceInspectionItem {
     @Column(nullable = false)
     private boolean okConfirmed;
 
-    @JsonProperty("photoUrl")
+    @JsonProperty("voucherKey")
     @Column(nullable = false)
-    private String photoUrl;
+    private String voucherKey;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "inspection_id", nullable = false)
     private SpaceInspection inspection;
 
-    public SpaceInspectionItem(String equipmentName, boolean okConfirmed, String photoUrl) {
+    public SpaceInspectionItem(String equipmentName, boolean okConfirmed, String voucherKey) {
         this.equipmentName = equipmentName;
         this.okConfirmed = okConfirmed;
-        this.photoUrl = photoUrl;
+        this.voucherKey = voucherKey;
     }
 
     public void setInspection(SpaceInspection inspection) {
