@@ -27,10 +27,10 @@ public class DeliveryService implements DeliveryServicePort {
     private final EventPublisher publisher;
     private final StorageService storageService;
 
-    @Value("${minio.presigned.upload-expiration-minutes:15}")
+    @Value("${storage.presigned.upload-expiration-minutes:15}")
     private long uploadExpirationMinutes;
 
-    @Value("${minio.presigned.download-expiration-minutes:15}")
+    @Value("${storage.presigned.download-expiration-minutes:15}")
     private long downloadExpirationMinutes;
 
     public DeliveryService(DeliveryRepositoryPort repository,

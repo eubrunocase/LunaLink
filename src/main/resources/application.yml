@@ -58,6 +58,15 @@ logging:
   level:
     org.springframework.security: TRACE
 
+s3:
+  bucket-name: ${S3_BUCKET_NAME:condominio-piloto-arquivos-s3}
+  region: ${AWS_REGION:us-east-1}
+
+storage:
+  presigned:
+    upload-expiration-minutes: 15
+    download-expiration-minutes: 15
+
 minio:
   endpoint: http://localhost:9000
   presigned-endpoint: http://localhost:9000

@@ -5,12 +5,15 @@ import io.minio.*;
 import io.minio.http.Method;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 
-@Component
+@Service
+@Profile("!prod")
 public class MinioStorageService implements StorageService {
 
     private final MinioClient minioClient;

@@ -61,6 +61,10 @@ services:
       VAPID_SUBJECT: ${VAPID_SUBJECT}
       MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,metrics,prometheus
       MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED: "true"
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME:-condominio-piloto-arquivos-s3}
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       MINIO_ENDPOINT: http://minIO:9000
       MINIO_PRESIGNED_ENDPOINT: http://localhost:9000
       MINIO_ACCESS_KEY: minioadmin
