@@ -61,6 +61,7 @@ services:
       VAPID_SUBJECT: ${VAPID_SUBJECT}
       MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,metrics,prometheus
       MANAGEMENT_METRICS_EXPORT_PROMETHEUS_ENABLED: "true"
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:8100,http://localhost,http://localhost:4200,http://192.168.0.224:4200}
       S3_BUCKET_NAME: ${S3_BUCKET_NAME:-condominio-piloto-arquivos-s3}
       AWS_REGION: ${AWS_REGION:-us-east-1}
       AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
