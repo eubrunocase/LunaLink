@@ -143,6 +143,7 @@ class ReservationReportControllerWebTest {
 
         ReportExportJob job = ReportExportJob.create(5, 2026, ReportFormat.PDF).markCompleted();
         job.setTempFile(tempFile);
+        job.setContentLength(4);
         when(facade.getMonthlyReportExportFile(job.getId())).thenReturn(job);
 
         mockMvc.perform(get("/lunaLink/reservation/report/monthly/export/{jobId}", job.getId()))
